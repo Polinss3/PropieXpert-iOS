@@ -66,4 +66,25 @@ struct Mortgage: Identifiable, Codable {
         self.description = try? container.decode(String.self, forKey: .description)
         self.is_automatic_payment = try? container.decode(Bool.self, forKey: .is_automatic_payment)
     }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(type, forKey: .type)
+        try container.encode(initial_amount, forKey: .initial_amount)
+        try container.encode(years, forKey: .years)
+        try container.encodeIfPresent(interest_rate_fixed, forKey: .interest_rate_fixed)
+        try container.encodeIfPresent(interest_rate_variable, forKey: .interest_rate_variable)
+        try container.encode(monthly_payment, forKey: .monthly_payment)
+        try container.encodeIfPresent(start_date, forKey: .start_date)
+        try container.encodeIfPresent(end_date, forKey: .end_date)
+        try container.encodeIfPresent(bank_name, forKey: .bank_name)
+        try container.encodeIfPresent(account_number, forKey: .account_number)
+        try container.encodeIfPresent(total_to_pay, forKey: .total_to_pay)
+        try container.encodeIfPresent(payment_day, forKey: .payment_day)
+        try container.encodeIfPresent(fixed_rate_period, forKey: .fixed_rate_period)
+        try container.encodeIfPresent(reference_number, forKey: .reference_number)
+        try container.encodeIfPresent(description, forKey: .description)
+        try container.encodeIfPresent(is_automatic_payment, forKey: .is_automatic_payment)
+    }
 } 
