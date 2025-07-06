@@ -20,15 +20,15 @@ struct ContentView: View {
                     Image(systemName: "house.fill")
                     Text("Propiedades")
                 }
-            FlowView()
+            IncomeView()
                 .tabItem {
-                    Image(systemName: "arrow.left.arrow.right")
-                    Text("Flujo")
+                    Image(systemName: "arrow.down.circle")
+                    Text("Ingresos")
                 }
-            PlaceholderView()
+            ExpensesView()
                 .tabItem {
-                    Image(systemName: "ellipsis")
-                    Text("Más")
+                    Image(systemName: "arrow.up.circle")
+                    Text("Gastos")
                 }
         }
     }
