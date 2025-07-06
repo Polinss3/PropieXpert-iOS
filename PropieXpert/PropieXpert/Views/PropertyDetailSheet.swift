@@ -1,7 +1,7 @@
 import SwiftUI
 import Foundation
 // Importa el modelo Mortgage
-import Mortgage
+// ... existing code ...
 
 struct PropertyDetail: Decodable {
     let id: String
