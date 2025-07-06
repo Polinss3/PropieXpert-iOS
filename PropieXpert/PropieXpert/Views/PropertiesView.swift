@@ -23,100 +23,60 @@ struct PropertiesView: View {
     @State private var properties: [Property] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var selectedProperty: Property? = nil
     
     var body: some View {
         NavigationView {
             VStack {
                 if isLoading {
                     ProgressView("Cargando propiedades...")
-                        .padding()
                 } else if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                    Button("Reintentar") {
-                        fetchProperties()
-                    }
-                    .padding()
+                    Text(errorMessage).foregroundColor(.red)
                 } else if properties.isEmpty {
-                    VStack(spacing: 16) {
-                        Text("No tienes propiedades aún.")
-                            .foregroundColor(.gray)
-                        Button(action: { /* TODO: Añadir propiedad */ }) {
-                            Label("Añadir propiedad", systemImage: "plus")
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .padding()
+                    Text("No tienes propiedades registradas.")
+                        .foregroundColor(.gray)
                 } else {
-                    List {
-                        ForEach(properties) { property in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(property.name)
-                                        .font(.headline)
-                                    Spacer()
+                    List(properties) { property in
+                        Button(action: {
+                            selectedProperty = property
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(property.name).font(.headline)
+                                Text(property.address).font(.subheadline).foregroundColor(.gray)
+                                HStack(spacing: 12) {
                                     Text(property.property_type.capitalized)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                Text(property.address)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                HStack(spacing: 16) {
-                                    Text("Compra: \(formatCurrency(property.purchase_price))")
-                                    Text("Valor: \(formatCurrency(property.current_value))")
-                                }
-                                .font(.footnote)
-                                HStack(spacing: 16) {
                                     Text("Habitaciones: \(property.bedrooms)")
                                     Text("Baños: \(property.bathrooms)")
-                                }
-                                .font(.footnote)
-                                if property.is_rented, let rent = property.rental_price {
-                                    Text("Alquilada: \(formatCurrency(rent))/mes")
-                                        .font(.footnote)
-                                        .foregroundColor(.green)
-                                }
-                                HStack {
-                                    Spacer()
-                                    Button(role: .destructive) {
-                                        // TODO: Eliminar propiedad
-                                    } label: {
-                                        Image(systemName: "trash")
-                                    }
-                                }
+                                }.font(.caption)
                             }
-                            .padding(.vertical, 8)
                         }
                     }
-                    .listStyle(.plain)
-                    Button(action: { /* TODO: Añadir propiedad */ }) {
-                        Label("Añadir propiedad", systemImage: "plus")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                    .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle("Propiedades")
-        }
-        .onAppear {
-            fetchProperties()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { /* TODO: añadir propiedad */ }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .onAppear(perform: fetchProperties)
+            .sheet(item: $selectedProperty) { property in
+                PropertyDetailSheet(propertyId: property.id)
+            }
         }
     }
     
     func fetchProperties() {
-        guard let url = URL(string: "https://api.propiexpert.com/properties/") else {
-            errorMessage = "URL del backend inválida"
-            return
-        }
         isLoading = true
         errorMessage = nil
+        guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false
                 if let error = error {
@@ -124,22 +84,17 @@ struct PropertiesView: View {
                     return
                 }
                 guard let data = data else {
-                    errorMessage = "No se recibió respuesta del servidor"
-                    return
-                }
-                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                    errorMessage = "Error \(httpResponse.statusCode): \(HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode))"
+                    errorMessage = "No se recibieron datos del servidor."
                     return
                 }
                 do {
-                    let props = try JSONDecoder().decode([Property].self, from: data)
-                    properties = props
+                    let decoded = try JSONDecoder().decode([Property].self, from: data)
+                    properties = decoded
                 } catch {
                     errorMessage = "Error al decodificar propiedades: \(error.localizedDescription)"
                 }
             }
-        }
-        task.resume()
+        }.resume()
     }
     
     func formatCurrency(_ amount: Double) -> String {
