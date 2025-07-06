@@ -208,41 +208,43 @@ struct PropertyDetailSheet: View {
                 Text(errorFinancial).foregroundColor(.red)
             } else if let summary = financialSummary {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Ingresos totales").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(summary.total_income))").bold().foregroundColor(.green)
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Resumen Financiero
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "eurosign.circle")
+                                    .foregroundColor(.accentColor)
+                                Text("Resumen Financiero")
+                                    .font(.headline)
                             }
-                            Spacer()
-                            VStack(alignment: .leading) {
-                                Text("Gastos totales").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(summary.total_expenses))").bold().foregroundColor(.red)
-                            }
-                        }
-                        Divider()
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Ingresos netos").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(summary.net_income))").bold().foregroundColor(.blue)
-                            }
-                            Spacer()
-                            VStack(alignment: .leading) {
-                                Text("Cash Flow").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(summary.cash_flow))").bold().foregroundColor(.green)
+                            HStack(spacing: 12) {
+                                FinancialCard(title: "Ingresos Totales", value: formatCurrency(summary.total_income), color: .green)
+                                FinancialCard(title: "Gastos Totales", value: formatCurrency(summary.total_expenses), color: .red)
+                                FinancialCard(title: "Ingresos Netos", value: formatCurrency(summary.net_income), color: .blue)
                             }
                         }
-                        Divider()
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("ROI Bruto: \(String(format: "%.2f", summary.gross_roi))%")
-                            Text("ROI Neto: \(String(format: "%.2f", summary.net_roi))%")
-                            Text("ROI Total: \(String(format: "%.2f", summary.total_roi))%")
-                        }
-                        Divider()
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Pago hipoteca: €\(Int(summary.mortgage_payment))")
-                            Text("Valor propiedad: €\(Int(summary.property_value))")
-                            Text("Revalorización: €\(Int(summary.value_appreciation))")
+                        // Métricas de Rendimiento
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "chart.line.uptrend.xyaxis")
+                                    .foregroundColor(.accentColor)
+                                Text("Métricas de Rendimiento")
+                                    .font(.headline)
+                            }
+                            VStack(spacing: 12) {
+                                HStack(spacing: 12) {
+                                    FinancialCard(title: "ROI Bruto", value: String(format: "%.2f%%", summary.gross_roi), color: .green)
+                                    FinancialCard(title: "Pago de Hipoteca", value: formatCurrency(summary.mortgage_payment), color: .gray)
+                                }
+                                HStack(spacing: 12) {
+                                    FinancialCard(title: "ROI Neto", value: String(format: "%.2f%%", summary.net_roi), color: .blue)
+                                    FinancialCard(title: "Flujo de Caja", value: formatCurrency(summary.cash_flow), color: .green)
+                                }
+                                HStack(spacing: 12) {
+                                    FinancialCard(title: "ROI Total", value: String(format: "%.2f%%", summary.total_roi), color: .purple)
+                                    FinancialCard(title: "Apreciación del Valor", value: formatCurrency(summary.value_appreciation), color: .blue)
+                                }
+                            }
                         }
                     }
                     .padding()
@@ -433,5 +435,26 @@ struct DetailRow: View {
                 .foregroundColor(.primary)
         }
         .padding(.vertical, 8)
+    }
+}
+
+// Helper para tarjetas financieras
+struct FinancialCard: View {
+    let title: String
+    let value: String
+    let color: Color
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.title3).bold()
+                .foregroundColor(color)
+        }
+        .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
+        .padding(12)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
     }
 } 
