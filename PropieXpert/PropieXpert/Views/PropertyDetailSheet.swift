@@ -14,11 +14,12 @@ struct PropertyDetail: Decodable {
     let description: String?
     let amenities: [String]?
     let notes: String?
+    let square_meters: Double?
     // ... otros campos si los necesitas
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case name, address, property_type, purchase_price, current_value, bedrooms, bathrooms, is_rented, rental_price, description, amenities, notes
+        case name, address, property_type, purchase_price, current_value, bedrooms, bathrooms, is_rented, rental_price, description, amenities, notes, square_meters
     }
 }
 
@@ -107,50 +108,149 @@ struct PropertyDetailSheet: View {
                 Text(errorMessage).foregroundColor(.red)
             } else if let property = property {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text(property.name).font(.title).bold()
-                        Text(property.address).font(.subheadline).foregroundColor(.gray)
-                        HStack(spacing: 16) {
-                            Text(property.property_type.capitalized)
-                            Text("Habitaciones: \(property.bedrooms)")
-                            Text("Baños: \(property.bathrooms)")
-                        }.font(.caption)
-                        Divider()
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Precio de compra").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(property.purchase_price))").bold()
-                            }
-                            Spacer()
-                            VStack(alignment: .leading) {
-                                Text("Valor actual").font(.caption).foregroundColor(.gray)
-                                Text("€\(Int(property.current_value))").bold()
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Header
+                        HStack(alignment: .center, spacing: 12) {
+                            Image(systemName: "house.fill")
+                                .resizable()
+                                .frame(width: 36, height: 36)
+                                .foregroundColor(.accentColor)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(property.name)
+                                    .font(.largeTitle).bold()
+                                Text(property.address)
+                                    .font(.title3)
+                                    .foregroundColor(.gray)
                             }
                         }
-                        Divider()
-                        HStack {
-                            Text("Alquilada:")
-                            Text(property.is_rented ? "Sí" : "No")
-                            if let rental = property.rental_price {
-                                Text("| Precio alquiler: €\(Int(rental))")
+                        .padding(.bottom, 8)
+                        // Card
+                        VStack(spacing: 0) {
+                            HStack {
+                                Text("Tipo de Propiedad")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(property.property_type.capitalized)
+                                    .font(.body)
                             }
-                        }.font(.subheadline)
+                            Divider()
+                            HStack {
+                                Text("Dormitorios")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("\(property.bedrooms)")
+                                    .font(.body)
+                            }
+                            Divider()
+                            HStack {
+                                Text("Baños")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("\(property.bathrooms)")
+                                    .font(.body)
+                            }
+                            Divider()
+                            HStack {
+                                Text("Metros Cuadrados")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(property.square_meters != nil ? "\(Int(property.square_meters!)) m²" : "-")
+                                    .font(.body)
+                            }
+                            Divider()
+                            HStack {
+                                Text("Precio de Compra")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(formatCurrency(property.purchase_price))
+                                    .font(.body)
+                            }
+                            Divider()
+                            HStack {
+                                Text("Valor Actual")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(formatCurrency(property.current_value))
+                                    .font(.body)
+                            }
+                            Divider()
+                            HStack {
+                                Text("Alquilada")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(property.is_rented ? "Sí" : "No")
+                                    .font(.body)
+                            }
+                            if property.is_rented, let rent = property.rental_price {
+                                Divider()
+                                HStack {
+                                    Text("Precio Alquiler")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(formatCurrency(rent))
+                                        .font(.body)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(16)
+                        // Descripción
                         if let description = property.description, !description.isEmpty {
-                            Divider()
-                            Text("Descripción").font(.headline)
-                            Text(description)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "doc.text")
+                                        .foregroundColor(.accentColor)
+                                    Text("Descripción")
+                                        .font(.headline)
+                                }
+                                Text(description)
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.top, 8)
                         }
+                        // Amenities
                         if let amenities = property.amenities, !amenities.isEmpty {
-                            Divider()
-                            Text("Comodidades").font(.headline)
-                            ForEach(amenities, id: \.self) { amenity in
-                                Text("• \(amenity)")
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "checkmark.seal")
+                                        .foregroundColor(.accentColor)
+                                    Text("Comodidades")
+                                        .font(.headline)
+                                }
+                                WrapHStack(items: amenities, spacing: 8) { amenity in
+                                    Text(amenity)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(12)
+                                        .font(.subheadline)
+                                }
                             }
                         }
+                        // Notas
                         if let notes = property.notes, !notes.isEmpty {
-                            Divider()
-                            Text("Notas").font(.headline)
-                            Text(notes)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "note.text")
+                                        .foregroundColor(.accentColor)
+                                    Text("Notas")
+                                        .font(.headline)
+                                }
+                                Text(notes)
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.top, 8)
                         }
                     }
                     .padding()
@@ -299,5 +399,82 @@ struct PropertyDetailSheet: View {
                 }
             }
         }.resume()
+    }
+}
+
+// Helper para hacer un HStack que envuelve (wrap) los amenities
+struct WrapHStack<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    let items: Data
+    let spacing: CGFloat
+    let content: (Data.Element) -> Content
+    
+    @State private var totalHeight = CGFloat.zero
+    
+    var body: some View {
+        GeometryReader { geometry in
+            self.generateContent(in: geometry)
+        }
+        .frame(height: totalHeight)
+    }
+    
+    private func generateContent(in geometry: GeometryProxy) -> some View {
+        var width = CGFloat.zero
+        var height = CGFloat.zero
+        return ZStack(alignment: .topLeading) {
+            ForEach(Array(items), id: \.self) { item in
+                content(item)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 0)
+                    .alignmentGuide(.leading, computeValue: { d in
+                        if abs(width - d.width) > geometry.size.width {
+                            width = 0
+                            height -= d.height + spacing
+                        }
+                        let result = width
+                        if item == items.last {
+                            width = 0 // last item
+                        } else {
+                            width -= d.width + spacing
+                        }
+                        return result
+                    })
+                    .alignmentGuide(.top, computeValue: { _ in
+                        let result = height
+                        if item == items.last {
+                            height = 0 // last item
+                        }
+                        return result
+                    })
+            }
+        }
+        .background(viewHeightReader($totalHeight))
+    }
+    
+    private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
+        GeometryReader { geometry in
+            Color.clear
+                .preference(key: HeightPreferenceKey.self, value: geometry.size.height)
+        }
+        .onPreferenceChange(HeightPreferenceKey.self) { value in
+            binding.wrappedValue = value
+        }
+    }
+}
+
+private struct HeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+// Helper para formato moneda
+extension PropertyDetailSheet {
+    func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
     }
 } 
