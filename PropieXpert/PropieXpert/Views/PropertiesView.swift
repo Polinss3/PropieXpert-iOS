@@ -107,7 +107,7 @@ struct PropertiesView: View {
     }
     
     func fetchProperties() {
-        guard let url = URL(string: "http://localhost:8000/properties/") else {
+        guard let url = URL(string: "https://api.propiexpert.com/properties/") else {
             errorMessage = "URL del backend inválida"
             return
         }
