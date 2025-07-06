@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct PropieXpertApp: App {
+    @AppStorage("auth_token") var authToken: String = ""
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authToken.isEmpty {
+                LoginView()
+            } else {
+                ContentView()
+            }
         }
     }
 }
