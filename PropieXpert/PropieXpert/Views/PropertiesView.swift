@@ -24,6 +24,7 @@ struct PropertiesView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var selectedProperty: Property? = nil
+    @State private var showAddPropertySheet = false
     
     var body: some View {
         NavigationView {
@@ -57,7 +58,7 @@ struct PropertiesView: View {
             .navigationTitle("Propiedades")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { /* TODO: añadir propiedad */ }) {
+                    Button(action: { showAddPropertySheet = true }) {
                         Image(systemName: "plus")
                     }
                 }
@@ -65,6 +66,11 @@ struct PropertiesView: View {
             .onAppear(perform: fetchProperties)
             .sheet(item: $selectedProperty) { property in
                 PropertyDetailSheet(propertyId: property.id)
+            }
+            .sheet(isPresented: $showAddPropertySheet) {
+                AddPropertySheet(onPropertyAdded: {
+                    fetchProperties()
+                })
             }
         }
     }
