@@ -62,6 +62,36 @@ struct PropertyDetailSheet: View {
     @State private var errorMortgage: String? = nil
     @State private var showAddMortgageSheet = false
     @State private var showEditMortgageSheet = false
+    @State private var showDeleteAlert = false
+    
+    // --- Cálculo de saldo actual (igual que web) ---
+    func calculateCurrentBalance(_ mortgage: Mortgage) -> Double {
+        let P = mortgage.initial_amount
+        let n = Double(mortgage.years) * 12
+        var r = 0.0
+        if mortgage.type == "fixed" {
+            r = (mortgage.interest_rate_fixed ?? 0) / 100 / 12
+        } else if mortgage.type == "variable" {
+            r = (mortgage.interest_rate_variable ?? 0) / 100 / 12
+        } else if mortgage.type == "mixed" {
+            r = (mortgage.interest_rate_fixed ?? 0) / 100 / 12
+        }
+        let A = mortgage.monthly_payment
+        guard let startDateStr = mortgage.start_date, let start = isoDate(from: startDateStr) else { return P }
+        let now = Date()
+        let calendar = Calendar.current
+        let k = max(0, min(Int(n), calendar.dateComponents([.month], from: start, to: now).month ?? 0))
+        if P == 0 || n == 0 || A == 0 || r == 0 { return P }
+        let balance = P * pow(1 + r, Double(k)) - A * ((pow(1 + r, Double(k)) - 1) / r)
+        return max(0, balance)
+    }
+    func isoDate(from string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.date(from: string)
+    }
+    // --- Fin cálculo saldo actual ---
     
     var body: some View {
         NavigationView {
@@ -288,79 +318,114 @@ struct PropertyDetailSheet: View {
             } else if let errorMortgage = errorMortgage {
                 Text(errorMortgage).foregroundColor(.red)
             } else if let mortgage = mortgage {
-                VStack(alignment: .leading, spacing: 16) {
-                    Group {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
                         HStack {
-                            Text("Tipo:").bold()
-                            Text(mortgage.type.capitalized)
-                        }
-                        HStack {
-                            Text("Importe inicial:").bold()
-                            Text(formatCurrency(mortgage.initial_amount))
-                        }
-                        HStack {
-                            Text("Años:").bold()
-                            Text("\(mortgage.years)")
-                        }
-                        if let f = mortgage.interest_rate_fixed, (mortgage.type == "fixed" || mortgage.type == "mixed") {
-                            HStack {
-                                Text("Interés fijo:").bold()
-                                Text("\(String(format: "%.2f", f)) %")
+                            Text("Hipoteca").font(.title2).bold()
+                            Spacer()
+                            Button("Editar") { showEditMortgageSheet = true }
+                                .padding(.trailing, 8)
+                            Button(role: .destructive) { showDeleteAlert = true } label: {
+                                Text("Eliminar")
                             }
                         }
-                        if let v = mortgage.interest_rate_variable, (mortgage.type == "variable" || mortgage.type == "mixed") {
+                        Divider()
+                        Group {
                             HStack {
-                                Text("Interés variable:").bold()
-                                Text("\(String(format: "%.2f", v)) %")
+                                Text("Tipo:").bold()
+                                Text(mortgage.type.capitalized)
                             }
-                        }
-                        if let cuota = mortgage.monthly_payment as Double? {
+                            HStack {
+                                Text("Importe inicial:").bold()
+                                Text(formatCurrency(mortgage.initial_amount))
+                            }
+                            HStack {
+                                Text("Saldo actual:").bold()
+                                Text(formatCurrency(calculateCurrentBalance(mortgage)))
+                            }
+                            HStack {
+                                Text("Años:").bold()
+                                Text("\(mortgage.years)")
+                            }
+                            if let f = mortgage.interest_rate_fixed, (mortgage.type == "fixed" || mortgage.type == "mixed") {
+                                HStack {
+                                    Text("Interés fijo:").bold()
+                                    Text("\(String(format: "%.2f", f)) %")
+                                }
+                            }
+                            if let v = mortgage.interest_rate_variable, (mortgage.type == "variable" || mortgage.type == "mixed") {
+                                HStack {
+                                    Text("Interés variable:").bold()
+                                    Text("\(String(format: "%.2f", v)) %")
+                                }
+                            }
                             HStack {
                                 Text("Cuota mensual:").bold()
-                                Text(formatCurrency(cuota))
+                                Text(formatCurrency(mortgage.monthly_payment))
                             }
-                        }
-                        if let total = mortgage.total_to_pay {
-                            HStack {
-                                Text("Total a pagar:").bold()
-                                Text(formatCurrency(total))
+                            if let total = mortgage.total_to_pay {
+                                HStack {
+                                    Text("Total a pagar:").bold()
+                                    Text(formatCurrency(total))
+                                }
                             }
-                        }
-                        if let s = mortgage.start_date {
-                            HStack {
-                                Text("Fecha inicio:").bold()
-                                Text(s)
+                            if let s = mortgage.start_date {
+                                HStack {
+                                    Text("Fecha inicio:").bold()
+                                    Text(s)
+                                }
                             }
-                        }
-                        if let e = mortgage.end_date {
-                            HStack {
-                                Text("Fecha fin:").bold()
-                                Text(e)
+                            if let e = mortgage.end_date {
+                                HStack {
+                                    Text("Fecha fin:").bold()
+                                    Text(e)
+                                }
                             }
-                        }
-                        if let b = mortgage.bank_name, !b.isEmpty {
-                            HStack {
-                                Text("Banco:").bold()
-                                Text(b)
+                            if let b = mortgage.bank_name, !b.isEmpty {
+                                HStack {
+                                    Text("Banco:").bold()
+                                    Text(b)
+                                }
                             }
-                        }
-                        if let a = mortgage.account_number, !a.isEmpty {
-                            HStack {
-                                Text("Nº de cuenta:").bold()
-                                Text(a)
+                            if let a = mortgage.account_number, !a.isEmpty {
+                                HStack {
+                                    Text("Nº de cuenta:").bold()
+                                    Text(a)
+                                }
                             }
-                        }
-                        if let d = mortgage.description, !d.isEmpty {
-                            HStack(alignment: .top) {
-                                Text("Descripción:").bold()
-                                Text(d)
+                            if let d = mortgage.description, !d.isEmpty {
+                                HStack(alignment: .top) {
+                                    Text("Descripción:").bold()
+                                    Text(d)
+                                }
+                            }
+                            if let p = mortgage.payment_day {
+                                HStack {
+                                    Text("Día de pago:").bold()
+                                    Text("\(p)")
+                                }
+                            }
+                            if let f = mortgage.fixed_rate_period {
+                                HStack {
+                                    Text("Años tipo fijo:").bold()
+                                    Text("\(f)")
+                                }
+                            }
+                            if let r = mortgage.reference_number, !r.isEmpty {
+                                HStack {
+                                    Text("Referencia:").bold()
+                                    Text(r)
+                                }
+                            }
+                            if let auto = mortgage.is_automatic_payment {
+                                HStack {
+                                    Text("Pago automático:").bold()
+                                    Text(auto ? "Sí" : "No")
+                                }
                             }
                         }
                     }
-                    HStack(spacing: 16) {
-                        Button("Editar hipoteca") { showEditMortgageSheet = true }
-                        Button("Eliminar hipoteca", role: .destructive) { showEditMortgageSheet = true } // Eliminar desde sheet
-                    }
+                    .padding()
                 }
                 .sheet(isPresented: $showEditMortgageSheet, onDismiss: fetchMortgage) {
                     MortgageSheet(propertyId: propertyId, mortgage: mortgage, onSave: {
@@ -368,6 +433,12 @@ struct PropertyDetailSheet: View {
                     }, onDelete: {
                         fetchMortgage()
                     })
+                }
+                .alert("¿Eliminar hipoteca?", isPresented: $showDeleteAlert) {
+                    Button("Eliminar", role: .destructive) { deleteMortgage() }
+                    Button("Cancelar", role: .cancel) {}
+                } message: {
+                    Text("Esta acción no se puede deshacer.")
                 }
             } else {
                 VStack(spacing: 16) {
@@ -480,6 +551,40 @@ struct PropertyDetailSheet: View {
                         errorMortgage = "Error al decodificar hipoteca: \(error.localizedDescription)"
                     } else {
                         mortgage = nil
+                    }
+                }
+            }
+        }.resume()
+    }
+    
+    // --- Eliminar hipoteca ---
+    func deleteMortgage() {
+        guard let mortgage = mortgage else { return }
+        isLoadingMortgage = true
+        errorMortgage = nil
+        guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(mortgage.id)") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoadingMortgage = false
+                if let error = error {
+                    errorMortgage = "Error de red: \(error.localizedDescription)"
+                    return
+                }
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    errorMortgage = "Respuesta inválida del servidor."
+                    return
+                }
+                if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                    mortgage = nil
+                    fetchMortgage()
+                } else {
+                    if let data = data, let msg = String(data: data, encoding: .utf8) {
+                        errorMortgage = "Error: \(msg)"
+                    } else {
+                        errorMortgage = "Error desconocido al eliminar."
                     }
                 }
             }
