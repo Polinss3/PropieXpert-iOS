@@ -8,28 +8,39 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage("auth_token") var authToken: String = ""
+    
     var body: some View {
-        TabView {
-            DashboardView()
-                .tabItem {
-                    Image(systemName: "rectangle.3.offgrid")
-                    Text("Dashboard")
-                }
-            PropertiesView()
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Propiedades")
-                }
-            IncomeView()
-                .tabItem {
-                    Image(systemName: "arrow.down.circle")
-                    Text("Ingresos")
-                }
-            ExpensesView()
-                .tabItem {
-                    Image(systemName: "arrow.up.circle")
-                    Text("Gastos")
-                }
+        VStack(spacing: 0) {
+            TabView {
+                DashboardView()
+                    .tabItem {
+                        Image(systemName: "rectangle.3.offgrid")
+                        Text("Dashboard")
+                    }
+                PropertiesView()
+                    .tabItem {
+                        Image(systemName: "house.fill")
+                        Text("Propiedades")
+                    }
+                IncomeView()
+                    .tabItem {
+                        Image(systemName: "arrow.down.circle")
+                        Text("Ingresos")
+                    }
+                ExpensesView()
+                    .tabItem {
+                        Image(systemName: "arrow.up.circle")
+                        Text("Gastos")
+                    }
+            }
+            Button(action: {
+                authToken = ""
+            }) {
+                Text("Cerrar sesión")
+                    .foregroundColor(.red)
+                    .padding()
+            }
         }
     }
 }
