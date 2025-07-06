@@ -35,7 +35,9 @@ struct ContentView: View {
                     }
             }
             Button(action: {
+                print("[Logout] Botón de cerrar sesión pulsado")
                 authToken = ""
+                print("[Logout] auth_token después de borrar: \(authToken)")
             }) {
                 Text("Cerrar sesión")
                     .foregroundColor(.red)
