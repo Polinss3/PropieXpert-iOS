@@ -519,7 +519,9 @@ struct PropertyDetailSheet: View {
     func fetchMortgage() {
         isLoadingMortgage = true
         errorMortgage = nil
-        guard let url = URL(string: "https://api.propiexpert.com/mortgages/property/\(propertyId)") else { return }
+        print("[DEBUG] fetchMortgage: propertyId = \(propertyId)")
+        guard let url = URL(string: "https://api.propiexpert.com/mortgages/property/\(propertyId)") else { print("[DEBUG] URL inválida"); return }
+        print("[DEBUG] fetchMortgage: url = \(url)")
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
@@ -527,29 +529,36 @@ struct PropertyDetailSheet: View {
             DispatchQueue.main.async {
                 isLoadingMortgage = false
                 if let error = error {
+                    print("[DEBUG] fetchMortgage: error = \(error.localizedDescription)")
                     errorMortgage = "Error de red: \(error.localizedDescription)"
                     mortgage = nil
                     return
                 }
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("[DEBUG] fetchMortgage: statusCode = \(httpResponse.statusCode)")
+                }
                 guard let data = data else {
+                    print("[DEBUG] fetchMortgage: data es nil")
                     errorMortgage = "No se recibieron datos del servidor."
                     mortgage = nil
                     return
                 }
+                print("[DEBUG] fetchMortgage: data (raw) = \(String(data: data, encoding: .utf8) ?? "<binario>")")
                 do {
-                    // Si data está vacía, poner mortgage = nil y salir sin error
                     if data.isEmpty {
+                        print("[DEBUG] fetchMortgage: data vacío, no hay hipoteca")
                         mortgage = nil
                         return
                     }
                     let decoded = try JSONDecoder().decode([Mortgage].self, from: data)
+                    print("[DEBUG] fetchMortgage: decoded = \(decoded)")
                     mortgage = decoded.first
-                    // Si el array está vacío, no es error
                     if decoded.isEmpty {
+                        print("[DEBUG] fetchMortgage: array vacío tras decodificar")
                         mortgage = nil
                     }
                 } catch {
-                    // Solo mostrar error si data no está vacía
+                    print("[DEBUG] fetchMortgage: error decodificando = \(error)")
                     if !data.isEmpty {
                         errorMortgage = "Error al decodificar hipoteca: \(error.localizedDescription)"
                     } else {
