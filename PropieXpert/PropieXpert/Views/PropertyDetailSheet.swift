@@ -463,11 +463,24 @@ struct PropertyDetailSheet: View {
                     return
                 }
                 do {
+                    // Si data está vacía, poner mortgage = nil y salir sin error
+                    if data.isEmpty {
+                        mortgage = nil
+                        return
+                    }
                     let decoded = try JSONDecoder().decode([Mortgage].self, from: data)
                     mortgage = decoded.first
+                    // Si el array está vacío, no es error
+                    if decoded.isEmpty {
+                        mortgage = nil
+                    }
                 } catch {
-                    errorMortgage = "Error al decodificar hipoteca: \(error.localizedDescription)"
-                    mortgage = nil
+                    // Solo mostrar error si data no está vacía
+                    if !data.isEmpty {
+                        errorMortgage = "Error al decodificar hipoteca: \(error.localizedDescription)"
+                    } else {
+                        mortgage = nil
+                    }
                 }
             }
         }.resume()
