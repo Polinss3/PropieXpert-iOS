@@ -56,7 +56,12 @@ struct PropertyDetailSheet: View {
     @State private var financialSummary: FinancialSummary? = nil
     @State private var isLoadingFinancial = false
     @State private var errorFinancial: String? = nil
-    // TODO: Añadir estados para ingresos/gastos, documentos, hipoteca
+    // Hipoteca
+    @State private var mortgage: Mortgage? = nil
+    @State private var isLoadingMortgage = false
+    @State private var errorMortgage: String? = nil
+    @State private var showAddMortgageSheet = false
+    @State private var showEditMortgageSheet = false
     
     var body: some View {
         NavigationView {
@@ -95,6 +100,7 @@ struct PropertyDetailSheet: View {
                 fetchPropertyDetail()
                 // Pre-cargar financiero
                 fetchFinancialSummary()
+                fetchMortgage()
             })
         }
     }
@@ -276,13 +282,107 @@ struct PropertyDetailSheet: View {
     }
     
     var hipotecaSection: some View {
-        VStack {
-            Text("Hipoteca")
-                .font(.headline)
-                .padding()
-            Text("(Próximamente: datos reales de hipoteca)")
-                .foregroundColor(.gray)
+        Group {
+            if isLoadingMortgage {
+                ProgressView("Cargando hipoteca...")
+            } else if let errorMortgage = errorMortgage {
+                Text(errorMortgage).foregroundColor(.red)
+            } else if let mortgage = mortgage {
+                VStack(alignment: .leading, spacing: 16) {
+                    Group {
+                        HStack {
+                            Text("Tipo:").bold()
+                            Text(mortgage.type.capitalized)
+                        }
+                        HStack {
+                            Text("Importe inicial:").bold()
+                            Text(formatCurrency(mortgage.initial_amount))
+                        }
+                        HStack {
+                            Text("Años:").bold()
+                            Text("\(mortgage.years)")
+                        }
+                        if let f = mortgage.interest_rate_fixed, (mortgage.type == "fixed" || mortgage.type == "mixed") {
+                            HStack {
+                                Text("Interés fijo:").bold()
+                                Text("\(String(format: "%.2f", f)) %")
+                            }
+                        }
+                        if let v = mortgage.interest_rate_variable, (mortgage.type == "variable" || mortgage.type == "mixed") {
+                            HStack {
+                                Text("Interés variable:").bold()
+                                Text("\(String(format: "%.2f", v)) %")
+                            }
+                        }
+                        if let cuota = mortgage.monthly_payment as Double? {
+                            HStack {
+                                Text("Cuota mensual:").bold()
+                                Text(formatCurrency(cuota))
+                            }
+                        }
+                        if let total = mortgage.total_to_pay {
+                            HStack {
+                                Text("Total a pagar:").bold()
+                                Text(formatCurrency(total))
+                            }
+                        }
+                        if let s = mortgage.start_date {
+                            HStack {
+                                Text("Fecha inicio:").bold()
+                                Text(s)
+                            }
+                        }
+                        if let e = mortgage.end_date {
+                            HStack {
+                                Text("Fecha fin:").bold()
+                                Text(e)
+                            }
+                        }
+                        if let b = mortgage.bank_name, !b.isEmpty {
+                            HStack {
+                                Text("Banco:").bold()
+                                Text(b)
+                            }
+                        }
+                        if let a = mortgage.account_number, !a.isEmpty {
+                            HStack {
+                                Text("Nº de cuenta:").bold()
+                                Text(a)
+                            }
+                        }
+                        if let d = mortgage.description, !d.isEmpty {
+                            HStack(alignment: .top) {
+                                Text("Descripción:").bold()
+                                Text(d)
+                            }
+                        }
+                    }
+                    HStack(spacing: 16) {
+                        Button("Editar hipoteca") { showEditMortgageSheet = true }
+                        Button("Eliminar hipoteca", role: .destructive) { showEditMortgageSheet = true } // Eliminar desde sheet
+                    }
+                }
+                .sheet(isPresented: $showEditMortgageSheet, onDismiss: fetchMortgage) {
+                    MortgageSheet(propertyId: propertyId, mortgage: mortgage, onSave: {
+                        fetchMortgage()
+                    }, onDelete: {
+                        fetchMortgage()
+                    })
+                }
+            } else {
+                VStack(spacing: 16) {
+                    Text("No hay hipoteca registrada para esta propiedad.")
+                        .foregroundColor(.gray)
+                    Button("Añadir hipoteca") { showAddMortgageSheet = true }
+                }
+                .sheet(isPresented: $showAddMortgageSheet, onDismiss: fetchMortgage) {
+                    MortgageSheet(propertyId: propertyId, onSave: {
+                        fetchMortgage()
+                    })
+                }
+            }
         }
+        .onAppear(perform: fetchMortgage)
     }
     
     // MARK: - Carga de datos
@@ -337,6 +437,37 @@ struct PropertyDetailSheet: View {
                     financialSummary = decoded
                 } catch {
                     errorFinancial = "Error al decodificar resumen financiero: \(error.localizedDescription)"
+                }
+            }
+        }.resume()
+    }
+    
+    func fetchMortgage() {
+        isLoadingMortgage = true
+        errorMortgage = nil
+        guard let url = URL(string: "https://api.propiexpert.com/mortgages/property/\(propertyId)") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoadingMortgage = false
+                if let error = error {
+                    errorMortgage = "Error de red: \(error.localizedDescription)"
+                    mortgage = nil
+                    return
+                }
+                guard let data = data else {
+                    errorMortgage = "No se recibieron datos del servidor."
+                    mortgage = nil
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode([Mortgage].self, from: data)
+                    mortgage = decoded.first
+                } catch {
+                    errorMortgage = "Error al decodificar hipoteca: \(error.localizedDescription)"
+                    mortgage = nil
                 }
             }
         }.resume()
