@@ -126,83 +126,22 @@ struct PropertyDetailSheet: View {
                         .padding(.bottom, 8)
                         // Card
                         VStack(spacing: 0) {
-                            HStack {
-                                Text("Tipo de Propiedad")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(property.property_type.capitalized)
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Dormitorios")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text("\(property.bedrooms)")
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Baños")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text("\(property.bathrooms)")
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Metros Cuadrados")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(property.square_meters != nil ? "\(Int(property.square_meters!)) m²" : "-")
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Precio de Compra")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(formatCurrency(property.purchase_price))
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Valor Actual")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(formatCurrency(property.current_value))
-                                    .font(.body)
-                            }
-                            Divider()
-                            HStack {
-                                Text("Alquilada")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(property.is_rented ? "Sí" : "No")
-                                    .font(.body)
-                            }
+                            DetailRow(label: "Tipo de Propiedad", value: property.property_type.capitalized)
+                            DetailRow(label: "Dormitorios", value: "\(property.bedrooms)")
+                            DetailRow(label: "Baños", value: "\(property.bathrooms)")
+                            DetailRow(label: "Metros Cuadrados", value: property.square_meters != nil ? "\(Int(property.square_meters!)) m²" : "-")
+                            DetailRow(label: "Precio de Compra", value: formatCurrency(property.purchase_price))
+                            DetailRow(label: "Valor Actual", value: formatCurrency(property.current_value))
+                            DetailRow(label: "Alquilada", value: property.is_rented ? "Sí" : "No")
                             if property.is_rented, let rent = property.rental_price {
-                                Divider()
-                                HStack {
-                                    Text("Precio Alquiler")
-                                        .font(.headline)
-                                        .foregroundColor(.secondary)
-                                    Spacer()
-                                    Text(formatCurrency(rent))
-                                        .font(.body)
-                                }
+                                DetailRow(label: "Precio Alquiler", value: formatCurrency(rent))
                             }
                         }
-                        .padding()
+                        .padding(.vertical, 20)
+                        .padding(.horizontal, 16)
                         .background(Color(.systemGray6))
                         .cornerRadius(16)
+                        .padding(.bottom, 4)
                         // Descripción
                         if let description = property.description, !description.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
@@ -476,5 +415,23 @@ extension PropertyDetailSheet {
         formatter.currencyCode = "EUR"
         formatter.maximumFractionDigits = 0
         return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
+    }
+}
+
+// Helper para filas de detalles con más margen
+struct DetailRow: View {
+    let label: String
+    let value: String
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(value)
+                .font(.title3)
+                .foregroundColor(.primary)
+        }
+        .padding(.vertical, 8)
     }
 } 
