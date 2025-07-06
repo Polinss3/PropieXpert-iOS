@@ -55,7 +55,7 @@ struct LoginView: View {
     }
     
     func loginWithBackend(idToken: String) {
-        guard let url = URL(string: "https://TU_BACKEND_URL/auth/google-login") else {
+        guard let url = URL(string: "https://api.propiexpert.com/auth/google-login") else {
             errorMessage = "URL del backend inválida"
             print("[Login] URL del backend inválida")
             return
