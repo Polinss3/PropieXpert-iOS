@@ -13,5 +13,4 @@ struct PlaceholderView: View {
 
 #Preview {
     PlaceholderView()
-}
- 
+} 
