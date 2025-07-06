@@ -320,7 +320,7 @@ struct PropertyDetailSheet: View {
                 ProgressView("Cargando hipoteca...")
             } else if let errorMortgage = errorMortgage {
                 Text(errorMortgage).foregroundColor(.red)
-            } else if let mortgage = mortgage {
+            } else if let m = mortgage {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
@@ -336,27 +336,27 @@ struct PropertyDetailSheet: View {
                         Group {
                             HStack {
                                 Text("Tipo:").bold()
-                                Text(mortgage.type.capitalized)
+                                Text(m.type.capitalized)
                             }
                             HStack {
                                 Text("Importe inicial:").bold()
-                                Text(formatCurrency(mortgage.initial_amount))
+                                Text(formatCurrency(m.initial_amount))
                             }
                             HStack {
                                 Text("Saldo actual:").bold()
-                                Text(formatCurrency(calculateCurrentBalance(mortgage)))
+                                Text(formatCurrency(calculateCurrentBalance(m)))
                             }
                             HStack {
                                 Text("Años:").bold()
-                                Text("\(mortgage.years)")
+                                Text("\(m.years)")
                             }
-                            if let f = mortgage.interest_rate_fixed, (mortgage.type == "fixed" || mortgage.type == "mixed") {
+                            if let f = m.interest_rate_fixed, (m.type == "fixed" || m.type == "mixed") {
                                 HStack {
                                     Text("Interés fijo:").bold()
                                     Text("\(String(format: "%.2f", f)) %")
                                 }
                             }
-                            if let v = mortgage.interest_rate_variable, (mortgage.type == "variable" || mortgage.type == "mixed") {
+                            if let v = m.interest_rate_variable, (m.type == "variable" || m.type == "mixed") {
                                 HStack {
                                     Text("Interés variable:").bold()
                                     Text("\(String(format: "%.2f", v)) %")
@@ -364,63 +364,63 @@ struct PropertyDetailSheet: View {
                             }
                             HStack {
                                 Text("Cuota mensual:").bold()
-                                Text(formatCurrency(mortgage.monthly_payment))
+                                Text(formatCurrency(m.monthly_payment))
                             }
-                            if let total = mortgage.total_to_pay {
+                            if let total = m.total_to_pay {
                                 HStack {
                                     Text("Total a pagar:").bold()
                                     Text(formatCurrency(total))
                                 }
                             }
-                            if let s = mortgage.start_date {
+                            if let s = m.start_date {
                                 HStack {
                                     Text("Fecha inicio:").bold()
                                     Text(s)
                                 }
                             }
-                            if let e = mortgage.end_date {
+                            if let e = m.end_date {
                                 HStack {
                                     Text("Fecha fin:").bold()
                                     Text(e)
                                 }
                             }
-                            if let b = mortgage.bank_name, !b.isEmpty {
+                            if let b = m.bank_name, !b.isEmpty {
                                 HStack {
                                     Text("Banco:").bold()
                                     Text(b)
                                 }
                             }
-                            if let a = mortgage.account_number, !a.isEmpty {
+                            if let a = m.account_number, !a.isEmpty {
                                 HStack {
                                     Text("Nº de cuenta:").bold()
                                     Text(a)
                                 }
                             }
-                            if let d = mortgage.description, !d.isEmpty {
+                            if let d = m.description, !d.isEmpty {
                                 HStack(alignment: .top) {
                                     Text("Descripción:").bold()
                                     Text(d)
                                 }
                             }
-                            if let p = mortgage.payment_day {
+                            if let p = m.payment_day {
                                 HStack {
                                     Text("Día de pago:").bold()
                                     Text("\(p)")
                                 }
                             }
-                            if let f = mortgage.fixed_rate_period {
+                            if let f = m.fixed_rate_period {
                                 HStack {
                                     Text("Años tipo fijo:").bold()
                                     Text("\(f)")
                                 }
                             }
-                            if let r = mortgage.reference_number, !r.isEmpty {
+                            if let r = m.reference_number, !r.isEmpty {
                                 HStack {
                                     Text("Referencia:").bold()
                                     Text(r)
                                 }
                             }
-                            if let auto = mortgage.is_automatic_payment {
+                            if let auto = m.is_automatic_payment {
                                 HStack {
                                     Text("Pago automático:").bold()
                                     Text(auto ? "Sí" : "No")
@@ -431,7 +431,7 @@ struct PropertyDetailSheet: View {
                     .padding()
                 }
                 .sheet(isPresented: $showEditMortgageSheet, onDismiss: fetchMortgage) {
-                    MortgageSheet(propertyId: propertyId, mortgage: mortgage, onSave: {
+                    MortgageSheet(propertyId: propertyId, mortgage: m, onSave: {
                         fetchMortgage()
                     }, onDelete: {
                         fetchMortgage()
@@ -562,10 +562,10 @@ struct PropertyDetailSheet: View {
     
     // --- Eliminar hipoteca ---
     func deleteMortgage() {
-        guard let mortgage = mortgage else { return }
+        guard let m = mortgage else { return }
         isLoadingMortgage = true
         errorMortgage = nil
-        guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(mortgage.id)") else { return }
+        guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(m.id)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
