@@ -2,7 +2,7 @@ import SwiftUI
 import Foundation
 // Importa el modelo Mortgage
 // ... existing code ...
-import PropieXpert.Views.Models
+// Income y Expense ya están disponibles por Models.swift en el mismo target
 
 struct PropertyDetail: Decodable {
     let id: String
