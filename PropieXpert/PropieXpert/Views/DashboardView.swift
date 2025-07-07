@@ -17,7 +17,11 @@ extension Expense: HasRecurrence {}
 func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
     let calendar = Calendar.current
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd"
+    // Arreglar: Manejar tanto formato ISO como simple
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let simpleFormatter = DateFormatter()
+    simpleFormatter.dateFormat = "yyyy-MM-dd"
+    
     print("DEBUG expandRecurring: Procesando \(items.count) items para \(month)/\(year)")
     return items.compactMap { item in
         print("DEBUG expandRecurring: Item - is_recurring: \(item.is_recurring ?? false), frequency: \(item.frequency ?? "nil")")
@@ -29,17 +33,25 @@ func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, mon
         let startStr = item.recurrence_start_date ?? item.date
         let endStr = item.recurrence_end_date ?? "\(year)-12-31"
         print("DEBUG expandRecurring: Fechas - start: \(startStr), end: \(endStr)")
-        guard let start = formatter.date(from: startStr),
-              let end = formatter.date(from: endStr) else { 
-            print("DEBUG expandRecurring: Error parseando fechas")
+        
+        // Intentar parseado con formato ISO primero, luego formato simple
+        var start: Date?
+        var end: Date?
+        
+        start = formatter.date(from: startStr) ?? simpleFormatter.date(from: startStr)
+        end = formatter.date(from: endStr) ?? simpleFormatter.date(from: endStr)
+        
+        guard let startDate = start, let endDate = end else { 
+            print("DEBUG expandRecurring: Error parseando fechas - start: \(startStr), end: \(endStr)")
             return nil 
         }
+        
         let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
-        if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { 
+        if currentMonth < calendar.startOfDay(for: startDate) || currentMonth > calendar.startOfDay(for: endDate) { 
             print("DEBUG expandRecurring: Fecha fuera del rango")
             return nil 
         }
-        let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: start), to: currentMonth).month ?? 0
+        let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: startDate), to: currentMonth).month ?? 0
         print("DEBUG expandRecurring: monthsDiff: \(monthsDiff), frequency: \(frequency)")
         if (frequency == "monthly") || (frequency == "quarterly" && monthsDiff % 3 == 0) || (frequency == "yearly" && monthsDiff % 12 == 0) {
             print("DEBUG expandRecurring: Item aceptado")
@@ -52,7 +64,11 @@ func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, mon
 
 func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd"
+    // Arreglar: Manejar tanto formato ISO como simple
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let simpleFormatter = DateFormatter()
+    simpleFormatter.dateFormat = "yyyy-MM-dd"
+    
     print("DEBUG expandPunctual: Procesando \(items.count) items para \(month)/\(year)")
     return items.filter { item in
         print("DEBUG expandPunctual: Item - is_recurring: \(item.is_recurring ?? false), date: \(item.date)")
@@ -60,10 +76,13 @@ func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, mont
             print("DEBUG expandPunctual: Item descartado - es recurrente")
             return false 
         }
-        guard let date = formatter.date(from: item.date) else { 
+        
+        // Intentar parseado con formato ISO primero, luego formato simple
+        guard let date = formatter.date(from: item.date) ?? simpleFormatter.date(from: item.date) else { 
             print("DEBUG expandPunctual: Error parseando fecha: \(item.date)")
             return false 
         }
+        
         let comps = Calendar.current.dateComponents([.year, .month], from: date)
         print("DEBUG expandPunctual: Fecha parseada - year: \(comps.year ?? 0), month: \(comps.month ?? 0)")
         let result = comps.year == year && comps.month == month
@@ -536,13 +555,16 @@ struct DashboardCalendarView: View {
     
     private let calendar = Calendar.current
     private let dateFormatter = DateFormatter()
+    private let simpleDateFormatter = DateFormatter()
     
     init(incomes: [Income], expenses: [Expense], selectedDate: Binding<Date>, showDayEventsSheet: Binding<Bool>) {
         self.incomes = incomes
         self.expenses = expenses
         self._selectedDate = selectedDate
         self._showDayEventsSheet = showDayEventsSheet
-        dateFormatter.dateFormat = "yyyy-MM-dd"
+        // Arreglar: Configurar ambos formatters para manejar diferentes formatos
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        simpleDateFormatter.dateFormat = "yyyy-MM-dd"
     }
     
     // Helpers para obtener eventos del mes
@@ -621,7 +643,8 @@ struct DashboardCalendarView: View {
     
     // Helper para parsear fecha
     func dateFromString(_ str: String) -> Date? {
-        return dateFormatter.date(from: str)
+        // Intentar parseado con formato ISO primero, luego formato simple
+        return dateFormatter.date(from: str) ?? simpleDateFormatter.date(from: str)
     }
     
     // Obtener los días del mes
@@ -734,17 +757,19 @@ struct DashboardCalendarView: View {
                                 if dayEvents.0 > 0 {
                                     Circle()
                                         .fill(Color.green)
-                                        .frame(width: 10, height: 10)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                                        .frame(width: 12, height: 12)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                                 }
                                 if dayEvents.1 > 0 {
                                     Circle()
                                         .fill(Color.red)
-                                        .frame(width: 10, height: 10)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                                        .frame(width: 12, height: 12)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                                 }
                             }
-                            .frame(height: 14)
+                            .frame(height: 16)
                         }
                         .frame(width: 44, height: 56)
                         .background(
@@ -794,43 +819,62 @@ struct DayEventsSheetView: View {
     
     private let calendar = Calendar.current
     private let dateFormatter = DateFormatter()
+    private let simpleDateFormatter = DateFormatter()
     
     init(date: Date, incomes: [Income], expenses: [Expense], onClose: @escaping () -> Void) {
         self.date = date
         self.incomes = incomes
         self.expenses = expenses
         self.onClose = onClose
-        dateFormatter.dateFormat = "yyyy-MM-dd"
+        // Arreglar: Configurar ambos formatters para manejar diferentes formatos
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        simpleDateFormatter.dateFormat = "yyyy-MM-dd"
     }
     
     // Obtener eventos para el día específico
     private var dayIncomes: [Income] {
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
-        let dayStr = dateFormatter.string(from: date)
+        let day = calendar.component(.day, from: date)
         
         // Expandir eventos recurrentes y puntuales para el mes
         let allIncomes = expandRecurring(items: incomes, year: year, month: month) + 
                         expandPunctual(items: incomes, year: year, month: month)
         
-        // Filtrar por el día específico
+        // Filtrar por el día específico usando parsing de fechas
         return allIncomes.filter { income in
-            income.date == dayStr
+            // Intentar parsear la fecha del ingreso
+            guard let incomeDate = dateFormatter.date(from: income.date) ?? simpleDateFormatter.date(from: income.date) else {
+                return false
+            }
+            
+            // Comparar año, mes y día
+            return calendar.component(.year, from: incomeDate) == year &&
+                   calendar.component(.month, from: incomeDate) == month &&
+                   calendar.component(.day, from: incomeDate) == day
         }
     }
     
     private var dayExpenses: [Expense] {
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
-        let dayStr = dateFormatter.string(from: date)
+        let day = calendar.component(.day, from: date)
         
         // Expandir eventos recurrentes y puntuales para el mes
         let allExpenses = expandRecurring(items: expenses, year: year, month: month) + 
                          expandPunctual(items: expenses, year: year, month: month)
         
-        // Filtrar por el día específico
+        // Filtrar por el día específico usando parsing de fechas
         return allExpenses.filter { expense in
-            expense.date == dayStr
+            // Intentar parsear la fecha del gasto
+            guard let expenseDate = dateFormatter.date(from: expense.date) ?? simpleDateFormatter.date(from: expense.date) else {
+                return false
+            }
+            
+            // Comparar año, mes y día
+            return calendar.component(.year, from: expenseDate) == year &&
+                   calendar.component(.month, from: expenseDate) == month &&
+                   calendar.component(.day, from: expenseDate) == day
         }
     }
     
