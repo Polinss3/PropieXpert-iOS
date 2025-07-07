@@ -8,6 +8,13 @@ struct UserProfileView: View {
     @State private var showEditProfile = false
     @State private var showLogoutAlert = false
     
+    // Extrae la URL de la foto del JWT
+    var googlePictureURL: String? {
+        guard let payload = decodeJWT(token: authToken),
+              let picture = payload["picture"] as? String else { return nil }
+        return picture
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -24,7 +31,7 @@ struct UserProfileView: View {
                         Text(errorMessage).foregroundColor(.red)
                     } else if let user = user {
                         VStack(spacing: 12) {
-                            if let picture = user.picture, let url = URL(string: picture) {
+                            if let urlString = googlePictureURL, let url = URL(string: urlString) {
                                 AsyncImage(url: url) { phase in
                                     if let image = phase.image {
                                         image
@@ -167,6 +174,23 @@ struct UserProfileView: View {
     func logout() {
         authToken = ""
         // Aquí podrías limpiar más datos si es necesario
+    }
+    
+    // Decodifica el payload del JWT y lo devuelve como diccionario
+    func decodeJWT(token: String) -> [String: Any]? {
+        let segments = token.split(separator: ".")
+        guard segments.count == 3 else { return nil }
+        let payloadSegment = segments[1]
+        var base64 = String(payloadSegment)
+        // Añadir padding si es necesario
+        let requiredLength = 4 * ((base64.count + 3) / 4)
+        let paddingLength = requiredLength - base64.count
+        if paddingLength > 0 {
+            base64 += String(repeating: "=", count: paddingLength)
+        }
+        guard let data = Data(base64Encoded: base64) else { return nil }
+        let json = try? JSONSerialization.jsonObject(with: data, options: [])
+        return json as? [String: Any]
     }
 }
 
