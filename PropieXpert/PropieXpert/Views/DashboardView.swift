@@ -26,6 +26,18 @@ struct PropertyPerformance: Identifiable, Decodable {
     }
 }
 
+// Modelos para ingresos y gastos
+struct Income: Identifiable, Decodable {
+    let id: String
+    let amount: Double
+    let date: String
+}
+struct Expense: Identifiable, Decodable {
+    let id: String
+    let amount: Double
+    let date: String
+}
+
 // Nueva enum para las secciones
 enum DashboardSection: String, CaseIterable, Identifiable {
     case resumen = "Resumen"
@@ -40,6 +52,11 @@ struct DashboardView: View {
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
     @State private var selectedSection: DashboardSection = .resumen
+    // Para la gráfica de barras mensual
+    @State private var incomes: [Income] = []
+    @State private var expenses: [Expense] = []
+    @State private var isLoadingChart = false
+    @State private var chartError: String? = nil
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -151,9 +168,15 @@ struct DashboardView: View {
                                 Text("Ingresos y gastos mensuales")
                                     .font(.headline)
                                     .padding(.horizontal)
-                                MonthlyBarChartView()
-                                    .frame(height: 320)
-                                    .padding(.horizontal)
+                                if isLoadingChart {
+                                    HStack { Spacer(); ProgressView("Cargando..."); Spacer() }
+                                } else if let chartError = chartError {
+                                    Text(chartError).foregroundColor(.red).padding(.horizontal)
+                                } else {
+                                    MonthlyBarChartView(data: monthlyBarDataFromAPI(incomes: incomes, expenses: expenses))
+                                        .frame(height: 320)
+                                        .padding(.horizontal)
+                                }
                                 // Aquí puedes añadir más gráficas (líneas, pastel) después
                             }
                         }
@@ -162,7 +185,10 @@ struct DashboardView: View {
                 }
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
-            .onAppear(perform: fetchPropertyPerformance)
+            .onAppear {
+                fetchPropertyPerformance()
+                fetchIncomesAndExpenses()
+            }
         }
     }
     
@@ -199,6 +225,87 @@ struct DashboardView: View {
                 }
             }
         }.resume()
+    }
+    
+    func fetchIncomesAndExpenses() {
+        isLoadingChart = true
+        chartError = nil
+        let group = DispatchGroup()
+        var fetchedIncomes: [Income] = []
+        var fetchedExpenses: [Expense] = []
+        var errorOccurred: String? = nil
+        // Incomes
+        group.enter()
+        guard let urlIncomes = URL(string: "https://api.propiexpert.com/incomes/") else { chartError = "URL de ingresos inválida"; return }
+        var reqIncomes = URLRequest(url: urlIncomes)
+        reqIncomes.httpMethod = "GET"
+        reqIncomes.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: reqIncomes) { data, response, error in
+            defer { group.leave() }
+            if let error = error { errorOccurred = "Error ingresos: \(error.localizedDescription)"; return }
+            guard let data = data else { errorOccurred = "No datos de ingresos"; return }
+            do {
+                fetchedIncomes = try JSONDecoder().decode([Income].self, from: data)
+            } catch {
+                errorOccurred = "Error decodificando ingresos: \(error.localizedDescription)"
+            }
+        }.resume()
+        // Expenses
+        group.enter()
+        guard let urlExpenses = URL(string: "https://api.propiexpert.com/expenses/") else { chartError = "URL de gastos inválida"; return }
+        var reqExpenses = URLRequest(url: urlExpenses)
+        reqExpenses.httpMethod = "GET"
+        reqExpenses.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: reqExpenses) { data, response, error in
+            defer { group.leave() }
+            if let error = error { errorOccurred = "Error gastos: \(error.localizedDescription)"; return }
+            guard let data = data else { errorOccurred = "No datos de gastos"; return }
+            do {
+                fetchedExpenses = try JSONDecoder().decode([Expense].self, from: data)
+            } catch {
+                errorOccurred = "Error decodificando gastos: \(error.localizedDescription)"
+            }
+        }.resume()
+        // Cuando ambos terminen
+        group.notify(queue: .main) {
+            isLoadingChart = false
+            if let errorOccurred = errorOccurred {
+                chartError = errorOccurred
+            } else {
+                incomes = fetchedIncomes
+                expenses = fetchedExpenses
+            }
+        }
+    }
+    
+    // Procesar los datos reales para la gráfica de barras mensual
+    func monthlyBarDataFromAPI(incomes: [Income], expenses: [Expense]) -> [MonthlyBarData] {
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        let currentYear = calendar.component(.year, from: Date())
+        var result: [MonthlyBarData] = []
+        for m in 1...12 {
+            let monthIncomes = incomes.filter {
+                if let date = formatter.date(from: $0.date) {
+                    let comps = calendar.dateComponents([.year, .month], from: date)
+                    return comps.year == currentYear && comps.month == m
+                }
+                return false
+            }
+            let monthExpenses = expenses.filter {
+                if let date = formatter.date(from: $0.date) {
+                    let comps = calendar.dateComponents([.year, .month], from: date)
+                    return comps.year == currentYear && comps.month == m
+                }
+                return false
+            }
+            let incomeSum = monthIncomes.reduce(0) { $0 + $1.amount }
+            let expenseSum = monthExpenses.reduce(0) { $0 + $1.amount }
+            result.append(MonthlyBarData(month: months[m-1], income: incomeSum, expense: expenseSum))
+        }
+        return result
     }
 }
 
@@ -320,9 +427,7 @@ let monthlyBarData: [MonthlyBarData] = [
 ]
 
 struct MonthlyBarChartView: View {
-    // En el futuro, puedes pasar los datos reales como parámetro
-    let data: [MonthlyBarData] = monthlyBarData
-    
+    let data: [MonthlyBarData]
     var body: some View {
         Chart(data) { item in
             BarMark(
