@@ -24,6 +24,7 @@ struct ExpensesView: View {
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
     @State private var showAddExpenseSheet = false
+    @State private var editingExpense: Expense? = nil
     
     var body: some View {
         NavigationView {
@@ -46,6 +47,10 @@ struct ExpensesView: View {
                             ForEach(expenses) { expense in
                                 ExpenseCard(expense: expense, propertyName: getPropertyName(for: expense.property_id))
                                     .padding(.horizontal)
+                                    .onTapGesture {
+                                        editingExpense = expense
+                                        showAddExpenseSheet = true
+                                    }
                             }
                         }
                         .padding(.top)
@@ -55,16 +60,23 @@ struct ExpensesView: View {
             .navigationTitle("Gastos")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAddExpenseSheet = true }) {
+                    Button(action: {
+                        editingExpense = nil
+                        showAddExpenseSheet = true
+                    }) {
                         Image(systemName: "plus")
                     }
                 }
             }
             .onAppear(perform: fetchAll)
             .sheet(isPresented: $showAddExpenseSheet) {
-                // Aquí irá el AddExpenseSheet (por implementar)
-                Text("Sheet para añadir gasto (próximamente)")
-                    .padding()
+                AddExpenseSheet(
+                    onExpenseAdded: {
+                        fetchAll()
+                        showAddExpenseSheet = false
+                    },
+                    initialData: editingExpense
+                )
             }
         }
     }
