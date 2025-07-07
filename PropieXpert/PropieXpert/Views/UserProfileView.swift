@@ -82,31 +82,46 @@ struct UserProfileView: View {
                                 .multilineTextAlignment(.center)
                         }
                         // Tarjeta de plan
-                        VStack(spacing: 8) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Text("Plan actual: ")
-                                    .font(.headline)
-                                Text(user.plan ?? "-")
-                                    .font(.headline).bold()
+                        if let plan = user.plan {
+                            VStack(spacing: 8) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                    Text("Plan actual: \(plan.capitalized)")
+                                        .font(.headline)
+                                }
+                                if let limit = user.property_limit {
+                                    Text("Límite de propiedades: \(limit)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                if user.plan_selected == false {
+                                    Text("No has seleccionado un plan todavía.")
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                }
+                                // Botón para gestionar suscripción
+                                Button(action: {
+                                    if let url = URL(string: "https://app.propiexpert.com/profile") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.up.right.square")
+                                        Text("Gestionar suscripción")
+                                    }
+                                    .font(.body.bold())
+                                    .padding(.vertical, 10)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue.opacity(0.12))
+                                    .foregroundColor(.blue)
+                                    .cornerRadius(12)
+                                }
                             }
-                            if let limit = user.property_limit {
-                                Text("Límite: \(limit) propiedades")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            if let planSelected = user.plan_selected, !planSelected {
-                                Text("¡Selecciona un plan para desbloquear todas las funciones!")
-                                    .font(.footnote)
-                                    .foregroundColor(.orange)
-                            }
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(16)
                         }
-                        .padding()
-                        .frame(maxWidth: 340)
-                        .background(Color(.systemBackground))
-                        .cornerRadius(18)
-                        .shadow(color: Color(.black).opacity(0.06), radius: 8, x: 0, y: 2)
                         // Idioma
                         HStack(spacing: 8) {
                             Image(systemName: "globe")
