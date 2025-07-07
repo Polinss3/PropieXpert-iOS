@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Foundation
 
 struct DashboardSummaryItem: Identifiable {
     let id = UUID()
