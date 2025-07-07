@@ -187,7 +187,7 @@ struct IncomeCard: View {
         if let date = isoFormatter.date(from: dateString) {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "es_ES")
-            formatter.dateStyle = .medium
+            formatter.dateFormat = "dd-MM-yyyy"
             return formatter.string(from: date)
         }
         return dateString
