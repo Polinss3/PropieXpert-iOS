@@ -129,7 +129,7 @@ struct AddIncomeSheet: View {
             date = String(income.date.prefix(10))
             description = income.description ?? ""
             // Recurrencia
-            isRecurring = income.is_recurring
+            isRecurring = income.is_recurring ?? false
             frequency = income.frequency ?? "monthly"
             recurrenceStartDate = income.date.prefix(10).description
             recurrenceEndDate = ""
