@@ -26,18 +26,6 @@ struct PropertyPerformance: Identifiable, Decodable {
     }
 }
 
-// Modelos para ingresos y gastos
-struct Income: Identifiable, Decodable {
-    let id: String
-    let amount: Double
-    let date: String
-}
-struct Expense: Identifiable, Decodable {
-    let id: String
-    let amount: Double
-    let date: String
-}
-
 // Nueva enum para las secciones
 enum DashboardSection: String, CaseIterable, Identifiable {
     case resumen = "Resumen"
