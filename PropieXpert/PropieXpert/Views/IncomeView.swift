@@ -183,12 +183,18 @@ struct IncomeCard: View {
     }
     
     func formatDate(_ dateString: String) -> String {
-        let isoFormatter = ISO8601DateFormatter()
-        if let date = isoFormatter.date(from: dateString) {
+        // Intenta parsear con DateFormatter flexible
+        let formats = ["yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd"]
+        for format in formats {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "es_ES")
-            formatter.dateFormat = "dd-MM-yyyy"
-            return formatter.string(from: date)
+            formatter.dateFormat = format
+            if let date = formatter.date(from: dateString) {
+                let outputFormatter = DateFormatter()
+                outputFormatter.locale = Locale(identifier: "es_ES")
+                outputFormatter.dateFormat = "dd-MM-yyyy"
+                return outputFormatter.string(from: date)
+            }
         }
         return dateString
     }
