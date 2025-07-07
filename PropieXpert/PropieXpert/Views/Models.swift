@@ -33,4 +33,13 @@ struct Expense: Identifiable, Decodable {
     let payment_date: String?
     let recurrence_start_date: String?
     let recurrence_end_date: String?
+}
+
+struct UserProfile: Decodable {
+    let name: String?
+    let email: String
+    let picture: String?
+    let plan: String?
+    let property_limit: Int?
+    let plan_selected: Bool?
 } 
