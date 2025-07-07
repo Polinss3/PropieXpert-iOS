@@ -1,4 +1,6 @@
 import SwiftUI
+import Foundation
+// Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
 
 struct Income: Identifiable, Decodable {
     let id: String
@@ -10,11 +12,6 @@ struct Income: Identifiable, Decodable {
     let is_recurring: Bool?
     let frequency: String?
     // Puedes añadir más campos si los necesitas
-}
-
-struct PropertyName: Decodable {
-    let _id: String
-    let name: String
 }
 
 struct IncomeView: View {

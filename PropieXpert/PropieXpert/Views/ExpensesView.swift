@@ -1,4 +1,6 @@
 import SwiftUI
+import Foundation
+// Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
 
 struct Expense: Identifiable, Decodable {
     let id: String
@@ -13,11 +15,6 @@ struct Expense: Identifiable, Decodable {
     let is_paid: Bool?
     let payment_date: String?
     // Puedes añadir más campos si los necesitas
-}
-
-struct PropertyName: Decodable {
-    let _id: String
-    let name: String
 }
 
 struct ExpensesView: View {
