@@ -5,7 +5,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            DashboardTab(authToken: $authToken)
+            DashboardView()
                 .tabItem {
                     Image(systemName: "rectangle.3.offgrid")
                     Text("Dashboard")
