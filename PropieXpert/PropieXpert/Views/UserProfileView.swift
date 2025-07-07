@@ -10,8 +10,11 @@ struct UserProfileView: View {
     
     // Extrae la URL de la foto del JWT
     var googlePictureURL: String? {
-        guard let payload = decodeJWT(token: authToken),
+        let url = decodeJWT(token: authToken)
+        print("[DEBUG] googlePictureURL - payload extraído del JWT:", url as Any)
+        guard let payload = url,
               let picture = payload["picture"] as? String else { return nil }
+        print("[DEBUG] googlePictureURL - picture extraído:", picture)
         return picture
     }
     
@@ -146,6 +149,7 @@ struct UserProfileView: View {
     func fetchUserProfile() {
         isLoading = true
         errorMessage = nil
+        print("[DEBUG] fetchUserProfile - authToken:", authToken)
         guard let url = URL(string: "https://api.propiexpert.com/users/me") else { isLoading = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -154,17 +158,22 @@ struct UserProfileView: View {
             DispatchQueue.main.async {
                 isLoading = false
                 if let error = error {
+                    print("[DEBUG] fetchUserProfile - error:", error.localizedDescription)
                     errorMessage = "Error de red: \(error.localizedDescription)"
                     return
                 }
                 guard let data = data else {
+                    print("[DEBUG] fetchUserProfile - data es nil")
                     errorMessage = "No se recibieron datos del servidor."
                     return
                 }
+                print("[DEBUG] fetchUserProfile - respuesta cruda:", String(data: data, encoding: .utf8) ?? "<binario>")
                 do {
                     let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
+                    print("[DEBUG] fetchUserProfile - decodificado:", decoded)
                     user = decoded
                 } catch {
+                    print("[DEBUG] fetchUserProfile - error decodificando:", error.localizedDescription)
                     errorMessage = "Error al decodificar usuario: \(error.localizedDescription)"
                 }
             }
@@ -178,8 +187,12 @@ struct UserProfileView: View {
     
     // Decodifica el payload del JWT y lo devuelve como diccionario
     func decodeJWT(token: String) -> [String: Any]? {
+        print("[DEBUG] decodeJWT - token recibido:", token)
         let segments = token.split(separator: ".")
-        guard segments.count == 3 else { return nil }
+        guard segments.count == 3 else {
+            print("[DEBUG] decodeJWT - token no tiene 3 partes")
+            return nil
+        }
         let payloadSegment = segments[1]
         var base64 = String(payloadSegment)
         // Añadir padding si es necesario
@@ -188,8 +201,12 @@ struct UserProfileView: View {
         if paddingLength > 0 {
             base64 += String(repeating: "=", count: paddingLength)
         }
-        guard let data = Data(base64Encoded: base64) else { return nil }
+        guard let data = Data(base64Encoded: base64) else {
+            print("[DEBUG] decodeJWT - base64 inválido")
+            return nil
+        }
         let json = try? JSONSerialization.jsonObject(with: data, options: [])
+        print("[DEBUG] decodeJWT - payload decodificado:", json as Any)
         return json as? [String: Any]
     }
 }
