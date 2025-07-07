@@ -5,7 +5,7 @@ struct AddExpenseSheet: View {
     @AppStorage("auth_token") var authToken: String = ""
     @Environment(\.dismiss) var dismiss
     var onExpenseAdded: (() -> Void)?
-    var initialData: Expense? = nil
+    var initialData: PropieXpert.Expense? = nil
     var isEdit: Bool { initialData != nil }
 
     // Form fields

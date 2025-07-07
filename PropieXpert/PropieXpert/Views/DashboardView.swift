@@ -433,7 +433,7 @@ struct MonthlyBarChartView: View {
             AxisMarks(position: .leading) {
                 AxisGridLine()
                 AxisTick()
-                AxisValueLabel(format: .number.precision(.fractionLength(0)))
+                AxisValueLabel()
             }
         }
         .chartXAxis {
