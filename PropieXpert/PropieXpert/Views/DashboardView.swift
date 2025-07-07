@@ -9,7 +9,27 @@ struct DashboardSummaryItem: Identifiable {
     let color: Color
 }
 
+// Modelo real para PropertyPerformance
+struct PropertyPerformance: Identifiable, Decodable {
+    let id: String
+    let name: String
+    let type: String
+    let net_income: Double
+    let roi: Double
+    let appreciation: Double
+    let current_value: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "property_id"
+        case name, type, net_income, roi, appreciation, current_value
+    }
+}
+
 struct DashboardView: View {
+    @AppStorage("auth_token") var authToken: String = ""
+    @State private var propertyPerformance: [PropertyPerformance] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String? = nil
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -83,7 +103,17 @@ struct DashboardView: View {
                     Text("Rendimiento de propiedades")
                         .font(.headline)
                         .padding([.top, .horizontal])
-                    PropertyPerformanceTable(properties: propertyPerformanceData)
+                    if isLoading {
+                        HStack {
+                            Spacer()
+                            ProgressView("Cargando...")
+                            Spacer()
+                        }
+                    } else if let errorMessage = errorMessage {
+                        Text(errorMessage).foregroundColor(.red).padding(.horizontal)
+                    } else {
+                        PropertyPerformanceTable(properties: propertyPerformance)
+                    }
                     
                     // --- Aquí irán el resto de secciones ---
                     // Tablas, Calendario, Gráficas...
@@ -92,7 +122,43 @@ struct DashboardView: View {
                 .padding(.vertical)
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
+            .onAppear(perform: fetchPropertyPerformance)
         }
+    }
+    
+    func fetchPropertyPerformance() {
+        isLoading = true
+        errorMessage = nil
+        guard let url = URL(string: "https://api.propiexpert.com/dashboard/") else {
+            isLoading = false
+            errorMessage = "URL inválida"
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoading = false
+                if let error = error {
+                    errorMessage = "Error de red: \(error.localizedDescription)"
+                    return
+                }
+                guard let data = data else {
+                    errorMessage = "No se recibieron datos del servidor."
+                    return
+                }
+                do {
+                    struct DashboardResponse: Decodable {
+                        let property_performance: [PropertyPerformance]
+                    }
+                    let decoded = try JSONDecoder().decode(DashboardResponse.self, from: data)
+                    propertyPerformance = decoded.property_performance
+                } catch {
+                    errorMessage = "Error al decodificar datos: \(error.localizedDescription)"
+                }
+            }
+        }.resume()
     }
 }
 
@@ -127,24 +193,6 @@ struct DashboardSummaryCard: View {
     }
 }
 
-// Datos simulados para la tabla de rendimiento
-struct PropertyPerformance: Identifiable {
-    let id = UUID()
-    let name: String
-    let type: String
-    let netIncome: Double
-    let roi: Double
-    let appreciation: Double
-    let currentValue: Double
-}
-
-let propertyPerformanceData: [PropertyPerformance] = [
-    PropertyPerformance(name: "Piso Centro", type: "Piso", netIncome: 1200, roi: 6.5, appreciation: 15000, currentValue: 250000),
-    PropertyPerformance(name: "Chalet Playa", type: "Chalet", netIncome: 1800, roi: 7.2, appreciation: 25000, currentValue: 350000),
-    PropertyPerformance(name: "Ático Norte", type: "Ático", netIncome: 800, roi: 5.1, appreciation: 10000, currentValue: 150000),
-    PropertyPerformance(name: "Local Comercial", type: "Local", netIncome: 2200, roi: 8.0, appreciation: 30000, currentValue: 400000)
-]
-
 struct PropertyPerformanceTable: View {
     let properties: [PropertyPerformance]
     
@@ -167,10 +215,10 @@ struct PropertyPerformanceTable: View {
                     HStack {
                         Text(prop.name).font(.subheadline).frame(width: 110, alignment: .leading)
                         Text(prop.type).font(.subheadline).frame(width: 70, alignment: .leading)
-                        Text(formatCurrency(prop.netIncome)).font(.subheadline).frame(width: 70, alignment: .trailing).foregroundColor(.green)
+                        Text(formatCurrency(prop.net_income)).font(.subheadline).frame(width: 70, alignment: .trailing).foregroundColor(.green)
                         Text(String(format: "%.1f%%", prop.roi)).font(.subheadline).frame(width: 60, alignment: .trailing)
                         Text(formatCurrency(prop.appreciation)).font(.subheadline).frame(width: 80, alignment: .trailing)
-                        Text(formatCurrency(prop.currentValue)).font(.subheadline).frame(width: 90, alignment: .trailing)
+                        Text(formatCurrency(prop.current_value)).font(.subheadline).frame(width: 90, alignment: .trailing)
                     }
                     .padding(.vertical, 4)
                     .background(Color(.systemBackground))
