@@ -21,6 +21,7 @@ struct IncomeView: View {
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
     @State private var showAddIncomeSheet = false
+    @State private var editingIncome: Income? = nil
     
     var body: some View {
         NavigationView {
@@ -43,6 +44,10 @@ struct IncomeView: View {
                             ForEach(incomes) { income in
                                 IncomeCard(income: income, propertyName: getPropertyName(for: income.property_id))
                                     .padding(.horizontal)
+                                    .onTapGesture {
+                                        editingIncome = income
+                                        showAddIncomeSheet = true
+                                    }
                             }
                         }
                         .padding(.top)
@@ -52,17 +57,23 @@ struct IncomeView: View {
             .navigationTitle("Ingresos")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAddIncomeSheet = true }) {
+                    Button(action: {
+                        editingIncome = nil
+                        showAddIncomeSheet = true
+                    }) {
                         Image(systemName: "plus")
                     }
                 }
             }
             .onAppear(perform: fetchAll)
             .sheet(isPresented: $showAddIncomeSheet) {
-                AddIncomeSheet(onIncomeAdded: {
-                    fetchAll()
-                    showAddIncomeSheet = false
-                })
+                AddIncomeSheet(
+                    onIncomeAdded: {
+                        fetchAll()
+                        showAddIncomeSheet = false
+                    },
+                    initialData: editingIncome
+                )
             }
         }
     }
