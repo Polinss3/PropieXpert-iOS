@@ -2,6 +2,8 @@ import SwiftUI
 import Foundation
 // Importa el modelo Mortgage
 // ... existing code ...
+import struct PropieXpert.Views.Income // Si da error, copiar struct aquí
+import struct PropieXpert.Views.Expense // Si da error, copiar struct aquí
 
 struct PropertyDetail: Decodable {
     let id: String
@@ -66,6 +68,13 @@ struct PropertyDetailSheet: View {
     @State private var showAddMortgageSheet = false
     @State private var showEditMortgageSheet = false
     @State private var showDeleteAlert = false
+    // Estados para ingresos y gastos
+    @State private var incomes: [Income] = []
+    @State private var expenses: [Expense] = []
+    @State private var isLoadingIncomes = false
+    @State private var isLoadingExpenses = false
+    @State private var errorIncomes: String? = nil
+    @State private var errorExpenses: String? = nil
     
     // --- Cálculo de saldo actual (igual que web) ---
     func calculateCurrentBalance(_ mortgage: Mortgage) -> Double {
@@ -134,6 +143,7 @@ struct PropertyDetailSheet: View {
                 // Pre-cargar financiero
                 fetchFinancialSummary()
                 fetchMortgage()
+                fetchIncomesAndExpenses()
             })
         }
     }
@@ -295,12 +305,84 @@ struct PropertyDetailSheet: View {
     }
     
     var ingresosGastosSection: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 0) {
             Text("Ingresos y Gastos")
                 .font(.headline)
-                .padding()
-            Text("(Próximamente: listado real de ingresos y gastos)")
-                .foregroundColor(.gray)
+                .padding(.top)
+            if isLoadingIncomes || isLoadingExpenses {
+                ProgressView("Cargando ingresos y gastos...")
+                    .padding()
+            } else if let errorIncomes = errorIncomes {
+                Text(errorIncomes).foregroundColor(.red).padding()
+            } else if let errorExpenses = errorExpenses {
+                Text(errorExpenses).foregroundColor(.red).padding()
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Ingresos
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Ingresos").font(.title3).bold()
+                            if incomes.isEmpty {
+                                Text("No hay ingresos para esta propiedad.")
+                                    .foregroundColor(.gray)
+                            } else {
+                                ForEach(incomes) { income in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        HStack {
+                                            Text(typeLabelIncome(income.type))
+                                                .font(.subheadline).bold()
+                                            Spacer()
+                                            Text(formatCurrency(income.amount))
+                                                .foregroundColor(.green)
+                                                .font(.body).bold()
+                                        }
+                                        HStack {
+                                            Text(formatDate(income.date))
+                                                .font(.caption)
+                                            if let desc = income.description, !desc.isEmpty {
+                                                Text(desc).font(.caption).foregroundColor(.secondary)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 6)
+                                    Divider()
+                                }
+                            }
+                        }
+                        // Gastos
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Gastos").font(.title3).bold()
+                            if expenses.isEmpty {
+                                Text("No hay gastos para esta propiedad.")
+                                    .foregroundColor(.gray)
+                            } else {
+                                ForEach(expenses) { expense in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        HStack {
+                                            Text(typeLabelExpense(expense.type))
+                                                .font(.subheadline).bold()
+                                            Spacer()
+                                            Text(formatCurrency(expense.amount))
+                                                .foregroundColor(.red)
+                                                .font(.body).bold()
+                                        }
+                                        HStack {
+                                            Text(formatDate(expense.date))
+                                                .font(.caption)
+                                            if let desc = expense.description, !desc.isEmpty {
+                                                Text(desc).font(.caption).foregroundColor(.secondary)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 6)
+                                    Divider()
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                }
+            }
         }
     }
     
@@ -601,6 +683,107 @@ struct PropertyDetailSheet: View {
                 }
             }
         }.resume()
+    }
+    
+    // Fetch de ingresos y gastos de la propiedad
+    func fetchIncomesAndExpenses() {
+        fetchIncomes()
+        fetchExpenses()
+    }
+    func fetchIncomes() {
+        isLoadingIncomes = true
+        errorIncomes = nil
+        guard let url = URL(string: "https://api.propiexpert.com/incomes/property/\(propertyId)") else { isLoadingIncomes = false; return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoadingIncomes = false
+                if let error = error {
+                    errorIncomes = "Error de red: \(error.localizedDescription)"
+                    return
+                }
+                guard let data = data else {
+                    errorIncomes = "No se recibieron datos del servidor."
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode([Income].self, from: data)
+                    incomes = decoded
+                } catch {
+                    errorIncomes = "Error al decodificar ingresos: \(error.localizedDescription)"
+                }
+            }
+        }.resume()
+    }
+    func fetchExpenses() {
+        isLoadingExpenses = true
+        errorExpenses = nil
+        guard let url = URL(string: "https://api.propiexpert.com/expenses/property/\(propertyId)") else { isLoadingExpenses = false; return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoadingExpenses = false
+                if let error = error {
+                    errorExpenses = "Error de red: \(error.localizedDescription)"
+                    return
+                }
+                guard let data = data else {
+                    errorExpenses = "No se recibieron datos del servidor."
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode([Expense].self, from: data)
+                    expenses = decoded
+                } catch {
+                    errorExpenses = "Error al decodificar gastos: \(error.localizedDescription)"
+                }
+            }
+        }.resume()
+    }
+    // Helpers para mostrar tipo y fecha
+    func typeLabelIncome(_ type: String) -> String {
+        switch type {
+        case "rent": return "Alquiler"
+        case "deposit": return "Depósito"
+        case "sale": return "Venta"
+        case "interest": return "Interés"
+        case "dividends": return "Dividendos"
+        case "other": return "Otro"
+        default: return type.capitalized
+        }
+    }
+    func typeLabelExpense(_ type: String) -> String {
+        switch type {
+        case "maintenance": return "Mantenimiento"
+        case "utilities": return "Suministros"
+        case "taxes": return "Impuestos"
+        case "insurance": return "Seguro"
+        case "mortgage": return "Hipoteca"
+        case "repairs": return "Reparaciones"
+        case "improvements": return "Mejoras"
+        case "management": return "Gestión"
+        case "other": return "Otro"
+        default: return type.capitalized
+        }
+    }
+    func formatDate(_ dateString: String) -> String {
+        let formats = ["yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd"]
+        for format in formats {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "es_ES")
+            formatter.dateFormat = format
+            if let date = formatter.date(from: dateString) {
+                let outputFormatter = DateFormatter()
+                outputFormatter.locale = Locale(identifier: "es_ES")
+                outputFormatter.dateFormat = "dd-MM-yyyy"
+                return outputFormatter.string(from: date)
+            }
+        }
+        return dateString
     }
 }
 
