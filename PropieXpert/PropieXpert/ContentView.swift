@@ -11,33 +11,43 @@ struct ContentView: View {
     @AppStorage("auth_token") var authToken: String = ""
     
     var body: some View {
-        VStack(spacing: 0) {
-            TabView {
-                DashboardView()
-                    .tabItem {
-                        Image(systemName: "rectangle.3.offgrid")
-                        Text("Dashboard")
-                    }
-                PropertiesView()
-                    .tabItem {
-                        Image(systemName: "house.fill")
-                        Text("Propiedades")
-                    }
-                IncomeView()
-                    .tabItem {
-                        Image(systemName: "arrow.down.circle")
-                        Text("Ingresos")
-                    }
-                ExpensesView()
-                    .tabItem {
-                        Image(systemName: "arrow.up.circle")
-                        Text("Gastos")
-                    }
-            }
+        TabView {
+            DashboardTab(authToken: $authToken)
+                .tabItem {
+                    Image(systemName: "rectangle.3.offgrid")
+                    Text("Dashboard")
+                }
+            PropertiesView()
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Propiedades")
+                }
+            IncomeView()
+                .tabItem {
+                    Image(systemName: "arrow.down.circle")
+                    Text("Ingresos")
+                }
+            ExpensesView()
+                .tabItem {
+                    Image(systemName: "arrow.up.circle")
+                    Text("Gastos")
+                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+    }
+}
+
+struct DashboardTab: View {
+    @Binding var authToken: String
+
+    var body: some View {
+        VStack {
+            Text("Dashboard")
+                .font(.largeTitle)
+            Spacer()
             Button(action: {
-                print("[Logout] Botón de cerrar sesión pulsado")
                 authToken = ""
-                print("[Logout] auth_token después de borrar: \(authToken)")
             }) {
                 Text("Cerrar sesión")
                     .foregroundColor(.red)
