@@ -62,10 +62,10 @@ struct IncomeView: View {
             }
             .onAppear(perform: fetchAll)
             .sheet(isPresented: $showAddIncomeSheet) {
-                // Aquí irá la vista para añadir ingresos
-                Text("Añadir ingreso (próximamente)")
-                    .font(.title2)
-                    .padding()
+                AddIncomeSheet(onIncomeAdded: {
+                    fetchAll()
+                    showAddIncomeSheet = false
+                })
             }
         }
     }
