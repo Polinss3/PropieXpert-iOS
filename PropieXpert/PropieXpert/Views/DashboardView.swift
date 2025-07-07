@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 
 struct DashboardSummaryItem: Identifiable {
     let id = UUID()
@@ -141,14 +142,20 @@ struct DashboardView: View {
                                 .padding(.horizontal)
                             }
                         }
-                        // --- Sección Gráficas (placeholder) ---
+                        // --- Sección Gráficas (ahora con gráfica de barras mensual) ---
                         if selectedSection == .graficas {
                             Text("Gráficas")
                                 .font(.largeTitle).bold()
                                 .padding([.top, .horizontal])
-                            Text("Próximamente: visualización de gráficas.")
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
+                            VStack(alignment: .leading, spacing: 24) {
+                                Text("Ingresos y gastos mensuales")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                MonthlyBarChartView()
+                                    .frame(height: 320)
+                                    .padding(.horizontal)
+                                // Aquí puedes añadir más gráficas (líneas, pastel) después
+                            }
                         }
                     }
                     .padding(.vertical)
@@ -285,6 +292,66 @@ struct PropertyPerformanceCard: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "EUR"
         return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
+    }
+}
+
+// Datos simulados para la gráfica de barras mensual
+struct MonthlyBarData: Identifiable {
+    let id = UUID()
+    let month: String
+    let income: Double
+    let expense: Double
+    var net: Double { income - expense }
+}
+
+let monthlyBarData: [MonthlyBarData] = [
+    MonthlyBarData(month: "Ene", income: 3200, expense: 1200),
+    MonthlyBarData(month: "Feb", income: 3100, expense: 1100),
+    MonthlyBarData(month: "Mar", income: 3300, expense: 1300),
+    MonthlyBarData(month: "Abr", income: 3400, expense: 1250),
+    MonthlyBarData(month: "May", income: 3250, expense: 1400),
+    MonthlyBarData(month: "Jun", income: 3350, expense: 1200),
+    MonthlyBarData(month: "Jul", income: 3500, expense: 1500),
+    MonthlyBarData(month: "Ago", income: 3400, expense: 1350),
+    MonthlyBarData(month: "Sep", income: 3300, expense: 1200),
+    MonthlyBarData(month: "Oct", income: 3450, expense: 1400),
+    MonthlyBarData(month: "Nov", income: 3550, expense: 1500),
+    MonthlyBarData(month: "Dic", income: 3600, expense: 1600)
+]
+
+struct MonthlyBarChartView: View {
+    // En el futuro, puedes pasar los datos reales como parámetro
+    let data: [MonthlyBarData] = monthlyBarData
+    
+    var body: some View {
+        Chart(data) { item in
+            BarMark(
+                x: .value("Mes", item.month),
+                y: .value("Ingresos", item.income)
+            )
+            .foregroundStyle(Color.green.gradient)
+            BarMark(
+                x: .value("Mes", item.month),
+                y: .value("Gastos", -item.expense)
+            )
+            .foregroundStyle(Color.red.gradient)
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) {
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel(format: .number.precision(.fractionLength(0)))
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic) { value in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .chartLegend(position: .top, alignment: .center)
+        .padding(.top, 8)
     }
 }
 
