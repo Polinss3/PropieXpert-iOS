@@ -37,108 +37,112 @@ struct AddIncomeSheet: View {
     let categoryOptions = ["nota_simple", "certificado_energia", "factura", "contrato", "recibo", "otro"]
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Ingreso")) {
-                    Picker("Propiedad", selection: $propertyId) {
-                        Text("Selecciona una propiedad").tag("")
-                        ForEach(properties, id: \._id) { property in
-                            Text(property.name).tag(property._id)
-                        }
-                    }
-                    Picker("Tipo", selection: $type) {
-                        Text("Selecciona un tipo").tag("")
-                        ForEach(incomeTypes, id: \.self) { t in
-                            Text(typeLabel(for: t)).tag(t)
-                        }
-                    }
-                    TextField("Cantidad (€)", text: $amount)
-                        .keyboardType(.decimalPad)
-                    DatePicker("Fecha", selection: Binding(
-                        get: { dateFromString(date) ?? Date() },
-                        set: { date = stringFromDate($0) }
-                    ), displayedComponents: .date)
-                    TextField("Descripción", text: $description, axis: .vertical)
-                }
-                Section {
-                    Toggle("¿Es recurrente?", isOn: $isRecurring)
-                }
-                if isRecurring {
-                    Section(header: Text("Recurrencia")) {
-                        Picker("Frecuencia", selection: $frequency) {
-                            ForEach(frequencyOptions, id: \.self) { f in
-                                Text(frequencyLabel(for: f)).tag(f)
+        ZStack {
+            NavigationView {
+                Form {
+                    Section(header: Text("Ingreso")) {
+                        Picker("Propiedad", selection: $propertyId) {
+                            Text("Selecciona una propiedad").tag("")
+                            ForEach(properties, id: \._id) { property in
+                                Text(property.name).tag(property._id)
                             }
                         }
-                        DatePicker("Fecha inicio", selection: Binding(
-                            get: { dateFromString(recurrenceStartDate) ?? Date() },
-                            set: { recurrenceStartDate = stringFromDate($0) }
+                        Picker("Tipo", selection: $type) {
+                            Text("Selecciona un tipo").tag("")
+                            ForEach(incomeTypes, id: \.self) { t in
+                                Text(typeLabel(for: t)).tag(t)
+                            }
+                        }
+                        TextField("Cantidad (€)", text: $amount)
+                            .keyboardType(.decimalPad)
+                        DatePicker("Fecha", selection: Binding(
+                            get: { dateFromString(date) ?? Date() },
+                            set: { date = stringFromDate($0) }
                         ), displayedComponents: .date)
-                        DatePicker("Fecha fin", selection: Binding(
-                            get: { dateFromString(recurrenceEndDate) ?? Date() },
-                            set: { recurrenceEndDate = stringFromDate($0) }
-                        ), displayedComponents: .date)
+                        TextField("Descripción", text: $description, axis: .vertical)
                     }
-                }
-                Section(header: Text("Documento (opcional)")) {
-                    FilePickerButton(fileUrl: $fileUrl)
-                    Picker("Categoría", selection: $fileCategory) {
-                        Text("-").tag("")
-                        ForEach(categoryOptions, id: \.self) { c in
-                            Text(categoryLabel(for: c)).tag(c)
+                    Section {
+                        Toggle("¿Es recurrente?", isOn: $isRecurring)
+                    }
+                    if isRecurring {
+                        Section(header: Text("Recurrencia")) {
+                            Picker("Frecuencia", selection: $frequency) {
+                                ForEach(frequencyOptions, id: \.self) { f in
+                                    Text(frequencyLabel(for: f)).tag(f)
+                                }
+                            }
+                            DatePicker("Fecha inicio", selection: Binding(
+                                get: { dateFromString(recurrenceStartDate) ?? Date() },
+                                set: { recurrenceStartDate = stringFromDate($0) }
+                            ), displayedComponents: .date)
+                            DatePicker("Fecha fin", selection: Binding(
+                                get: { dateFromString(recurrenceEndDate) ?? Date() },
+                                set: { recurrenceEndDate = stringFromDate($0) }
+                            ), displayedComponents: .date)
                         }
                     }
-                    TextField("Descripción del archivo", text: $fileDescription)
-                    if isUploadingFile {
-                        ProgressView("Subiendo archivo...")
+                    Section(header: Text("Documento (opcional)")) {
+                        FilePickerButton(fileUrl: $fileUrl)
+                        Picker("Categoría", selection: $fileCategory) {
+                            Text("-").tag("")
+                            ForEach(categoryOptions, id: \.self) { c in
+                                Text(categoryLabel(for: c)).tag(c)
+                            }
+                        }
+                        TextField("Descripción del archivo", text: $fileDescription)
+                        if isUploadingFile {
+                            ProgressView("Subiendo archivo...")
+                        }
+                        if let fileUploadError = fileUploadError {
+                            Text(fileUploadError).foregroundColor(.red)
+                        }
+                        if let fileUploadSuccess = fileUploadSuccess {
+                            Text(fileUploadSuccess).foregroundColor(.green)
+                        }
                     }
-                    if let fileUploadError = fileUploadError {
-                        Text(fileUploadError).foregroundColor(.red)
+                    if let errorMessage = errorMessage {
+                        Section {
+                            Text(errorMessage).foregroundColor(.red)
+                        }
                     }
-                    if let fileUploadSuccess = fileUploadSuccess {
-                        Text(fileUploadSuccess).foregroundColor(.green)
-                    }
-                }
-                if let errorMessage = errorMessage {
-                    Section {
-                        Text(errorMessage).foregroundColor(.red)
-                    }
-                }
-                if isEdit {
-                    Section {
-                        Button(role: .destructive) {
-                            showDeleteAlert = true
-                        } label: {
-                            if isDeleting {
-                                ProgressView()
-                            } else {
-                                Text("Eliminar ingreso")
+                    if isEdit {
+                        Section {
+                            Button(role: .destructive) {
+                                showDeleteAlert = true
+                            } label: {
+                                if isDeleting {
+                                    ProgressView()
+                                } else {
+                                    Text("Eliminar ingreso")
+                                }
                             }
                         }
                     }
                 }
-            }
-            .navigationTitle(isEdit ? "Editar Ingreso" : "Añadir Ingreso")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Button("Guardar", action: submit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(isEdit ? "Editar Ingreso" : "Añadir Ingreso")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancelar") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Button("Guardar", action: submit)
+                        }
                     }
                 }
-            }
-            .onAppear(perform: loadInitialData)
-            .alert("¿Seguro que quieres eliminar este ingreso?", isPresented: $showDeleteAlert) {
-                Button("Eliminar", role: .destructive, action: deleteIncome)
-                Button("Cancelar", role: .cancel) {}
-            } message: {
-                Text("Esta acción no se puede deshacer.")
+                .onAppear(perform: loadInitialData)
+                .alert("¿Seguro que quieres eliminar este ingreso?", isPresented: $showDeleteAlert) {
+                    Button("Eliminar", role: .destructive, action: deleteIncome)
+                    Button("Cancelar", role: .cancel) {}
+                } message: {
+                    Text("Esta acción no se puede deshacer.")
+                }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
 
     func loadInitialData() {

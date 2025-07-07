@@ -32,102 +32,106 @@ struct AddExpenseSheet: View {
     let frequencyOptions = ["monthly", "quarterly", "yearly"]
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Gasto")) {
-                    Picker("Propiedad", selection: $propertyId) {
-                        Text("Selecciona una propiedad").tag("")
-                        ForEach(properties, id: \.id) { property in
-                            Text(property.name).tag(property._id)
-                        }
-                    }
-                    Picker("Tipo", selection: $type) {
-                        Text("Selecciona un tipo").tag("")
-                        ForEach(expenseTypes, id: \.self) { t in
-                            Text(typeLabel(for: t)).tag(t)
-                        }
-                    }
-                    TextField("Cantidad (€)", text: $amount)
-                        .keyboardType(.decimalPad)
-                    DatePicker("Fecha", selection: Binding(
-                        get: { dateFromString(date) ?? Date() },
-                        set: { date = stringFromDate($0) }
-                    ), displayedComponents: .date)
-                    TextField("Descripción", text: $description, axis: .vertical)
-                }
-                Section {
-                    Toggle("¿Es recurrente?", isOn: $isRecurring)
-                }
-                if isRecurring {
-                    Section(header: Text("Recurrencia")) {
-                        Picker("Frecuencia", selection: $frequency) {
-                            ForEach(frequencyOptions, id: \.self) { f in
-                                Text(frequencyLabel(for: f)).tag(f)
+        ZStack {
+            NavigationView {
+                Form {
+                    Section(header: Text("Gasto")) {
+                        Picker("Propiedad", selection: $propertyId) {
+                            Text("Selecciona una propiedad").tag("")
+                            ForEach(properties, id: \.id) { property in
+                                Text(property.name).tag(property._id)
                             }
                         }
-                        DatePicker("Fecha inicio", selection: Binding(
-                            get: { dateFromString(recurrenceStartDate) ?? Date() },
-                            set: { recurrenceStartDate = stringFromDate($0) }
+                        Picker("Tipo", selection: $type) {
+                            Text("Selecciona un tipo").tag("")
+                            ForEach(expenseTypes, id: \.self) { t in
+                                Text(typeLabel(for: t)).tag(t)
+                            }
+                        }
+                        TextField("Cantidad (€)", text: $amount)
+                            .keyboardType(.decimalPad)
+                        DatePicker("Fecha", selection: Binding(
+                            get: { dateFromString(date) ?? Date() },
+                            set: { date = stringFromDate($0) }
                         ), displayedComponents: .date)
-                        DatePicker("Fecha fin", selection: Binding(
-                            get: { dateFromString(recurrenceEndDate) ?? Date() },
-                            set: { recurrenceEndDate = stringFromDate($0) }
-                        ), displayedComponents: .date)
+                        TextField("Descripción", text: $description, axis: .vertical)
                     }
-                }
-                Section(header: Text("Vencimiento y pago")) {
-                    DatePicker("Fecha de vencimiento", selection: Binding(
-                        get: { dateFromString(dueDate) ?? Date() },
-                        set: { dueDate = stringFromDate($0) }
-                    ), displayedComponents: .date)
-                    Toggle("¿Pagado?", isOn: $isPaid)
-                    if isPaid {
-                        DatePicker("Fecha de pago", selection: Binding(
-                            get: { dateFromString(paymentDate) ?? Date() },
-                            set: { paymentDate = stringFromDate($0) }
-                        ), displayedComponents: .date)
-                    }
-                }
-                if let errorMessage = errorMessage {
                     Section {
-                        Text(errorMessage).foregroundColor(.red)
+                        Toggle("¿Es recurrente?", isOn: $isRecurring)
                     }
-                }
-                if isEdit {
-                    Section {
-                        Button(role: .destructive) {
-                            showDeleteAlert = true
-                        } label: {
-                            if isDeleting {
-                                ProgressView()
-                            } else {
-                                Text("Eliminar gasto")
+                    if isRecurring {
+                        Section(header: Text("Recurrencia")) {
+                            Picker("Frecuencia", selection: $frequency) {
+                                ForEach(frequencyOptions, id: \.self) { f in
+                                    Text(frequencyLabel(for: f)).tag(f)
+                                }
+                            }
+                            DatePicker("Fecha inicio", selection: Binding(
+                                get: { dateFromString(recurrenceStartDate) ?? Date() },
+                                set: { recurrenceStartDate = stringFromDate($0) }
+                            ), displayedComponents: .date)
+                            DatePicker("Fecha fin", selection: Binding(
+                                get: { dateFromString(recurrenceEndDate) ?? Date() },
+                                set: { recurrenceEndDate = stringFromDate($0) }
+                            ), displayedComponents: .date)
+                        }
+                    }
+                    Section(header: Text("Vencimiento y pago")) {
+                        DatePicker("Fecha de vencimiento", selection: Binding(
+                            get: { dateFromString(dueDate) ?? Date() },
+                            set: { dueDate = stringFromDate($0) }
+                        ), displayedComponents: .date)
+                        Toggle("¿Pagado?", isOn: $isPaid)
+                        if isPaid {
+                            DatePicker("Fecha de pago", selection: Binding(
+                                get: { dateFromString(paymentDate) ?? Date() },
+                                set: { paymentDate = stringFromDate($0) }
+                            ), displayedComponents: .date)
+                        }
+                    }
+                    if let errorMessage = errorMessage {
+                        Section {
+                            Text(errorMessage).foregroundColor(.red)
+                        }
+                    }
+                    if isEdit {
+                        Section {
+                            Button(role: .destructive) {
+                                showDeleteAlert = true
+                            } label: {
+                                if isDeleting {
+                                    ProgressView()
+                                } else {
+                                    Text("Eliminar gasto")
+                                }
                             }
                         }
                     }
                 }
-            }
-            .navigationTitle(isEdit ? "Editar Gasto" : "Añadir Gasto")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Button("Guardar", action: submit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(isEdit ? "Editar Gasto" : "Añadir Gasto")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancelar") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Button("Guardar", action: submit)
+                        }
                     }
                 }
-            }
-            .onAppear(perform: loadInitialData)
-            .alert("¿Seguro que quieres eliminar este gasto?", isPresented: $showDeleteAlert) {
-                Button("Eliminar", role: .destructive, action: deleteExpense)
-                Button("Cancelar", role: .cancel) {}
-            } message: {
-                Text("Esta acción no se puede deshacer.")
+                .onAppear(perform: loadInitialData)
+                .alert("¿Seguro que quieres eliminar este gasto?", isPresented: $showDeleteAlert) {
+                    Button("Eliminar", role: .destructive, action: deleteExpense)
+                    Button("Cancelar", role: .cancel) {}
+                } message: {
+                    Text("Esta acción no se puede deshacer.")
+                }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
 
     func loadInitialData() {

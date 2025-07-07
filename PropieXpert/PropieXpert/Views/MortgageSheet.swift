@@ -32,127 +32,131 @@ struct MortgageSheet: View {
     var isEdit: Bool { mortgage != nil }
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Hipoteca")) {
-                    Picker("Tipo de hipoteca", selection: $type) {
-                        Text("Fija").tag("fixed")
-                        Text("Variable").tag("variable")
-                        Text("Mixta").tag("mixed")
-                    }
-                    TextField("Importe inicial (€)", text: $initialAmount)
-                        .keyboardType(.decimalPad)
-                    TextField("Años", text: $years)
-                        .keyboardType(.numberPad)
-                    if type == "fixed" || type == "mixed" {
-                        TextField("Interés fijo (%)", text: $interestFixed)
+        ZStack {
+            NavigationView {
+                Form {
+                    Section(header: Text("Hipoteca")) {
+                        Picker("Tipo de hipoteca", selection: $type) {
+                            Text("Fija").tag("fixed")
+                            Text("Variable").tag("variable")
+                            Text("Mixta").tag("mixed")
+                        }
+                        TextField("Importe inicial (€)", text: $initialAmount)
                             .keyboardType(.decimalPad)
+                        TextField("Años", text: $years)
+                            .keyboardType(.numberPad)
+                        if type == "fixed" || type == "mixed" {
+                            TextField("Interés fijo (%)", text: $interestFixed)
+                                .keyboardType(.decimalPad)
+                        }
+                        if type == "variable" || type == "mixed" {
+                            TextField("Interés variable (%)", text: $interestVariable)
+                                .keyboardType(.decimalPad)
+                        }
+                        DatePicker("Fecha inicio", selection: $startDateObj, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .environment(\.locale, Locale(identifier: "es_ES"))
+                            .onChange(of: startDateObj) { newDate in
+                                let formatter = DateFormatter()
+                                formatter.dateFormat = "dd-MM-yyyy"
+                                formatter.locale = Locale(identifier: "es_ES")
+                                startDate = formatter.string(from: newDate)
+                            }
+                        // Muestra la fecha seleccionada en formato español
+                        Text("Seleccionada: \(startDate)")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        TextField("Banco", text: $bankName)
+                        TextField("Nº de cuenta", text: $accountNumber)
+                        Toggle("Pago automático", isOn: $isAutomatic)
+                        TextField("Día de pago", text: $paymentDay)
+                            .keyboardType(.numberPad)
+                        TextField("Años tipo fijo", text: $fixedRatePeriod)
+                            .keyboardType(.numberPad)
+                        TextField("Referencia", text: $referenceNumber)
+                        TextField("Descripción", text: $desc, axis: .vertical)
                     }
-                    if type == "variable" || type == "mixed" {
-                        TextField("Interés variable (%)", text: $interestVariable)
-                            .keyboardType(.decimalPad)
+                    Section(header: Text("Cálculos automáticos")) {
+                        HStack {
+                            Text("Cuota mensual")
+                            Spacer()
+                            Text("\(calculatedMonthlyPayment) €")
+                                .foregroundColor(.blue)
+                        }
+                        HStack {
+                            Text("Total a pagar")
+                            Spacer()
+                            Text("\(calculatedTotalToPay) €")
+                                .foregroundColor(.blue)
+                        }
                     }
-                    DatePicker("Fecha inicio", selection: $startDateObj, displayedComponents: .date)
-                        .datePickerStyle(.compact)
-                        .environment(\.locale, Locale(identifier: "es_ES"))
-                        .onChange(of: startDateObj) { newDate in
+                    if let errorMessage = errorMessage {
+                        Section {
+                            Text(errorMessage).foregroundColor(.red)
+                        }
+                    }
+                    if isEdit {
+                        Section {
+                            Button("Eliminar hipoteca", role: .destructive) {
+                                showDeleteAlert = true
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(isEdit ? "Editar Hipoteca" : "Añadir Hipoteca")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancelar") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Button("Guardar", action: submit)
+                        }
+                    }
+                }
+                .alert("¿Eliminar hipoteca?", isPresented: $showDeleteAlert) {
+                    Button("Eliminar", role: .destructive) { deleteMortgage() }
+                    Button("Cancelar", role: .cancel) {}
+                } message: {
+                    Text("Esta acción no se puede deshacer.")
+                }
+                .onAppear {
+                    if let m = mortgage {
+                        type = m.type
+                        initialAmount = String(format: "%.2f", m.initial_amount)
+                        years = String(m.years)
+                        interestFixed = m.interest_rate_fixed != nil ? String(m.interest_rate_fixed!) : ""
+                        interestVariable = m.interest_rate_variable != nil ? String(m.interest_rate_variable!) : ""
+                        if let s = m.start_date, let d = isoDate(from: s) {
+                            startDateObj = d
                             let formatter = DateFormatter()
                             formatter.dateFormat = "dd-MM-yyyy"
                             formatter.locale = Locale(identifier: "es_ES")
-                            startDate = formatter.string(from: newDate)
+                            startDate = formatter.string(from: d)
+                        } else {
+                            startDate = ""
                         }
-                    // Muestra la fecha seleccionada en formato español
-                    Text("Seleccionada: \(startDate)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    TextField("Banco", text: $bankName)
-                    TextField("Nº de cuenta", text: $accountNumber)
-                    Toggle("Pago automático", isOn: $isAutomatic)
-                    TextField("Día de pago", text: $paymentDay)
-                        .keyboardType(.numberPad)
-                    TextField("Años tipo fijo", text: $fixedRatePeriod)
-                        .keyboardType(.numberPad)
-                    TextField("Referencia", text: $referenceNumber)
-                    TextField("Descripción", text: $desc, axis: .vertical)
-                }
-                Section(header: Text("Cálculos automáticos")) {
-                    HStack {
-                        Text("Cuota mensual")
-                        Spacer()
-                        Text("\(calculatedMonthlyPayment) €")
-                            .foregroundColor(.blue)
+                        bankName = m.bank_name ?? ""
+                        accountNumber = m.account_number ?? ""
+                        paymentDay = m.payment_day != nil ? String(m.payment_day!) : ""
+                        fixedRatePeriod = m.fixed_rate_period != nil ? String(m.fixed_rate_period!) : ""
+                        referenceNumber = m.reference_number ?? ""
+                        desc = m.description ?? ""
+                        isAutomatic = m.is_automatic_payment ?? false
                     }
-                    HStack {
-                        Text("Total a pagar")
-                        Spacer()
-                        Text("\(calculatedTotalToPay) €")
-                            .foregroundColor(.blue)
-                    }
-                }
-                if let errorMessage = errorMessage {
-                    Section {
-                        Text(errorMessage).foregroundColor(.red)
-                    }
-                }
-                if isEdit {
-                    Section {
-                        Button("Eliminar hipoteca", role: .destructive) {
-                            showDeleteAlert = true
-                        }
-                    }
-                }
-            }
-            .navigationTitle(isEdit ? "Editar Hipoteca" : "Añadir Hipoteca")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Button("Guardar", action: submit)
-                    }
-                }
-            }
-            .alert("¿Eliminar hipoteca?", isPresented: $showDeleteAlert) {
-                Button("Eliminar", role: .destructive) { deleteMortgage() }
-                Button("Cancelar", role: .cancel) {}
-            } message: {
-                Text("Esta acción no se puede deshacer.")
-            }
-            .onAppear {
-                if let m = mortgage {
-                    type = m.type
-                    initialAmount = String(format: "%.2f", m.initial_amount)
-                    years = String(m.years)
-                    interestFixed = m.interest_rate_fixed != nil ? String(m.interest_rate_fixed!) : ""
-                    interestVariable = m.interest_rate_variable != nil ? String(m.interest_rate_variable!) : ""
-                    if let s = m.start_date, let d = isoDate(from: s) {
-                        startDateObj = d
+                    if mortgage == nil {
                         let formatter = DateFormatter()
                         formatter.dateFormat = "dd-MM-yyyy"
                         formatter.locale = Locale(identifier: "es_ES")
-                        startDate = formatter.string(from: d)
-                    } else {
-                        startDate = ""
+                        startDate = formatter.string(from: startDateObj)
                     }
-                    bankName = m.bank_name ?? ""
-                    accountNumber = m.account_number ?? ""
-                    paymentDay = m.payment_day != nil ? String(m.payment_day!) : ""
-                    fixedRatePeriod = m.fixed_rate_period != nil ? String(m.fixed_rate_period!) : ""
-                    referenceNumber = m.reference_number ?? ""
-                    desc = m.description ?? ""
-                    isAutomatic = m.is_automatic_payment ?? false
-                }
-                if mortgage == nil {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "dd-MM-yyyy"
-                    formatter.locale = Locale(identifier: "es_ES")
-                    startDate = formatter.string(from: startDateObj)
                 }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
 
     var calculatedMonthlyPayment: String {

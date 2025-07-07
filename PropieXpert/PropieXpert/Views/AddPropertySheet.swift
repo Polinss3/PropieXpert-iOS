@@ -43,93 +43,97 @@ struct AddPropertySheet: View {
     @State private var errorMessage: String? = nil
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Propiedad")) {
-                    TextField("Nombre", text: $name)
-                    TextField("Dirección", text: $address)
-                    Picker("Tipo", selection: $propertyType) {
-                        Text("Apartamento").tag("apartment")
-                        Text("Casa").tag("house")
-                        Text("Comercial").tag("commercial")
-                        Text("Terreno").tag("land")
-                        Text("Otro").tag("other")
-                    }
-                    TextField("Precio de compra (€)", text: $purchasePrice)
-                        .keyboardType(.decimalPad)
-                    TextField("Valor actual (€)", text: $currentValue)
-                        .keyboardType(.decimalPad)
-                    TextField("Dormitorios", text: $bedrooms)
-                        .keyboardType(.numberPad)
-                    TextField("Baños", text: $bathrooms)
-                        .keyboardType(.numberPad)
-                    TextField("Metros cuadrados", text: $squareMeters)
-                        .keyboardType(.decimalPad)
-                    TextField("Descripción", text: $description, axis: .vertical)
-                    TextField("Comodidades (separadas por coma)", text: $amenities)
-                    Toggle("¿Está alquilada?", isOn: $isRented)
-                    if isRented {
-                        TextField("Precio de alquiler (€)", text: $rentalPrice)
-                            .keyboardType(.decimalPad)
-                    }
-                    TextField("Última reforma (opcional)", text: $lastRenovation)
-                        .keyboardType(.numbersAndPunctuation)
-                    TextField("Notas", text: $notes, axis: .vertical)
-                }
-                Section {
-                    Toggle("¿Añadir hipoteca?", isOn: $addMortgage)
-                }
-                if addMortgage {
-                    Section(header: Text("Hipoteca")) {
-                        Picker("Tipo de hipoteca", selection: $mortgageType) {
-                            Text("Fija").tag("fixed")
-                            Text("Variable").tag("variable")
-                            Text("Mixta").tag("mixed")
+        ZStack {
+            NavigationView {
+                Form {
+                    Section(header: Text("Propiedad")) {
+                        TextField("Nombre", text: $name)
+                        TextField("Dirección", text: $address)
+                        Picker("Tipo", selection: $propertyType) {
+                            Text("Apartamento").tag("apartment")
+                            Text("Casa").tag("house")
+                            Text("Comercial").tag("commercial")
+                            Text("Terreno").tag("land")
+                            Text("Otro").tag("other")
                         }
-                        TextField("Importe inicial (€)", text: $mortgageInitialAmount)
+                        TextField("Precio de compra (€)", text: $purchasePrice)
                             .keyboardType(.decimalPad)
-                        TextField("Años", text: $mortgageYears)
+                        TextField("Valor actual (€)", text: $currentValue)
+                            .keyboardType(.decimalPad)
+                        TextField("Dormitorios", text: $bedrooms)
                             .keyboardType(.numberPad)
-                        if mortgageType == "fixed" || mortgageType == "mixed" {
-                            TextField("Interés fijo (%)", text: $mortgageInterestFixed)
+                        TextField("Baños", text: $bathrooms)
+                            .keyboardType(.numberPad)
+                        TextField("Metros cuadrados", text: $squareMeters)
+                            .keyboardType(.decimalPad)
+                        TextField("Descripción", text: $description, axis: .vertical)
+                        TextField("Comodidades (separadas por coma)", text: $amenities)
+                        Toggle("¿Está alquilada?", isOn: $isRented)
+                        if isRented {
+                            TextField("Precio de alquiler (€)", text: $rentalPrice)
                                 .keyboardType(.decimalPad)
                         }
-                        if mortgageType == "variable" || mortgageType == "mixed" {
-                            TextField("Interés variable (%)", text: $mortgageInterestVariable)
-                                .keyboardType(.decimalPad)
-                        }
-                        TextField("Fecha inicio (YYYY-MM-DD)", text: $mortgageStartDate)
-                        TextField("Banco", text: $mortgageBankName)
-                        TextField("Nº de cuenta", text: $mortgageAccountNumber)
-                        Toggle("Pago automático", isOn: $mortgageIsAutomatic)
-                        TextField("Día de pago", text: $mortgagePaymentDay)
-                            .keyboardType(.numberPad)
-                        TextField("Años tipo fijo", text: $mortgageFixedRatePeriod)
-                            .keyboardType(.numberPad)
-                        TextField("Referencia", text: $mortgageReferenceNumber)
-                        TextField("Descripción", text: $mortgageDescription, axis: .vertical)
+                        TextField("Última reforma (opcional)", text: $lastRenovation)
+                            .keyboardType(.numbersAndPunctuation)
+                        TextField("Notas", text: $notes, axis: .vertical)
                     }
-                }
-                if let errorMessage = errorMessage {
                     Section {
-                        Text(errorMessage).foregroundColor(.red)
+                        Toggle("¿Añadir hipoteca?", isOn: $addMortgage)
+                    }
+                    if addMortgage {
+                        Section(header: Text("Hipoteca")) {
+                            Picker("Tipo de hipoteca", selection: $mortgageType) {
+                                Text("Fija").tag("fixed")
+                                Text("Variable").tag("variable")
+                                Text("Mixta").tag("mixed")
+                            }
+                            TextField("Importe inicial (€)", text: $mortgageInitialAmount)
+                                .keyboardType(.decimalPad)
+                            TextField("Años", text: $mortgageYears)
+                                .keyboardType(.numberPad)
+                            if mortgageType == "fixed" || mortgageType == "mixed" {
+                                TextField("Interés fijo (%)", text: $mortgageInterestFixed)
+                                    .keyboardType(.decimalPad)
+                            }
+                            if mortgageType == "variable" || mortgageType == "mixed" {
+                                TextField("Interés variable (%)", text: $mortgageInterestVariable)
+                                    .keyboardType(.decimalPad)
+                            }
+                            TextField("Fecha inicio (YYYY-MM-DD)", text: $mortgageStartDate)
+                            TextField("Banco", text: $mortgageBankName)
+                            TextField("Nº de cuenta", text: $mortgageAccountNumber)
+                            Toggle("Pago automático", isOn: $mortgageIsAutomatic)
+                            TextField("Día de pago", text: $mortgagePaymentDay)
+                                .keyboardType(.numberPad)
+                            TextField("Años tipo fijo", text: $mortgageFixedRatePeriod)
+                                .keyboardType(.numberPad)
+                            TextField("Referencia", text: $mortgageReferenceNumber)
+                            TextField("Descripción", text: $mortgageDescription, axis: .vertical)
+                        }
+                    }
+                    if let errorMessage = errorMessage {
+                        Section {
+                            Text(errorMessage).foregroundColor(.red)
+                        }
                     }
                 }
-            }
-            .navigationTitle("Añadir Propiedad")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Button("Guardar", action: submit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle("Añadir Propiedad")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancelar") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Button("Guardar", action: submit)
+                        }
                     }
                 }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
 
     func submit() {

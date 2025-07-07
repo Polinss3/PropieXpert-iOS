@@ -27,52 +27,56 @@ struct PropertiesView: View {
     @State private var showAddPropertySheet = false
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if isLoading {
-                    ProgressView("Cargando propiedades...")
-                } else if let errorMessage = errorMessage {
-                    Text(errorMessage).foregroundColor(.red)
-                } else if properties.isEmpty {
-                    Text("No tienes propiedades registradas.")
-                        .foregroundColor(.gray)
-                } else {
-                    List(properties) { property in
-                        Button(action: {
-                            selectedProperty = property
-                        }) {
-                            VStack(alignment: .leading) {
-                                Text(property.name).font(.headline)
-                                Text(property.address).font(.subheadline).foregroundColor(.gray)
-                                HStack(spacing: 12) {
-                                    Text(property.property_type.capitalized)
-                                    Text("Habitaciones: \(property.bedrooms)")
-                                    Text("Baños: \(property.bathrooms)")
-                                }.font(.caption)
+        ZStack {
+            NavigationView {
+                VStack {
+                    if isLoading {
+                        ProgressView("Cargando propiedades...")
+                    } else if let errorMessage = errorMessage {
+                        Text(errorMessage).foregroundColor(.red)
+                    } else if properties.isEmpty {
+                        Text("No tienes propiedades registradas.")
+                            .foregroundColor(.gray)
+                    } else {
+                        List(properties) { property in
+                            Button(action: {
+                                selectedProperty = property
+                            }) {
+                                VStack(alignment: .leading) {
+                                    Text(property.name).font(.headline)
+                                    Text(property.address).font(.subheadline).foregroundColor(.gray)
+                                    HStack(spacing: 12) {
+                                        Text(property.property_type.capitalized)
+                                        Text("Habitaciones: \(property.bedrooms)")
+                                        Text("Baños: \(property.bathrooms)")
+                                    }.font(.caption)
+                                }
                             }
                         }
-                    }
-                    .listStyle(PlainListStyle())
-                }
-            }
-            .navigationTitle("Propiedades")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAddPropertySheet = true }) {
-                        Image(systemName: "plus")
+                        .listStyle(PlainListStyle())
                     }
                 }
-            }
-            .onAppear(perform: fetchProperties)
-            .sheet(item: $selectedProperty) { property in
-                PropertyDetailSheet(propertyId: property.id)
-            }
-            .sheet(isPresented: $showAddPropertySheet) {
-                AddPropertySheet(onPropertyAdded: {
-                    fetchProperties()
-                })
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle("Propiedades")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { showAddPropertySheet = true }) {
+                            Image(systemName: "plus")
+                        }
+                    }
+                }
+                .onAppear(perform: fetchProperties)
+                .sheet(item: $selectedProperty) { property in
+                    PropertyDetailSheet(propertyId: property.id)
+                }
+                .sheet(isPresented: $showAddPropertySheet) {
+                    AddPropertySheet(onPropertyAdded: {
+                        fetchProperties()
+                    })
+                }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
     
     func fetchProperties() {

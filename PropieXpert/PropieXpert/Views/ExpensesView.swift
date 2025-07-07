@@ -27,58 +27,62 @@ struct ExpensesView: View {
     @State private var editingExpense: Expense? = nil
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if isLoading {
-                    ProgressView("Cargando gastos...")
-                } else if let errorMessage = errorMessage {
-                    Text(errorMessage).foregroundColor(.red)
-                } else if expenses.isEmpty {
-                    VStack(spacing: 12) {
-                        Text("No tienes gastos registrados.")
-                            .foregroundColor(.gray)
-                        Text("Pulsa el botón '+' para añadir un gasto.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(expenses) { expense in
-                                ExpenseCard(expense: expense, propertyName: getPropertyName(for: expense.property_id))
-                                    .padding(.horizontal)
-                                    .onTapGesture {
-                                        editingExpense = expense
-                                        showAddExpenseSheet = true
-                                    }
-                            }
+        ZStack {
+            NavigationView {
+                VStack {
+                    if isLoading {
+                        ProgressView("Cargando gastos...")
+                    } else if let errorMessage = errorMessage {
+                        Text(errorMessage).foregroundColor(.red)
+                    } else if expenses.isEmpty {
+                        VStack(spacing: 12) {
+                            Text("No tienes gastos registrados.")
+                                .foregroundColor(.gray)
+                            Text("Pulsa el botón '+' para añadir un gasto.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
-                        .padding(.top)
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(expenses) { expense in
+                                    ExpenseCard(expense: expense, propertyName: getPropertyName(for: expense.property_id))
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            editingExpense = expense
+                                            showAddExpenseSheet = true
+                                        }
+                                }
+                            }
+                            .padding(.top)
+                        }
                     }
                 }
-            }
-            .navigationTitle("Gastos")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        editingExpense = nil
-                        showAddExpenseSheet = true
-                    }) {
-                        Image(systemName: "plus")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle("Gastos")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            editingExpense = nil
+                            showAddExpenseSheet = true
+                        }) {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
-            }
-            .onAppear(perform: fetchAll)
-            .sheet(isPresented: $showAddExpenseSheet) {
-                AddExpenseSheet(
-                    onExpenseAdded: {
-                        fetchAll()
-                        showAddExpenseSheet = false
-                    },
-                    initialData: editingExpense
-                )
+                .onAppear(perform: fetchAll)
+                .sheet(isPresented: $showAddExpenseSheet) {
+                    AddExpenseSheet(
+                        onExpenseAdded: {
+                            fetchAll()
+                            showAddExpenseSheet = false
+                        },
+                        initialData: editingExpense
+                    )
+                }
             }
         }
+        .ignoresSafeArea(.container, edges: .all)
     }
     
     func fetchAll() {
