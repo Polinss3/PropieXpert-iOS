@@ -36,10 +36,12 @@ struct Expense: Identifiable, Decodable {
 }
 
 struct UserProfile: Decodable {
-    let name: String?
+    let id: String
     let email: String
-    let picture: String?
+    let name: String?
     let plan: String?
     let property_limit: Int?
     let plan_selected: Bool?
+    let stripe_subscription_id: String?
+    let plan_updated_at: String?
 } 
