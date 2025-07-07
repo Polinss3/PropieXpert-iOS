@@ -26,8 +26,6 @@ struct ContentView: View {
                     Text("Gastos")
                 }
         }
-        .ignoresSafeArea(.all) // ocupa toda la pantalla
-        .background(Color(.systemBackground)) // fondo blanco completo
     }
 }
 
