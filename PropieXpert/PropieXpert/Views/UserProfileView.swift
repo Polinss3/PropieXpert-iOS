@@ -147,34 +147,27 @@ struct UserProfileView: View {
     }
     
     func fetchUserProfile() {
-        isLoading = true
-        errorMessage = nil
         print("[DEBUG] fetchUserProfile - authToken:", authToken)
-        guard let url = URL(string: "https://api.propiexpert.com/users/me") else { isLoading = false; return }
+        guard let url = URL(string: "https://api.propiexpert.com/auth/me") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                isLoading = false
-                if let error = error {
-                    print("[DEBUG] fetchUserProfile - error:", error.localizedDescription)
+                if let data = data {
+                    print("[DEBUG] fetchUserProfile - respuesta cruda:", String(data: data, encoding: .utf8) ?? "<binario>")
+                    do {
+                        let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
+                        user = decoded
+                        print("[DEBUG] fetchUserProfile - usuario decodificado:", decoded)
+                    } catch {
+                        print("[DEBUG] fetchUserProfile - error decodificando:", error)
+                        errorMessage = "Error al decodificar usuario: \(error.localizedDescription)"
+                    }
+                } else if let error = error {
                     errorMessage = "Error de red: \(error.localizedDescription)"
-                    return
-                }
-                guard let data = data else {
-                    print("[DEBUG] fetchUserProfile - data es nil")
+                } else {
                     errorMessage = "No se recibieron datos del servidor."
-                    return
-                }
-                print("[DEBUG] fetchUserProfile - respuesta cruda:", String(data: data, encoding: .utf8) ?? "<binario>")
-                do {
-                    let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
-                    print("[DEBUG] fetchUserProfile - decodificado:", decoded)
-                    user = decoded
-                } catch {
-                    print("[DEBUG] fetchUserProfile - error decodificando:", error.localizedDescription)
-                    errorMessage = "Error al decodificar usuario: \(error.localizedDescription)"
                 }
             }
         }.resume()
