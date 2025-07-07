@@ -7,6 +7,8 @@ struct Income: Identifiable, Decodable {
     let amount: Double
     let date: String
     let description: String?
+    let is_recurring: Bool?
+    let frequency: String?
     // Puedes añadir más campos si los necesitas
 }
 

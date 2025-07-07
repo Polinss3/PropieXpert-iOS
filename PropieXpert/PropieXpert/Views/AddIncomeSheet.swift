@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct AddIncomeSheet: View {
     @AppStorage("auth_token") var authToken: String = ""
