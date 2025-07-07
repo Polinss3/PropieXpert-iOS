@@ -532,13 +532,17 @@ struct DashboardCalendarView: View {
         for income in allIncomes {
             if let date = dateFromString(income.date) {
                 dict[date, default: (0,0)].0 += 1
+                print("DEBUG: Ingreso detectado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
             }
         }
         for expense in allExpenses {
             if let date = dateFromString(expense.date) {
                 dict[date, default: (0,0)].1 += 1
+                print("DEBUG: Gasto detectado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
             }
         }
+        
+        print("DEBUG: Total días con eventos: \(dict.count)")
         return dict
     }
     
@@ -652,24 +656,33 @@ struct DashboardCalendarView: View {
                                     isCurrentMonth ? .primary : .secondary
                                 )
                             
-                            // Indicadores de eventos (igual que en la web)
-                            HStack(spacing: 4) {
+                            // Indicadores de eventos - Puntos verdes (ingresos) y rojos (gastos)
+                            HStack(spacing: 2) {
                                 if dayEvents.0 > 0 {
                                     Circle()
-                                        .fill(Color(red: 0.22, green: 0.58, blue: 0.27)) // bg-green-500
-                                        .frame(width: 12, height: 12)
-                                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+                                        .fill(Color.green)
+                                        .frame(width: 6, height: 6)
                                 }
                                 if dayEvents.1 > 0 {
                                     Circle()
-                                        .fill(Color(red: 0.94, green: 0.32, blue: 0.32)) // bg-red-500
-                                        .frame(width: 12, height: 12)
-                                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+                                        .fill(Color.red)
+                                        .frame(width: 6, height: 6)
+                                }
+                                // DEBUG: Muestra puntos de ejemplo para días específicos (eliminar después)
+                                if calendar.component(.day, from: date) == 15 || calendar.component(.day, from: date) == 20 {
+                                    Circle()
+                                        .fill(Color.green)
+                                        .frame(width: 6, height: 6)
+                                }
+                                if calendar.component(.day, from: date) == 10 || calendar.component(.day, from: date) == 25 {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 6, height: 6)
                                 }
                             }
-                            .frame(height: 14)
+                            .frame(height: 8)
                         }
-                        .frame(width: 44, height: 60)
+                        .frame(width: 44, height: 56)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(isSelected ? Color.primary : (isToday ? Color.blue.opacity(0.1) : Color.clear))
