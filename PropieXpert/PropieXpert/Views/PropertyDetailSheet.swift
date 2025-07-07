@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+// Los modelos Income y Expense vienen de Models.swift
 // Importa el modelo Mortgage
 // ... existing code ...
 // Income y Expense ya están disponibles por Models.swift en el mismo target

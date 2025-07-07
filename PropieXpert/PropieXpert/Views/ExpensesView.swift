@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+// Los modelos Income y Expense vienen de Models.swift
 // Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
 
 struct ExpensesView: View {

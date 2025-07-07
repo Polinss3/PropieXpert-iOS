@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+// El modelo Income viene de Models.swift
 
 struct AddIncomeSheet: View {
     @AppStorage("auth_token") var authToken: String = ""

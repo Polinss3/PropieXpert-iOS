@@ -1,6 +1,6 @@
 import SwiftUI
 import Foundation
-// Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
+// Los modelos Income y Expense vienen de Models.swift
 
 struct IncomeView: View {
     @AppStorage("auth_token") var authToken: String = ""
