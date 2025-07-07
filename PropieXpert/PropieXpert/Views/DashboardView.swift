@@ -18,19 +18,34 @@ func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, mon
     let calendar = Calendar.current
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
+    print("DEBUG expandRecurring: Procesando \(items.count) items para \(month)/\(year)")
     return items.compactMap { item in
+        print("DEBUG expandRecurring: Item - is_recurring: \(item.is_recurring ?? false), frequency: \(item.frequency ?? "nil")")
         guard let isRecurring = item.is_recurring, isRecurring,
-              let frequency = item.frequency else { return nil }
+              let frequency = item.frequency else { 
+            print("DEBUG expandRecurring: Item descartado - no es recurrente o no tiene frequency")
+            return nil 
+        }
         let startStr = item.recurrence_start_date ?? item.date
         let endStr = item.recurrence_end_date ?? "\(year)-12-31"
+        print("DEBUG expandRecurring: Fechas - start: \(startStr), end: \(endStr)")
         guard let start = formatter.date(from: startStr),
-              let end = formatter.date(from: endStr) else { return nil }
+              let end = formatter.date(from: endStr) else { 
+            print("DEBUG expandRecurring: Error parseando fechas")
+            return nil 
+        }
         let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
-        if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { return nil }
+        if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { 
+            print("DEBUG expandRecurring: Fecha fuera del rango")
+            return nil 
+        }
         let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: start), to: currentMonth).month ?? 0
+        print("DEBUG expandRecurring: monthsDiff: \(monthsDiff), frequency: \(frequency)")
         if (frequency == "monthly") || (frequency == "quarterly" && monthsDiff % 3 == 0) || (frequency == "yearly" && monthsDiff % 12 == 0) {
+            print("DEBUG expandRecurring: Item aceptado")
             return item
         }
+        print("DEBUG expandRecurring: Item descartado - no coincide con frequency")
         return nil
     }
 }
@@ -38,11 +53,22 @@ func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, mon
 func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
+    print("DEBUG expandPunctual: Procesando \(items.count) items para \(month)/\(year)")
     return items.filter { item in
-        guard let isRecurring = item.is_recurring, !isRecurring else { return false }
-        guard let date = formatter.date(from: item.date) else { return false }
+        print("DEBUG expandPunctual: Item - is_recurring: \(item.is_recurring ?? false), date: \(item.date)")
+        guard let isRecurring = item.is_recurring, !isRecurring else { 
+            print("DEBUG expandPunctual: Item descartado - es recurrente")
+            return false 
+        }
+        guard let date = formatter.date(from: item.date) else { 
+            print("DEBUG expandPunctual: Error parseando fecha: \(item.date)")
+            return false 
+        }
         let comps = Calendar.current.dateComponents([.year, .month], from: date)
-        return comps.year == year && comps.month == month
+        print("DEBUG expandPunctual: Fecha parseada - year: \(comps.year ?? 0), month: \(comps.month ?? 0)")
+        let result = comps.year == year && comps.month == month
+        print("DEBUG expandPunctual: Item \(result ? "aceptado" : "descartado")")
+        return result
     }
 }
 
@@ -525,25 +551,51 @@ struct DashboardCalendarView: View {
         let year = calendar.component(.year, from: month)
         let monthNum = calendar.component(.month, from: month)
         
-        // Expandir eventos recurrentes y puntuales
-        let allIncomes = expandRecurring(items: incomes, year: year, month: monthNum) + expandPunctual(items: incomes, year: year, month: monthNum)
-        let allExpenses = expandRecurring(items: expenses, year: year, month: monthNum) + expandPunctual(items: expenses, year: year, month: monthNum)
-        
+        print("DEBUG: Procesando eventos para \(monthNum)/\(year)")
         print("DEBUG: Total ingresos originales: \(incomes.count)")
         print("DEBUG: Total gastos originales: \(expenses.count)")
+        
+        // Debug de ingresos originales
+        for (index, income) in incomes.enumerated() {
+            print("DEBUG: Ingreso \(index): fecha=\(income.date), recurrente=\(income.is_recurring ?? false), tipo=\(income.type), cantidad=\(income.amount)")
+        }
+        
+        // Debug de gastos originales
+        for (index, expense) in expenses.enumerated() {
+            print("DEBUG: Gasto \(index): fecha=\(expense.date), recurrente=\(expense.is_recurring ?? false), tipo=\(expense.type), cantidad=\(expense.amount)")
+        }
+        
+        // Expandir eventos recurrentes y puntuales
+        let recurringIncomes = expandRecurring(items: incomes, year: year, month: monthNum)
+        let punctualIncomes = expandPunctual(items: incomes, year: year, month: monthNum)
+        let recurringExpenses = expandRecurring(items: expenses, year: year, month: monthNum)
+        let punctualExpenses = expandPunctual(items: expenses, year: year, month: monthNum)
+        
+        print("DEBUG: Ingresos recurrentes expandidos: \(recurringIncomes.count)")
+        print("DEBUG: Ingresos puntuales expandidos: \(punctualIncomes.count)")
+        print("DEBUG: Gastos recurrentes expandidos: \(recurringExpenses.count)")
+        print("DEBUG: Gastos puntuales expandidos: \(punctualExpenses.count)")
+        
+        let allIncomes = recurringIncomes + punctualIncomes
+        let allExpenses = recurringExpenses + punctualExpenses
+        
         print("DEBUG: Total ingresos expandidos: \(allIncomes.count)")
         print("DEBUG: Total gastos expandidos: \(allExpenses.count)")
         
         for income in allIncomes {
             if let date = dateFromString(income.date) {
                 dict[date, default: (0,0)].0 += 1
-                print("DEBUG: Ingreso detectado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
+                print("DEBUG: Ingreso procesado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
+            } else {
+                print("DEBUG: Error parseando fecha de ingreso: \(income.date)")
             }
         }
         for expense in allExpenses {
             if let date = dateFromString(expense.date) {
                 dict[date, default: (0,0)].1 += 1
-                print("DEBUG: Gasto detectado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
+                print("DEBUG: Gasto procesado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
+            } else {
+                print("DEBUG: Error parseando fecha de gasto: \(expense.date)")
             }
         }
         
@@ -682,15 +734,17 @@ struct DashboardCalendarView: View {
                                 if dayEvents.0 > 0 {
                                     Circle()
                                         .fill(Color.green)
-                                        .frame(width: 6, height: 6)
+                                        .frame(width: 10, height: 10)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
                                 }
                                 if dayEvents.1 > 0 {
                                     Circle()
                                         .fill(Color.red)
-                                        .frame(width: 6, height: 6)
+                                        .frame(width: 10, height: 10)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
                                 }
                             }
-                            .frame(height: 8)
+                            .frame(height: 14)
                         }
                         .frame(width: 44, height: 56)
                         .background(
