@@ -15,6 +15,8 @@ struct Income: Identifiable, Decodable {
     let description: String?
     let is_recurring: Bool?
     let frequency: String?
+    let recurrence_start_date: String?
+    let recurrence_end_date: String?
 }
 
 struct Expense: Identifiable, Decodable {
@@ -29,4 +31,6 @@ struct Expense: Identifiable, Decodable {
     let due_date: String?
     let is_paid: Bool?
     let payment_date: String?
+    let recurrence_start_date: String?
+    let recurrence_end_date: String?
 } 
