@@ -16,6 +16,7 @@ struct MortgageSheet: View {
     @State private var interestFixed: String = ""
     @State private var interestVariable: String = ""
     @State private var startDate: String = ""
+    @State private var startDateObj: Date = Date()
     @State private var bankName: String = ""
     @State private var accountNumber: String = ""
     @State private var paymentDay: String = ""
@@ -51,7 +52,19 @@ struct MortgageSheet: View {
                         TextField("Interés variable (%)", text: $interestVariable)
                             .keyboardType(.decimalPad)
                     }
-                    TextField("Fecha inicio (YYYY-MM-DD)", text: $startDate)
+                    DatePicker("Fecha inicio", selection: $startDateObj, displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                        .environment(\.locale, Locale(identifier: "es_ES"))
+                        .onChange(of: startDateObj) { newDate in
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "dd-MM-yyyy"
+                            formatter.locale = Locale(identifier: "es_ES")
+                            startDate = formatter.string(from: newDate)
+                        }
+                    // Muestra la fecha seleccionada en formato español
+                    Text("Seleccionada: \(startDate)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                     TextField("Banco", text: $bankName)
                     TextField("Nº de cuenta", text: $accountNumber)
                     Toggle("Pago automático", isOn: $isAutomatic)
@@ -115,7 +128,15 @@ struct MortgageSheet: View {
                     years = String(m.years)
                     interestFixed = m.interest_rate_fixed != nil ? String(m.interest_rate_fixed!) : ""
                     interestVariable = m.interest_rate_variable != nil ? String(m.interest_rate_variable!) : ""
-                    startDate = m.start_date ?? ""
+                    if let s = m.start_date, let d = isoDate(from: s) {
+                        startDateObj = d
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "dd-MM-yyyy"
+                        formatter.locale = Locale(identifier: "es_ES")
+                        startDate = formatter.string(from: d)
+                    } else {
+                        startDate = ""
+                    }
                     bankName = m.bank_name ?? ""
                     accountNumber = m.account_number ?? ""
                     paymentDay = m.payment_day != nil ? String(m.payment_day!) : ""
@@ -123,6 +144,12 @@ struct MortgageSheet: View {
                     referenceNumber = m.reference_number ?? ""
                     desc = m.description ?? ""
                     isAutomatic = m.is_automatic_payment ?? false
+                }
+                if mortgage == nil {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "dd-MM-yyyy"
+                    formatter.locale = Locale(identifier: "es_ES")
+                    startDate = formatter.string(from: startDateObj)
                 }
             }
         }
@@ -173,10 +200,16 @@ struct MortgageSheet: View {
         let totalToPay = Double(calculatedTotalToPay) ?? 0
         // Calcula end_date automáticamente
         var endDate: String? = nil
-        if !startDate.isEmpty, let start = isoDate(from: startDate) {
+        // Convierte la fecha seleccionada (español) a ISO para el backend
+        var isoStartDate: String? = nil
+        let isoFormatter = DateFormatter()
+        isoFormatter.dateFormat = "yyyy-MM-dd"
+        isoFormatter.locale = Locale(identifier: "en_US_POSIX")
+        isoStartDate = isoFormatter.string(from: startDateObj)
+        if let start = startDateObj as Date? {
             var d = start
             d.addTimeInterval(Double(yearsValue) * 365.25 * 24 * 60 * 60)
-            endDate = isoString(from: d)
+            endDate = isoFormatter.string(from: d)
         }
         var payload: [String: Any] = [
             "property_id": propertyId,
@@ -187,7 +220,7 @@ struct MortgageSheet: View {
             "interest_rate_variable": (type == "variable" || type == "mixed") ? interestVariableValue : 0,
             "interest_rate": 0,
             "monthly_payment": cuota,
-            "start_date": startDate.isEmpty ? nil : startDate,
+            "start_date": isoStartDate,
             "end_date": endDate,
             "bank_name": bankName,
             "account_number": accountNumber,
