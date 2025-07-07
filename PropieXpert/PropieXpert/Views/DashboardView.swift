@@ -267,27 +267,27 @@ struct DashboardView: View {
     }
     
     // --- Helpers para recurrencia y puntuales ---
-    extension Income {
-        var recurrenceStartDate: String? { self.value(forKey: "recurrence_start_date") as? String }
-        var recurrenceEndDate: String? { self.value(forKey: "recurrence_end_date") as? String }
-        var isPlanned: Bool { (self.value(forKey: "is_planned") as? Bool) ?? false }
+    protocol HasRecurrence {
+        var is_recurring: Bool? { get }
+        var frequency: String? { get }
+        var recurrence_start_date: String? { get }
+        var recurrence_end_date: String? { get }
+        var date: String { get }
+        var amount: Double { get }
     }
-    extension Expense {
-        var recurrenceStartDate: String? { self.value(forKey: "recurrence_start_date") as? String }
-        var recurrenceEndDate: String? { self.value(forKey: "recurrence_end_date") as? String }
-        var isPlanned: Bool { (self.value(forKey: "is_planned") as? Bool) ?? false }
-    }
+    extension Income: HasRecurrence {}
+    extension Expense: HasRecurrence {}
 
-    func expandRecurring<T: Identifiable & Decodable>(items: [T], year: Int, month: Int) -> [T] {
+    func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
         let calendar = Calendar.current
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return items.compactMap { item in
-            guard let isRecurring = item.value(forKey: "is_recurring") as? Bool, isRecurring,
-                  let frequency = item.value(forKey: "frequency") as? String else { return nil }
-            let startStr = (item.value(forKey: "recurrence_start_date") as? String) ?? (item.value(forKey: "date") as? String)
-            let endStr = (item.value(forKey: "recurrence_end_date") as? String) ?? "\(year)-12-31"
-            guard let start = startStr.flatMap({ formatter.date(from: $0) }),
+            guard let isRecurring = item.is_recurring, isRecurring,
+                  let frequency = item.frequency else { return nil }
+            let startStr = item.recurrence_start_date ?? item.date
+            let endStr = item.recurrence_end_date ?? "\(year)-12-31"
+            guard let start = formatter.date(from: startStr),
                   let end = formatter.date(from: endStr) else { return nil }
             let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
             if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { return nil }
@@ -299,12 +299,12 @@ struct DashboardView: View {
         }
     }
 
-    func expandPunctual<T: Identifiable & Decodable>(items: [T], year: Int, month: Int) -> [T] {
+    func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return items.filter { item in
-            guard let isRecurring = item.value(forKey: "is_recurring") as? Bool, !isRecurring else { return false }
-            guard let dateStr = item.value(forKey: "date") as? String, let date = formatter.date(from: dateStr) else { return false }
+            guard let isRecurring = item.is_recurring, !isRecurring else { return false }
+            guard let date = formatter.date(from: item.date) else { return false }
             let comps = Calendar.current.dateComponents([.year, .month], from: date)
             return comps.year == year && comps.month == month
         }
@@ -318,8 +318,8 @@ struct DashboardView: View {
         for m in 1...12 {
             let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: m) + expandPunctual(items: incomes, year: currentYear, month: m)
             let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: m) + expandPunctual(items: expenses, year: currentYear, month: m)
-            let incomeSum = monthIncomes.reduce(0) { $0 + ($1.amount) }
-            let expenseSum = monthExpenses.reduce(0) { $0 + ($1.amount) }
+            let incomeSum = monthIncomes.reduce(0) { $0 + $1.amount }
+            let expenseSum = monthExpenses.reduce(0) { $0 + $1.amount }
             result.append(MonthlyBarData(month: months[m-1], income: incomeSum, expense: expenseSum))
         }
         return result
