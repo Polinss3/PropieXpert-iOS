@@ -35,25 +35,26 @@ struct PropertiesView: View {
                     } else if let errorMessage = errorMessage {
                         Text(errorMessage).foregroundColor(.red)
                     } else if properties.isEmpty {
-                        Text("No tienes propiedades registradas.")
-                            .foregroundColor(.gray)
+                        VStack(spacing: 12) {
+                            Text("No tienes propiedades registradas.")
+                                .foregroundColor(.gray)
+                            Text("Pulsa el botón '+' para añadir una propiedad.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     } else {
-                        List(properties) { property in
-                            Button(action: {
-                                selectedProperty = property
-                            }) {
-                                VStack(alignment: .leading) {
-                                    Text(property.name).font(.headline)
-                                    Text(property.address).font(.subheadline).foregroundColor(.gray)
-                                    HStack(spacing: 12) {
-                                        Text(property.property_type.capitalized)
-                                        Text("Habitaciones: \(property.bedrooms)")
-                                        Text("Baños: \(property.bathrooms)")
-                                    }.font(.caption)
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(properties) { property in
+                                    PropertyCard(property: property)
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            selectedProperty = property
+                                        }
                                 }
                             }
+                            .padding(.top)
                         }
-                        .listStyle(PlainListStyle())
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -105,6 +106,92 @@ struct PropertiesView: View {
                 }
             }
         }.resume()
+    }
+    
+    func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
+        return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
+    }
+}
+
+struct PropertyCard: View {
+    let property: Property
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(property.name)
+                    .font(.headline)
+                Spacer()
+                Text(property.property_type.capitalized)
+                    .font(.caption)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.15))
+                    .foregroundColor(.blue)
+                    .cornerRadius(10)
+            }
+            if !property.address.isEmpty {
+                Text(property.address)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Valor actual")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(formatCurrency(property.current_value))
+                        .font(.body).bold()
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Precio compra")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(formatCurrency(property.purchase_price))
+                        .font(.body)
+                }
+            }
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Habitaciones")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(property.bedrooms)")
+                        .font(.body)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Baños")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(property.bathrooms)")
+                        .font(.body)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Alquilada")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(property.is_rented ? "Sí" : "No")
+                        .font(.body)
+                        .foregroundColor(property.is_rented ? .green : .orange)
+                }
+                if let rent = property.rental_price, property.is_rented {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Alquiler")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(formatCurrency(rent))
+                            .font(.body)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color(.black).opacity(0.04), radius: 8, x: 0, y: 2)
     }
     
     func formatCurrency(_ amount: Double) -> String {
