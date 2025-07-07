@@ -2,6 +2,64 @@ import SwiftUI
 import Charts
 import Foundation
 
+// --- Helpers para recurrencia y puntuales ---
+protocol HasRecurrence {
+    var is_recurring: Bool? { get }
+    var frequency: String? { get }
+    var recurrence_start_date: String? { get }
+    var recurrence_end_date: String? { get }
+    var date: String { get }
+    var amount: Double { get }
+}
+extension Income: HasRecurrence {}
+extension Expense: HasRecurrence {}
+
+func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
+    let calendar = Calendar.current
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return items.compactMap { item in
+        guard let isRecurring = item.is_recurring, isRecurring,
+              let frequency = item.frequency else { return nil }
+        let startStr = item.recurrence_start_date ?? item.date
+        let endStr = item.recurrence_end_date ?? "\(year)-12-31"
+        guard let start = formatter.date(from: startStr),
+              let end = formatter.date(from: endStr) else { return nil }
+        let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
+        if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { return nil }
+        let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: start), to: currentMonth).month ?? 0
+        if (frequency == "monthly") || (frequency == "quarterly" && monthsDiff % 3 == 0) || (frequency == "yearly" && monthsDiff % 12 == 0) {
+            return item
+        }
+        return nil
+    }
+}
+
+func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return items.filter { item in
+        guard let isRecurring = item.is_recurring, !isRecurring else { return false }
+        guard let date = formatter.date(from: item.date) else { return false }
+        let comps = Calendar.current.dateComponents([.year, .month], from: date)
+        return comps.year == year && comps.month == month
+    }
+}
+
+func monthlyBarDataFromAPI(incomes: [Income], expenses: [Expense]) -> [MonthlyBarData] {
+    let months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    let currentYear = Calendar.current.component(.year, from: Date())
+    var result: [MonthlyBarData] = []
+    for m in 1...12 {
+        let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: m) + expandPunctual(items: incomes, year: currentYear, month: m)
+        let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: m) + expandPunctual(items: expenses, year: currentYear, month: m)
+        let incomeSum = monthIncomes.reduce(0) { $0 + $1.amount }
+        let expenseSum = monthExpenses.reduce(0) { $0 + $1.amount }
+        result.append(MonthlyBarData(month: months[m-1], income: incomeSum, expense: expenseSum))
+    }
+    return result
+}
+
 struct DashboardSummaryItem: Identifiable {
     let id = UUID()
     let icon: String
@@ -265,65 +323,6 @@ struct DashboardView: View {
                 expenses = fetchedExpenses
             }
         }
-    }
-    
-    // --- Helpers para recurrencia y puntuales ---
-    protocol HasRecurrence {
-        var is_recurring: Bool? { get }
-        var frequency: String? { get }
-        var recurrence_start_date: String? { get }
-        var recurrence_end_date: String? { get }
-        var date: String { get }
-        var amount: Double { get }
-    }
-    extension Income: HasRecurrence {}
-    extension Expense: HasRecurrence {}
-
-    func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
-        let calendar = Calendar.current
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return items.compactMap { item in
-            guard let isRecurring = item.is_recurring, isRecurring,
-                  let frequency = item.frequency else { return nil }
-            let startStr = item.recurrence_start_date ?? item.date
-            let endStr = item.recurrence_end_date ?? "\(year)-12-31"
-            guard let start = formatter.date(from: startStr),
-                  let end = formatter.date(from: endStr) else { return nil }
-            let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
-            if currentMonth < calendar.startOfDay(for: start) || currentMonth > calendar.startOfDay(for: end) { return nil }
-            let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: start), to: currentMonth).month ?? 0
-            if (frequency == "monthly") || (frequency == "quarterly" && monthsDiff % 3 == 0) || (frequency == "yearly" && monthsDiff % 12 == 0) {
-                return item
-            }
-            return nil
-        }
-    }
-
-    func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return items.filter { item in
-            guard let isRecurring = item.is_recurring, !isRecurring else { return false }
-            guard let date = formatter.date(from: item.date) else { return false }
-            let comps = Calendar.current.dateComponents([.year, .month], from: date)
-            return comps.year == year && comps.month == month
-        }
-    }
-
-    // --- Reemplaza monthlyBarDataFromAPI para usar la lógica real ---
-    func monthlyBarDataFromAPI(incomes: [Income], expenses: [Expense]) -> [MonthlyBarData] {
-        let months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-        let currentYear = Calendar.current.component(.year, from: Date())
-        var result: [MonthlyBarData] = []
-        for m in 1...12 {
-            let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: m) + expandPunctual(items: incomes, year: currentYear, month: m)
-            let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: m) + expandPunctual(items: expenses, year: currentYear, month: m)
-            let incomeSum = monthIncomes.reduce(0) { $0 + $1.amount }
-            let expenseSum = monthExpenses.reduce(0) { $0 + $1.amount }
-            result.append(MonthlyBarData(month: months[m-1], income: incomeSum, expense: expenseSum))
-        }
-        return result
     }
 }
 
