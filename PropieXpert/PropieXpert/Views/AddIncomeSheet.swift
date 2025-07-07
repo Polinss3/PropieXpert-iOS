@@ -29,6 +29,8 @@ struct AddIncomeSheet: View {
     // UI State
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
+    @State private var showDeleteAlert = false
+    @State private var isDeleting = false
 
     let incomeTypes = ["rent", "deposit", "sale", "interest", "dividends", "other"]
     let frequencyOptions = ["monthly", "quarterly", "yearly"]
@@ -102,6 +104,19 @@ struct AddIncomeSheet: View {
                         Text(errorMessage).foregroundColor(.red)
                     }
                 }
+                if isEdit {
+                    Section {
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            if isDeleting {
+                                ProgressView()
+                            } else {
+                                Text("Eliminar ingreso")
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle(isEdit ? "Editar Ingreso" : "Añadir Ingreso")
             .toolbar {
@@ -117,6 +132,12 @@ struct AddIncomeSheet: View {
                 }
             }
             .onAppear(perform: loadInitialData)
+            .alert("¿Seguro que quieres eliminar este ingreso?", isPresented: $showDeleteAlert) {
+                Button("Eliminar", role: .destructive, action: deleteIncome)
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Esta acción no se puede deshacer.")
+            }
         }
     }
 
@@ -343,6 +364,31 @@ struct AddIncomeSheet: View {
         case "otro": return "Otro"
         default: return cat.capitalized
         }
+    }
+    func deleteIncome() {
+        guard let id = initialData?.id else { return }
+        isDeleting = true
+        errorMessage = nil
+        let urlString = "https://api.propiexpert.com/incomes/\(id)"
+        guard let url = URL(string: urlString) else { isDeleting = false; return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isDeleting = false
+                if let error = error {
+                    errorMessage = "Error al eliminar: \(error.localizedDescription)"
+                    return
+                }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
+                    errorMessage = "Error desconocido al eliminar."
+                    return
+                }
+                onIncomeAdded?()
+                dismiss()
+            }
+        }.resume()
     }
 }
 

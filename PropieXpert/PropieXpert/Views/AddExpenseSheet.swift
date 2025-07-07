@@ -25,6 +25,8 @@ struct AddExpenseSheet: View {
     // UI State
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
+    @State private var showDeleteAlert = false
+    @State private var isDeleting = false
 
     let expenseTypes = ["maintenance", "utilities", "taxes", "insurance", "mortgage", "repairs", "improvements", "management", "other"]
     let frequencyOptions = ["monthly", "quarterly", "yearly"]
@@ -91,6 +93,19 @@ struct AddExpenseSheet: View {
                         Text(errorMessage).foregroundColor(.red)
                     }
                 }
+                if isEdit {
+                    Section {
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            if isDeleting {
+                                ProgressView()
+                            } else {
+                                Text("Eliminar gasto")
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle(isEdit ? "Editar Gasto" : "Añadir Gasto")
             .toolbar {
@@ -106,6 +121,12 @@ struct AddExpenseSheet: View {
                 }
             }
             .onAppear(perform: loadInitialData)
+            .alert("¿Seguro que quieres eliminar este gasto?", isPresented: $showDeleteAlert) {
+                Button("Eliminar", role: .destructive, action: deleteExpense)
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Esta acción no se puede deshacer.")
+            }
         }
     }
 
@@ -229,6 +250,32 @@ struct AddExpenseSheet: View {
                         errorMessage = "Error desconocido al guardar."
                     }
                 }
+            }
+        }.resume()
+    }
+
+    func deleteExpense() {
+        guard let id = initialData?.id else { return }
+        isDeleting = true
+        errorMessage = nil
+        let urlString = "https://api.propiexpert.com/expenses/\(id)"
+        guard let url = URL(string: urlString) else { isDeleting = false; return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isDeleting = false
+                if let error = error {
+                    errorMessage = "Error al eliminar: \(error.localizedDescription)"
+                    return
+                }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
+                    errorMessage = "Error desconocido al eliminar."
+                    return
+                }
+                onExpenseAdded?()
+                dismiss()
             }
         }.resume()
     }
