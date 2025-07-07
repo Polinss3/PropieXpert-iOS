@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 import Foundation
+import ElegantCalendar
 
 // --- Helpers para recurrencia y puntuales ---
 protocol HasRecurrence {
@@ -90,6 +91,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
     case resumen = "Resumen"
     case rendimiento = "Rendimiento"
     case graficas = "Gráficas"
+    case calendario = "Calendario"
     var id: String { self.rawValue }
 }
 
@@ -104,6 +106,8 @@ struct DashboardView: View {
     @State private var expenses: [Expense] = []
     @State private var isLoadingChart = false
     @State private var chartError: String? = nil
+    @State private var selectedDate: Date = Date()
+    @State private var showDayEventsSheet = false
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -227,6 +231,18 @@ struct DashboardView: View {
                                 // Aquí puedes añadir más gráficas (líneas, pastel) después
                             }
                         }
+                        // --- NUEVA SECCIÓN CALENDARIO ---
+                        if selectedSection == .calendario {
+                            Text("Calendario de ingresos y gastos")
+                                .font(.largeTitle).bold()
+                                .padding([.top, .horizontal])
+                            CalendarSectionView(
+                                incomes: incomes,
+                                expenses: expenses,
+                                selectedDate: $selectedDate,
+                                showDayEventsSheet: $showDayEventsSheet
+                            )
+                        }
                     }
                     .padding(.vertical)
                 }
@@ -235,6 +251,14 @@ struct DashboardView: View {
             .onAppear {
                 fetchPropertyPerformance()
                 fetchIncomesAndExpenses()
+            }
+            // Sheet para mostrar eventos del día seleccionado
+            .sheet(isPresented: $showDayEventsSheet) {
+                DayEventsSheetView(
+                    date: selectedDate,
+                    incomes: incomes,
+                    expenses: expenses
+                )
             }
         }
     }
@@ -474,6 +498,163 @@ struct MonthlyBarChartView: View {
         }
         .chartLegend(position: .top, alignment: .center)
         .padding(.top, 8)
+    }
+}
+
+struct CalendarSectionView: View {
+    let incomes: [Income]
+    let expenses: [Expense]
+    @Binding var selectedDate: Date
+    @Binding var showDayEventsSheet: Bool
+    // Helpers para obtener eventos del mes
+    func eventsByDay(for month: Date) -> [Date: (Int, Int)] {
+        var dict: [Date: (Int, Int)] = [:] // [fecha: (ingresos, gastos)]
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: month)
+        let monthNum = calendar.component(.month, from: month)
+        // Expandir eventos recurrentes y puntuales
+        let allIncomes = expandRecurring(items: incomes, year: year, month: monthNum) + expandPunctual(items: incomes, year: year, month: monthNum)
+        let allExpenses = expandRecurring(items: expenses, year: year, month: monthNum) + expandPunctual(items: expenses, year: year, month: monthNum)
+        for i in allIncomes {
+            if let date = dateFromString(i.date) {
+                dict[date, default: (0,0)].0 += 1
+            }
+        }
+        for e in allExpenses {
+            if let date = dateFromString(e.date) {
+                dict[date, default: (0,0)].1 += 1
+            }
+        }
+        return dict
+    }
+    // Helper para parsear fecha
+    func dateFromString(_ str: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: str)
+    }
+    var body: some View {
+        // Usar ElegantCalendar
+        ElegantCalendarView(
+            calendarManager: CalendarManager(
+                configuration: CalendarConfiguration(startDate: Date().addingTimeInterval(-2*365*24*3600), endDate: Date().addingTimeInterval(2*365*24*3600)),
+                initialMonth: Date()
+            ),
+            headerStyle: .custom { month in
+                HStack {
+                    Text(month, style: .date)
+                        .font(.title2).bold()
+                    Spacer()
+                }.padding()
+            },
+            dayCellStyle: .custom { date, isSelected, isWithinDisplayedMonth, _ in
+                let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
+                ZStack {
+                    Circle().fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
+                    VStack(spacing: 2) {
+                        Text("\(Calendar.current.component(.day, from: date))")
+                            .foregroundColor(isWithinDisplayedMonth ? .primary : .secondary)
+                        HStack(spacing: 2) {
+                            if events.0 > 0 {
+                                Circle().fill(Color.green).frame(width: 6, height: 6)
+                            }
+                            if events.1 > 0 {
+                                Circle().fill(Color.red).frame(width: 6, height: 6)
+                            }
+                        }
+                    }
+                }
+                .onTapGesture {
+                    selectedDate = date
+                    showDayEventsSheet = true
+                }
+            }
+        )
+        .frame(height: 400)
+        .padding(.horizontal)
+    }
+}
+
+struct DayEventsSheetView: View {
+    let date: Date
+    let incomes: [Income]
+    let expenses: [Expense]
+    var body: some View {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dayStr = formatter.string(from: date)
+        let dayIncomes = incomes.filter { $0.date.hasPrefix(dayStr) }
+        let dayExpenses = expenses.filter { $0.date.hasPrefix(dayStr) }
+        NavigationView {
+            List {
+                if dayIncomes.isEmpty && dayExpenses.isEmpty {
+                    Text("No hay ingresos ni gastos para este día.")
+                        .foregroundColor(.secondary)
+                }
+                if !dayIncomes.isEmpty {
+                    Section(header: Text("Ingresos")) {
+                        ForEach(dayIncomes) { i in
+                            VStack(alignment: .leading) {
+                                Text(typeLabel(for: i.type)).bold()
+                                Text("Cantidad: \(formatCurrency(i.amount))")
+                                if let desc = i.description, !desc.isEmpty {
+                                    Text(desc).font(.caption)
+                                }
+                            }
+                        }
+                    }
+                }
+                if !dayExpenses.isEmpty {
+                    Section(header: Text("Gastos")) {
+                        ForEach(dayExpenses) { e in
+                            VStack(alignment: .leading) {
+                                Text(typeLabel(for: e.type)).bold().foregroundColor(.red)
+                                Text("Cantidad: \(formatCurrency(e.amount))")
+                                if let desc = e.description, !desc.isEmpty {
+                                    Text(desc).font(.caption)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Eventos del día")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cerrar") { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil) }
+                }
+            }
+        }
+    }
+}
+
+func typeLabel(for type: String) -> String {
+    switch type {
+    case "maintenance": return "Mantenimiento"
+    case "utilities": return "Suministros"
+    case "taxes": return "Impuestos"
+    case "insurance": return "Seguro"
+    case "mortgage": return "Hipoteca"
+    case "repairs": return "Reparaciones"
+    case "improvements": return "Mejoras"
+    case "management": return "Gestión"
+    case "other": return "Otro"
+    default: return type.capitalized
+    }
+}
+
+func formatCurrency(_ amount: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = "EUR"
+    return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
+}
+
+extension Date {
+    func startOfMonth() -> Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: self)
+        return calendar.date(from: components) ?? self
     }
 }
 
