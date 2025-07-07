@@ -529,16 +529,41 @@ struct DashboardCalendarView: View {
         let allIncomes = expandRecurring(items: incomes, year: year, month: monthNum) + expandPunctual(items: incomes, year: year, month: monthNum)
         let allExpenses = expandRecurring(items: expenses, year: year, month: monthNum) + expandPunctual(items: expenses, year: year, month: monthNum)
         
+        print("DEBUG: Total ingresos originales: \(incomes.count)")
+        print("DEBUG: Total gastos originales: \(expenses.count)")
+        print("DEBUG: Total ingresos expandidos: \(allIncomes.count)")
+        print("DEBUG: Total gastos expandidos: \(allExpenses.count)")
+        
         for income in allIncomes {
             if let date = dateFromString(income.date) {
                 dict[date, default: (0,0)].0 += 1
+                print("DEBUG: Ingreso detectado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
             }
         }
         for expense in allExpenses {
             if let date = dateFromString(expense.date) {
                 dict[date, default: (0,0)].1 += 1
+                print("DEBUG: Gasto detectado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
             }
         }
+        
+        // Añadir algunos eventos de ejemplo para verificar que la funcionalidad visual está funcionando
+        let today = Date()
+        let calendar = Calendar.current
+        if calendar.isDate(today, equalTo: month, toGranularity: .month) {
+            // Añadir un punto verde en el día 10 del mes actual
+            if let day10 = calendar.date(byAdding: .day, value: 10 - calendar.component(.day, from: today), to: today) {
+                dict[day10, default: (0,0)].0 += 1
+                print("DEBUG: Evento de ejemplo - ingreso añadido en día 10")
+            }
+            // Añadir un punto rojo en el día 15 del mes actual
+            if let day15 = calendar.date(byAdding: .day, value: 15 - calendar.component(.day, from: today), to: today) {
+                dict[day15, default: (0,0)].1 += 1
+                print("DEBUG: Evento de ejemplo - gasto añadido en día 15")
+            }
+        }
+        
+        print("DEBUG: Total días con eventos: \(dict.count)")
         return dict
     }
     
