@@ -79,8 +79,14 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal)
                     
+                    // --- Rendimiento de propiedades ---
+                    Text("Rendimiento de propiedades")
+                        .font(.headline)
+                        .padding([.top, .horizontal])
+                    PropertyPerformanceTable(properties: propertyPerformanceData)
+                    
                     // --- Aquí irán el resto de secciones ---
-                    // Rendimiento de propiedades, Tablas, Calendario, Gráficas...
+                    // Tablas, Calendario, Gráficas...
                     // ...
                 }
                 .padding(.vertical)
@@ -118,6 +124,71 @@ struct DashboardSummaryCard: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color(.black).opacity(0.04), radius: 8, x: 0, y: 2)
+    }
+}
+
+// Datos simulados para la tabla de rendimiento
+struct PropertyPerformance: Identifiable {
+    let id = UUID()
+    let name: String
+    let type: String
+    let netIncome: Double
+    let roi: Double
+    let appreciation: Double
+    let currentValue: Double
+}
+
+let propertyPerformanceData: [PropertyPerformance] = [
+    PropertyPerformance(name: "Piso Centro", type: "Piso", netIncome: 1200, roi: 6.5, appreciation: 15000, currentValue: 250000),
+    PropertyPerformance(name: "Chalet Playa", type: "Chalet", netIncome: 1800, roi: 7.2, appreciation: 25000, currentValue: 350000),
+    PropertyPerformance(name: "Ático Norte", type: "Ático", netIncome: 800, roi: 5.1, appreciation: 10000, currentValue: 150000),
+    PropertyPerformance(name: "Local Comercial", type: "Local", netIncome: 2200, roi: 8.0, appreciation: 30000, currentValue: 400000)
+]
+
+struct PropertyPerformanceTable: View {
+    let properties: [PropertyPerformance]
+    
+    var body: some View {
+        ScrollView([.horizontal, .vertical], showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Encabezado
+                HStack {
+                    Text("Nombre").font(.caption).bold().frame(width: 110, alignment: .leading)
+                    Text("Tipo").font(.caption).bold().frame(width: 70, alignment: .leading)
+                    Text("Neto").font(.caption).bold().frame(width: 70, alignment: .trailing)
+                    Text("ROI").font(.caption).bold().frame(width: 60, alignment: .trailing)
+                    Text("Aprec.").font(.caption).bold().frame(width: 80, alignment: .trailing)
+                    Text("Valor").font(.caption).bold().frame(width: 90, alignment: .trailing)
+                }
+                .padding(.vertical, 6)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                ForEach(properties) { prop in
+                    HStack {
+                        Text(prop.name).font(.subheadline).frame(width: 110, alignment: .leading)
+                        Text(prop.type).font(.subheadline).frame(width: 70, alignment: .leading)
+                        Text(formatCurrency(prop.netIncome)).font(.subheadline).frame(width: 70, alignment: .trailing).foregroundColor(.green)
+                        Text(String(format: "%.1f%%", prop.roi)).font(.subheadline).frame(width: 60, alignment: .trailing)
+                        Text(formatCurrency(prop.appreciation)).font(.subheadline).frame(width: 80, alignment: .trailing)
+                        Text(formatCurrency(prop.currentValue)).font(.subheadline).frame(width: 90, alignment: .trailing)
+                    }
+                    .padding(.vertical, 4)
+                    .background(Color(.systemBackground))
+                }
+            }
+            .padding(8)
+            .background(Color(.systemGray5).opacity(0.3))
+            .cornerRadius(12)
+            .padding(.horizontal)
+        }
+        .frame(minHeight: 80, maxHeight: 260)
+    }
+    
+    func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
+        return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
     }
 }
 
