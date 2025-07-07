@@ -236,7 +236,7 @@ struct DashboardView: View {
                             Text("Calendario de ingresos y gastos")
                                 .font(.largeTitle).bold()
                                 .padding([.top, .horizontal])
-                            CalendarSectionView(
+                            DashboardCalendarView(
                                 incomes: incomes,
                                 expenses: expenses,
                                 selectedDate: $selectedDate,
@@ -257,7 +257,8 @@ struct DashboardView: View {
                 DayEventsSheetView(
                     date: selectedDate,
                     incomes: incomes,
-                    expenses: expenses
+                    expenses: expenses,
+                    onClose: { showDayEventsSheet = false }
                 )
             }
         }
@@ -501,7 +502,7 @@ struct MonthlyBarChartView: View {
     }
 }
 
-struct CalendarSectionView: View {
+struct DashboardCalendarView: View {
     let incomes: [Income]
     let expenses: [Expense]
     @Binding var selectedDate: Date
@@ -534,42 +535,29 @@ struct CalendarSectionView: View {
         return formatter.date(from: str)
     }
     var body: some View {
-        // Usar ElegantCalendar
-        ElegantCalendarView(
-            calendarManager: CalendarManager(
-                configuration: CalendarConfiguration(startDate: Date().addingTimeInterval(-2*365*24*3600), endDate: Date().addingTimeInterval(2*365*24*3600)),
-                initialMonth: Date()
-            ),
-            headerStyle: .custom { month in
-                HStack {
-                    Text(month, style: .date)
-                        .font(.title2).bold()
-                    Spacer()
-                }.padding()
-            },
-            dayCellStyle: .custom { date, isSelected, isWithinDisplayedMonth, _ in
-                let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
-                ZStack {
-                    Circle().fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
-                    VStack(spacing: 2) {
-                        Text("\(Calendar.current.component(.day, from: date))")
-                            .foregroundColor(isWithinDisplayedMonth ? .primary : .secondary)
-                        HStack(spacing: 2) {
-                            if events.0 > 0 {
-                                Circle().fill(Color.green).frame(width: 6, height: 6)
-                            }
-                            if events.1 > 0 {
-                                Circle().fill(Color.red).frame(width: 6, height: 6)
-                            }
+        ElegantCalendar(selectedDate: $selectedDate) { date in
+            let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
+            ZStack {
+                VStack(spacing: 2) {
+                    Text("\(Calendar.current.component(.day, from: date))")
+                        .foregroundColor(.primary)
+                    HStack(spacing: 2) {
+                        if events.0 > 0 {
+                            Circle().fill(Color.green).frame(width: 6, height: 6)
+                        }
+                        if events.1 > 0 {
+                            Circle().fill(Color.red).frame(width: 6, height: 6)
                         }
                     }
                 }
-                .onTapGesture {
-                    selectedDate = date
-                    showDayEventsSheet = true
-                }
             }
-        )
+            .contentShape(Rectangle())
+            .onTapGesture {
+                selectedDate = date
+                showDayEventsSheet = true
+            }
+        }
+        .theme(.default)
         .frame(height: 400)
         .padding(.horizontal)
     }
@@ -579,6 +567,7 @@ struct DayEventsSheetView: View {
     let date: Date
     let incomes: [Income]
     let expenses: [Expense]
+    var onClose: () -> Void
     var body: some View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -619,11 +608,7 @@ struct DayEventsSheetView: View {
                 }
             }
             .navigationTitle("Eventos del día")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cerrar") { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil) }
-                }
-            }
+            .navigationBarItems(leading: Button("Cerrar") { onClose() })
         }
     }
 }
