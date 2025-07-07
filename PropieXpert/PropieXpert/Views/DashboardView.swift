@@ -578,14 +578,20 @@ struct DashboardCalendarView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(8)
                 }
                 
                 Spacer()
                 
                 Text(DateFormatter().monthYearString(from: currentDate))
                     .font(.title2)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
@@ -594,73 +600,103 @@ struct DashboardCalendarView: View {
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(8)
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 20)
             
-            // Días de la semana
-            HStack {
+            // Días de la semana con mejor estilo
+            HStack(spacing: 0) {
                 ForEach(["L", "M", "X", "J", "V", "S", "D"], id: \.self) { day in
                     Text(day)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.gray)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
                 }
             }
-            .padding(.horizontal)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.gray.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal, 16)
             
             // Grid del calendario
             let days = daysInMonth(for: currentDate)
             let events = eventsByDay(for: currentDate)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
-                ForEach(days, id: \.self) { date in
-                    let isCurrentMonth = isInCurrentMonth(date: date, currentMonth: currentDate)
-                    let dayEvents = events[date] ?? (0, 0)
-                    let isToday = calendar.isDateInToday(date)
-                    let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
-                    
-                    VStack(spacing: 4) {
-                        Text("\(calendar.component(.day, from: date))")
-                            .font(.system(size: 16, weight: isToday ? .bold : .medium))
-                            .foregroundColor(
-                                isSelected ? .white :
-                                isToday ? .blue :
-                                isCurrentMonth ? .primary : .secondary
-                            )
+            // Contenedor del calendario con estilo moderno
+            VStack(spacing: 0) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+                    ForEach(days, id: \.self) { date in
+                        let isCurrentMonth = isInCurrentMonth(date: date, currentMonth: currentDate)
+                        let dayEvents = events[date] ?? (0, 0)
+                        let isToday = calendar.isDateInToday(date)
+                        let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
                         
-                        // Indicadores de eventos
-                        HStack(spacing: 2) {
-                            if dayEvents.0 > 0 {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 6, height: 6)
+                        VStack(spacing: 4) {
+                            Text("\(calendar.component(.day, from: date))")
+                                .font(.system(size: 16, weight: isToday ? .bold : .medium))
+                                .foregroundColor(
+                                    isSelected ? .white :
+                                    isToday ? .blue :
+                                    isCurrentMonth ? .primary : .secondary
+                                )
+                            
+                            // Indicadores de eventos (igual que en la web)
+                            HStack(spacing: 4) {
+                                if dayEvents.0 > 0 {
+                                    Circle()
+                                        .fill(Color(red: 0.22, green: 0.58, blue: 0.27)) // bg-green-500
+                                        .frame(width: 12, height: 12)
+                                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+                                }
+                                if dayEvents.1 > 0 {
+                                    Circle()
+                                        .fill(Color(red: 0.94, green: 0.32, blue: 0.32)) // bg-red-500
+                                        .frame(width: 12, height: 12)
+                                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+                                }
                             }
-                            if dayEvents.1 > 0 {
-                                Circle()
-                                    .fill(Color.red)
-                                    .frame(width: 6, height: 6)
-                            }
+                            .frame(height: 14)
                         }
-                        .frame(height: 8)
-                    }
-                    .frame(width: 40, height: 50)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(isSelected ? Color.blue : Color.clear)
-                    )
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedDate = date
-                        if dayEvents.0 > 0 || dayEvents.1 > 0 {
-                            showDayEventsSheet = true
+                        .frame(width: 44, height: 60)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(isSelected ? Color.primary : (isToday ? Color.blue.opacity(0.1) : Color.clear))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(isToday ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .contentShape(Rectangle())
+                        .scaleEffect(isSelected ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isSelected)
+                        .onTapGesture {
+                            selectedDate = date
+                            if dayEvents.0 > 0 || dayEvents.1 > 0 {
+                                showDayEventsSheet = true
+                            }
                         }
                     }
                 }
+                .padding(16)
             }
-            .padding(.horizontal)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white)
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+            )
+            .padding(.horizontal, 16)
         }
         .padding(.vertical)
     }
