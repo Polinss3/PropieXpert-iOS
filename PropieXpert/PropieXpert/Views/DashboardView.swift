@@ -25,11 +25,20 @@ struct PropertyPerformance: Identifiable, Decodable {
     }
 }
 
+// Nueva enum para las secciones
+enum DashboardSection: String, CaseIterable, Identifiable {
+    case resumen = "Resumen"
+    case rendimiento = "Rendimiento"
+    case graficas = "Gráficas"
+    var id: String { self.rawValue }
+}
+
 struct DashboardView: View {
     @AppStorage("auth_token") var authToken: String = ""
     @State private var propertyPerformance: [PropertyPerformance] = []
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
+    @State private var selectedSection: DashboardSection = .resumen
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -61,65 +70,89 @@ struct DashboardView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    // Header
-                    Text("Dashboard")
-                        .font(.largeTitle).bold()
-                        .padding(.top, 8)
-                        .padding(.horizontal)
-                    
-                    // Resumen: Grid de tarjetas
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(summaryItems) { item in
-                            DashboardSummaryCard(item: item)
-                        }
+            VStack(spacing: 0) {
+                // Barra de navegación superior (SegmentedControl)
+                Picker("Sección", selection: $selectedSection) {
+                    ForEach(DashboardSection.allCases) { section in
+                        Text(section.rawValue).tag(section)
                     }
-                    .padding(.horizontal)
-                    
-                    // ROI
-                    Text("Rentabilidad (ROI)")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(roiItems) { item in
-                            DashboardSummaryCard(item: item)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    // Hipoteca
-                    Text("Hipoteca")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(mortgageItems) { item in
-                            DashboardSummaryCard(item: item)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    // --- Rendimiento de propiedades ---
-                    Text("Rendimiento de propiedades")
-                        .font(.headline)
-                        .padding([.top, .horizontal])
-                    if isLoading {
-                        HStack {
-                            Spacer()
-                            ProgressView("Cargando...")
-                            Spacer()
-                        }
-                    } else if let errorMessage = errorMessage {
-                        Text(errorMessage).foregroundColor(.red).padding(.horizontal)
-                    } else {
-                        PropertyPerformanceTable(properties: propertyPerformance)
-                    }
-                    
-                    // --- Aquí irán el resto de secciones ---
-                    // Tablas, Calendario, Gráficas...
-                    // ...
                 }
-                .padding(.vertical)
+                .pickerStyle(SegmentedPickerStyle())
+                .padding([.top, .horizontal])
+                
+                Divider().padding(.bottom, 8)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // --- Sección Resumen ---
+                        if selectedSection == .resumen {
+                            Text("Dashboard")
+                                .font(.largeTitle).bold()
+                                .padding(.top, 8)
+                                .padding(.horizontal)
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(summaryItems) { item in
+                                    DashboardSummaryCard(item: item)
+                                }
+                            }
+                            .padding(.horizontal)
+                            Text("Rentabilidad (ROI)")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(roiItems) { item in
+                                    DashboardSummaryCard(item: item)
+                                }
+                            }
+                            .padding(.horizontal)
+                            Text("Hipoteca")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(mortgageItems) { item in
+                                    DashboardSummaryCard(item: item)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        // --- Sección Rendimiento ---
+                        if selectedSection == .rendimiento {
+                            Text("Rendimiento de propiedades")
+                                .font(.largeTitle).bold()
+                                .padding([.top, .horizontal])
+                            if isLoading {
+                                HStack {
+                                    Spacer()
+                                    ProgressView("Cargando...")
+                                    Spacer()
+                                }
+                            } else if let errorMessage = errorMessage {
+                                Text(errorMessage).foregroundColor(.red).padding(.horizontal)
+                            } else if propertyPerformance.isEmpty {
+                                Text("No hay datos de rendimiento disponibles.")
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal)
+                            } else {
+                                VStack(spacing: 16) {
+                                    ForEach(propertyPerformance) { prop in
+                                        PropertyPerformanceCard(prop: prop)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        // --- Sección Gráficas (placeholder) ---
+                        if selectedSection == .graficas {
+                            Text("Gráficas")
+                                .font(.largeTitle).bold()
+                                .padding([.top, .horizontal])
+                            Text("Próximamente: visualización de gráficas.")
+                                .foregroundColor(.gray)
+                                .padding(.horizontal)
+                        }
+                    }
+                    .padding(.vertical)
+                }
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .onAppear(perform: fetchPropertyPerformance)
@@ -193,43 +226,58 @@ struct DashboardSummaryCard: View {
     }
 }
 
-struct PropertyPerformanceTable: View {
-    let properties: [PropertyPerformance]
+// Tarjeta visual para el rendimiento de cada propiedad
+struct PropertyPerformanceCard: View {
+    let prop: PropertyPerformance
     
     var body: some View {
-        ScrollView([.horizontal, .vertical], showsIndicators: true) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Encabezado
-                HStack {
-                    Text("Nombre").font(.caption).bold().frame(width: 110, alignment: .leading)
-                    Text("Tipo").font(.caption).bold().frame(width: 70, alignment: .leading)
-                    Text("Neto").font(.caption).bold().frame(width: 70, alignment: .trailing)
-                    Text("ROI").font(.caption).bold().frame(width: 60, alignment: .trailing)
-                    Text("Aprec.").font(.caption).bold().frame(width: 80, alignment: .trailing)
-                    Text("Valor").font(.caption).bold().frame(width: 90, alignment: .trailing)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(prop.name)
+                        .font(.headline)
+                    Text(prop.type.capitalized)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-                .padding(.vertical, 6)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-                ForEach(properties) { prop in
-                    HStack {
-                        Text(prop.name).font(.subheadline).frame(width: 110, alignment: .leading)
-                        Text(prop.type).font(.subheadline).frame(width: 70, alignment: .leading)
-                        Text(formatCurrency(prop.net_income)).font(.subheadline).frame(width: 70, alignment: .trailing).foregroundColor(.green)
-                        Text(String(format: "%.1f%%", prop.roi)).font(.subheadline).frame(width: 60, alignment: .trailing)
-                        Text(formatCurrency(prop.appreciation)).font(.subheadline).frame(width: 80, alignment: .trailing)
-                        Text(formatCurrency(prop.current_value)).font(.subheadline).frame(width: 90, alignment: .trailing)
-                    }
+                Spacer()
+                Text(String(format: "%.1f%% ROI", prop.roi))
+                    .font(.caption)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 4)
-                    .background(Color(.systemBackground))
+                    .background(Color.blue.opacity(0.15))
+                    .foregroundColor(.blue)
+                    .cornerRadius(10)
+            }
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Neto")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(formatCurrency(prop.net_income))
+                        .font(.body).bold()
+                        .foregroundColor(.green)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Apreciación")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(formatCurrency(prop.appreciation))
+                        .font(.body)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Valor actual")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(formatCurrency(prop.current_value))
+                        .font(.body)
                 }
             }
-            .padding(8)
-            .background(Color(.systemGray5).opacity(0.3))
-            .cornerRadius(12)
-            .padding(.horizontal)
         }
-        .frame(minHeight: 80, maxHeight: 260)
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color(.black).opacity(0.04), radius: 8, x: 0, y: 2)
     }
     
     func formatCurrency(_ amount: Double) -> String {
