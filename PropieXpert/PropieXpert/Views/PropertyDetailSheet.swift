@@ -2,8 +2,7 @@ import SwiftUI
 import Foundation
 // Importa el modelo Mortgage
 // ... existing code ...
-import struct PropieXpert.Views.Income // Si da error, copiar struct aquí
-import struct PropieXpert.Views.Expense // Si da error, copiar struct aquí
+import PropieXpert.Views.Models
 
 struct PropertyDetail: Decodable {
     let id: String
