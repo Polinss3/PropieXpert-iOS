@@ -1,7 +1,6 @@
 import SwiftUI
 import Charts
 import Foundation
-import ElegantCalendar
 
 // --- Helpers para recurrencia y puntuales ---
 protocol HasRecurrence {
@@ -507,60 +506,172 @@ struct DashboardCalendarView: View {
     let expenses: [Expense]
     @Binding var selectedDate: Date
     @Binding var showDayEventsSheet: Bool
+    @State private var currentDate = Date()
+    
+    private let calendar = Calendar.current
+    private let dateFormatter = DateFormatter()
+    
+    init(incomes: [Income], expenses: [Expense], selectedDate: Binding<Date>, showDayEventsSheet: Binding<Bool>) {
+        self.incomes = incomes
+        self.expenses = expenses
+        self._selectedDate = selectedDate
+        self._showDayEventsSheet = showDayEventsSheet
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+    }
+    
     // Helpers para obtener eventos del mes
     func eventsByDay(for month: Date) -> [Date: (Int, Int)] {
         var dict: [Date: (Int, Int)] = [:] // [fecha: (ingresos, gastos)]
-        let calendar = Calendar.current
         let year = calendar.component(.year, from: month)
         let monthNum = calendar.component(.month, from: month)
+        
         // Expandir eventos recurrentes y puntuales
         let allIncomes = expandRecurring(items: incomes, year: year, month: monthNum) + expandPunctual(items: incomes, year: year, month: monthNum)
         let allExpenses = expandRecurring(items: expenses, year: year, month: monthNum) + expandPunctual(items: expenses, year: year, month: monthNum)
-        for i in allIncomes {
-            if let date = dateFromString(i.date) {
+        
+        for income in allIncomes {
+            if let date = dateFromString(income.date) {
                 dict[date, default: (0,0)].0 += 1
             }
         }
-        for e in allExpenses {
-            if let date = dateFromString(e.date) {
+        for expense in allExpenses {
+            if let date = dateFromString(expense.date) {
                 dict[date, default: (0,0)].1 += 1
             }
         }
         return dict
     }
+    
     // Helper para parsear fecha
     func dateFromString(_ str: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: str)
+        return dateFormatter.date(from: str)
     }
+    
+    // Obtener los días del mes
+    func daysInMonth(for date: Date) -> [Date] {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: date),
+              let monthFirstWeek = calendar.dateInterval(of: .weekOfYear, for: monthInterval.start),
+              let monthLastWeek = calendar.dateInterval(of: .weekOfYear, for: monthInterval.end - 1) else {
+            return []
+        }
+        
+        var days: [Date] = []
+        var day = monthFirstWeek.start
+        while day < monthLastWeek.end {
+            days.append(day)
+            day = calendar.date(byAdding: .day, value: 1, to: day)!
+        }
+        return days
+    }
+    
+    // Verificar si una fecha pertenece al mes actual
+    func isInCurrentMonth(date: Date, currentMonth: Date) -> Bool {
+        return calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
+    }
+    
     var body: some View {
-        ElegantCalendar(selectedDate: $selectedDate)
-            .dayCell { date, isSelected, isWithinDisplayedMonth in
-                let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
-                ZStack {
-                    VStack(spacing: 2) {
-                        Text("\(Calendar.current.component(.day, from: date))")
-                            .foregroundColor(isWithinDisplayedMonth ? .primary : .secondary)
+        VStack(spacing: 16) {
+            // Header con navegación de mes
+            HStack {
+                Button(action: {
+                    currentDate = calendar.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                }
+                
+                Spacer()
+                
+                Text(DateFormatter().monthYearString(from: currentDate))
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+                
+                Button(action: {
+                    currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate) ?? currentDate
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.horizontal)
+            
+            // Días de la semana
+            HStack {
+                ForEach(["L", "M", "X", "J", "V", "S", "D"], id: \.self) { day in
+                    Text(day)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.horizontal)
+            
+            // Grid del calendario
+            let days = daysInMonth(for: currentDate)
+            let events = eventsByDay(for: currentDate)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+                ForEach(days, id: \.self) { date in
+                    let isCurrentMonth = isInCurrentMonth(date: date, currentMonth: currentDate)
+                    let dayEvents = events[date] ?? (0, 0)
+                    let isToday = calendar.isDateInToday(date)
+                    let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
+                    
+                    VStack(spacing: 4) {
+                        Text("\(calendar.component(.day, from: date))")
+                            .font(.system(size: 16, weight: isToday ? .bold : .medium))
+                            .foregroundColor(
+                                isSelected ? .white :
+                                isToday ? .blue :
+                                isCurrentMonth ? .primary : .secondary
+                            )
+                        
+                        // Indicadores de eventos
                         HStack(spacing: 2) {
-                            if events.0 > 0 {
-                                Circle().fill(Color.green).frame(width: 6, height: 6)
+                            if dayEvents.0 > 0 {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 6, height: 6)
                             }
-                            if events.1 > 0 {
-                                Circle().fill(Color.red).frame(width: 6, height: 6)
+                            if dayEvents.1 > 0 {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 6, height: 6)
                             }
+                        }
+                        .frame(height: 8)
+                    }
+                    .frame(width: 40, height: 50)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(isSelected ? Color.blue : Color.clear)
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedDate = date
+                        if dayEvents.0 > 0 || dayEvents.1 > 0 {
+                            showDayEventsSheet = true
                         }
                     }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedDate = date
-                    showDayEventsSheet = true
-                }
             }
-            .theme(.default)
-            .frame(height: 400)
             .padding(.horizontal)
+        }
+        .padding(.vertical)
+    }
+}
+
+extension DateFormatter {
+    func monthYearString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_ES")
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date).capitalized
     }
 }
 
@@ -569,48 +680,142 @@ struct DayEventsSheetView: View {
     let incomes: [Income]
     let expenses: [Expense]
     var onClose: () -> Void
+    
+    private let calendar = Calendar.current
+    private let dateFormatter = DateFormatter()
+    
+    init(date: Date, incomes: [Income], expenses: [Expense], onClose: @escaping () -> Void) {
+        self.date = date
+        self.incomes = incomes
+        self.expenses = expenses
+        self.onClose = onClose
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+    }
+    
+    // Obtener eventos para el día específico
+    private var dayIncomes: [Income] {
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let dayStr = dateFormatter.string(from: date)
+        
+        // Expandir eventos recurrentes y puntuales para el mes
+        let allIncomes = expandRecurring(items: incomes, year: year, month: month) + 
+                        expandPunctual(items: incomes, year: year, month: month)
+        
+        // Filtrar por el día específico
+        return allIncomes.filter { income in
+            income.date == dayStr
+        }
+    }
+    
+    private var dayExpenses: [Expense] {
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let dayStr = dateFormatter.string(from: date)
+        
+        // Expandir eventos recurrentes y puntuales para el mes
+        let allExpenses = expandRecurring(items: expenses, year: year, month: month) + 
+                         expandPunctual(items: expenses, year: year, month: month)
+        
+        // Filtrar por el día específico
+        return allExpenses.filter { expense in
+            expense.date == dayStr
+        }
+    }
+    
     var body: some View {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dayStr = formatter.string(from: date)
-        let dayIncomes = incomes.filter { $0.date.hasPrefix(dayStr) }
-        let dayExpenses = expenses.filter { $0.date.hasPrefix(dayStr) }
         NavigationView {
             List {
                 if dayIncomes.isEmpty && dayExpenses.isEmpty {
                     Text("No hay ingresos ni gastos para este día.")
                         .foregroundColor(.secondary)
-                }
-                if !dayIncomes.isEmpty {
-                    Section(header: Text("Ingresos")) {
-                        ForEach(dayIncomes) { i in
-                            VStack(alignment: .leading) {
-                                Text(typeLabel(for: i.type)).bold()
-                                Text("Cantidad: \(formatCurrency(i.amount))")
-                                if let desc = i.description, !desc.isEmpty {
-                                    Text(desc).font(.caption)
+                        .padding()
+                } else {
+                    if !dayIncomes.isEmpty {
+                        Section(header: Text("Ingresos (\(dayIncomes.count))")) {
+                            ForEach(dayIncomes) { income in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text(typeLabel(for: income.type))
+                                            .font(.headline)
+                                            .foregroundColor(.green)
+                                        Spacer()
+                                        if income.is_recurring == true {
+                                            Text("Recurrente")
+                                                .font(.caption)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 2)
+                                                .background(Color.blue.opacity(0.2))
+                                                .foregroundColor(.blue)
+                                                .cornerRadius(4)
+                                        }
+                                    }
+                                    Text(formatCurrency(income.amount))
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.green)
+                                    if let desc = income.description, !desc.isEmpty {
+                                        Text(desc)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
                     }
-                }
-                if !dayExpenses.isEmpty {
-                    Section(header: Text("Gastos")) {
-                        ForEach(dayExpenses) { e in
-                            VStack(alignment: .leading) {
-                                Text(typeLabel(for: e.type)).bold().foregroundColor(.red)
-                                Text("Cantidad: \(formatCurrency(e.amount))")
-                                if let desc = e.description, !desc.isEmpty {
-                                    Text(desc).font(.caption)
+                    
+                    if !dayExpenses.isEmpty {
+                        Section(header: Text("Gastos (\(dayExpenses.count))")) {
+                            ForEach(dayExpenses) { expense in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text(typeLabel(for: expense.type))
+                                            .font(.headline)
+                                            .foregroundColor(.red)
+                                        Spacer()
+                                        if expense.is_recurring == true {
+                                            Text("Recurrente")
+                                                .font(.caption)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 2)
+                                                .background(Color.blue.opacity(0.2))
+                                                .foregroundColor(.blue)
+                                                .cornerRadius(4)
+                                        }
+                                    }
+                                    Text(formatCurrency(expense.amount))
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.red)
+                                    if let desc = expense.description, !desc.isEmpty {
+                                        Text(desc)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("Eventos del día")
-            .navigationBarItems(leading: Button("Cerrar") { onClose() })
+            .navigationTitle("Eventos del \(formattedDate)")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                leading: Button("Cerrar") {
+                    onClose()
+                }
+                .foregroundColor(.blue)
+            )
         }
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_ES")
+        formatter.dateFormat = "d 'de' MMMM"
+        return formatter.string(from: date)
     }
 }
 
