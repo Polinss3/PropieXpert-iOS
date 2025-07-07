@@ -2,17 +2,12 @@ import SwiftUI
 
 struct DashboardView: View {
     var body: some View {
-        ZStack {
-            VStack {
-                Text("Dashboard")
-                    .font(.largeTitle)
-                    .padding(.top, 32)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(Color(.systemBackground))
+        VStack {
+            Text("Dashboard")
+                .font(.largeTitle)
         }
-        .ignoresSafeArea(.container, edges: .all)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
     }
 }
 
