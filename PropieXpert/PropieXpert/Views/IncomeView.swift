@@ -2,18 +2,6 @@ import SwiftUI
 import Foundation
 // Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
 
-struct Income: Identifiable, Decodable {
-    let id: String
-    let property_id: String
-    let type: String
-    let amount: Double
-    let date: String
-    let description: String?
-    let is_recurring: Bool?
-    let frequency: String?
-    // Puedes añadir más campos si los necesitas
-}
-
 struct IncomeView: View {
     @AppStorage("auth_token") var authToken: String = ""
     @State private var incomes: [Income] = []
