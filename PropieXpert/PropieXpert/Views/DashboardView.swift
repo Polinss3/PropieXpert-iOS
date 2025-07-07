@@ -535,31 +535,32 @@ struct DashboardCalendarView: View {
         return formatter.date(from: str)
     }
     var body: some View {
-        ElegantCalendar(selectedDate: $selectedDate) { date in
-            let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
-            ZStack {
-                VStack(spacing: 2) {
-                    Text("\(Calendar.current.component(.day, from: date))")
-                        .foregroundColor(.primary)
-                    HStack(spacing: 2) {
-                        if events.0 > 0 {
-                            Circle().fill(Color.green).frame(width: 6, height: 6)
-                        }
-                        if events.1 > 0 {
-                            Circle().fill(Color.red).frame(width: 6, height: 6)
+        ElegantCalendar(selectedDate: $selectedDate)
+            .dayCell { date, isSelected, isWithinDisplayedMonth in
+                let events = eventsByDay(for: date.startOfMonth())[date] ?? (0,0)
+                ZStack {
+                    VStack(spacing: 2) {
+                        Text("\(Calendar.current.component(.day, from: date))")
+                            .foregroundColor(isWithinDisplayedMonth ? .primary : .secondary)
+                        HStack(spacing: 2) {
+                            if events.0 > 0 {
+                                Circle().fill(Color.green).frame(width: 6, height: 6)
+                            }
+                            if events.1 > 0 {
+                                Circle().fill(Color.red).frame(width: 6, height: 6)
+                            }
                         }
                     }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedDate = date
+                    showDayEventsSheet = true
+                }
             }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                selectedDate = date
-                showDayEventsSheet = true
-            }
-        }
-        .theme(.default)
-        .frame(height: 400)
-        .padding(.horizontal)
+            .theme(.default)
+            .frame(height: 400)
+            .padding(.horizontal)
     }
 }
 
