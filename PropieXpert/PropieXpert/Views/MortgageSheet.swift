@@ -133,21 +133,28 @@ struct MortgageSheet: View {
         let months = n * 12
         var r = 0.0
         if type == "fixed" {
-            r = Double(interestFixed) ?? 0 / 100 / 12
+            r = (Double(interestFixed) ?? 0) / 100 / 12
         } else if type == "variable" {
-            r = Double(interestVariable) ?? 0 / 100 / 12
+            r = (Double(interestVariable) ?? 0) / 100 / 12
         } else if type == "mixed" {
-            r = Double(interestFixed) ?? 0 / 100 / 12
+            r = (Double(interestFixed) ?? 0) / 100 / 12
         }
         if P > 0 && r > 0 && months > 0 {
             let cuota = (P * (r * pow(1 + r, Double(months)))) / (pow(1 + r, Double(months)) - 1)
+            if cuota.isNaN || cuota.isInfinite {
+                return "0.00"
+            }
             return String(format: "%.2f", cuota)
         }
         return "0.00"
     }
     var calculatedTotalToPay: String {
         guard let cuota = Double(calculatedMonthlyPayment), let n = Int(years), n > 0 else { return "0.00" }
-        return String(format: "%.2f", cuota * Double(n) * 12)
+        let total = cuota * Double(n) * 12
+        if total.isNaN || total.isInfinite {
+            return "0.00"
+        }
+        return String(format: "%.2f", total)
     }
 
     func submit() {
