@@ -532,17 +532,13 @@ struct DashboardCalendarView: View {
         for income in allIncomes {
             if let date = dateFromString(income.date) {
                 dict[date, default: (0,0)].0 += 1
-                print("DEBUG: Ingreso detectado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
             }
         }
         for expense in allExpenses {
             if let date = dateFromString(expense.date) {
                 dict[date, default: (0,0)].1 += 1
-                print("DEBUG: Gasto detectado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
             }
         }
-        
-        print("DEBUG: Total días con eventos: \(dict.count)")
         return dict
     }
     
@@ -668,17 +664,6 @@ struct DashboardCalendarView: View {
                                         .fill(Color.red)
                                         .frame(width: 6, height: 6)
                                 }
-                                // DEBUG: Muestra puntos de ejemplo para días específicos (eliminar después)
-                                if calendar.component(.day, from: date) == 15 || calendar.component(.day, from: date) == 20 {
-                                    Circle()
-                                        .fill(Color.green)
-                                        .frame(width: 6, height: 6)
-                                }
-                                if calendar.component(.day, from: date) == 10 || calendar.component(.day, from: date) == 25 {
-                                    Circle()
-                                        .fill(Color.red)
-                                        .frame(width: 6, height: 6)
-                                }
                             }
                             .frame(height: 8)
                         }
@@ -696,9 +681,7 @@ struct DashboardCalendarView: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                         .onTapGesture {
                             selectedDate = date
-                            if dayEvents.0 > 0 || dayEvents.1 > 0 {
-                                showDayEventsSheet = true
-                            }
+                            showDayEventsSheet = true
                         }
                     }
                 }
