@@ -102,7 +102,8 @@ struct UserProfileView: View {
                                 }
                                 // Botón para gestionar suscripción
                                 Button(action: {
-                                    if let url = URL(string: "https://app.propiexpert.com/profile") {
+                                    let urlString = "https://app.propiexpert.com/profile?token=\(authToken)"
+                                    if let url = URL(string: urlString) {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
