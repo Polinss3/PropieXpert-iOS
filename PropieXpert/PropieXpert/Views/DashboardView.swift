@@ -341,6 +341,30 @@ struct PropertyPerformance: Identifiable, Decodable {
     }
 }
 
+// Modelo para la respuesta completa del dashboard
+struct DashboardSummary: Decodable {
+    let total_properties: Int
+    let total_property_value: Double
+    let total_investment: Double
+    let total_appreciation: Double
+    let monthly_income: Double
+    let monthly_expenses: Double
+    let monthly_net: Double
+    let yearly_income: Double
+    let yearly_expenses: Double
+    let yearly_net: Double
+    let total_mortgage_balance: Double
+    let monthly_mortgage_payments: Double
+    let gross_roi: Double
+    let net_roi: Double
+    let total_roi: Double
+}
+
+struct DashboardData: Decodable {
+    let summary: DashboardSummary
+    let property_performance: [PropertyPerformance]
+}
+
 // Nueva enum para las secciones
 enum DashboardSection: String, CaseIterable, Identifiable {
     case resumen = "Resumen"
@@ -353,8 +377,11 @@ enum DashboardSection: String, CaseIterable, Identifiable {
 struct DashboardView: View {
     @AppStorage("auth_token") var authToken: String = ""
     @State private var propertyPerformance: [PropertyPerformance] = []
+    @State private var dashboardData: DashboardData? = nil
     @State private var isLoading = false
+    @State private var isDashboardLoading = false
     @State private var errorMessage: String? = nil
+    @State private var dashboardErrorMessage: String? = nil
     @State private var selectedSection: DashboardSection = .resumen
     // Para la gráfica de barras mensual
     @State private var incomes: [Income] = []
@@ -371,29 +398,50 @@ struct DashboardView: View {
     @State private var loadedMonthRange: (start: Date, end: Date)? = nil
     @State private var currentDate = Date()
 
-    // Simulación de datos de resumen (reemplazar por datos reales de la API)
-    let summaryItems: [DashboardSummaryItem] = [
-        DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
-        DashboardSummaryItem(icon: "eurosign.circle.fill", title: "Valor total", value: "€850,000", subtitle: "Valor actual", color: .green),
-        DashboardSummaryItem(icon: "creditcard.fill", title: "Inversión", value: "€600,000", subtitle: "Invertido", color: .purple),
-        DashboardSummaryItem(icon: "chart.line.uptrend.xyaxis", title: "Apreciación", value: "€50,000", subtitle: "Ganancia", color: .orange),
-        DashboardSummaryItem(icon: "arrow.down.circle.fill", title: "Ingresos mensuales", value: "€3,200", subtitle: "Este mes", color: .green),
-        DashboardSummaryItem(icon: "arrow.up.circle.fill", title: "Gastos mensuales", value: "€1,200", subtitle: "Este mes", color: .red),
-        DashboardSummaryItem(icon: "equal.circle.fill", title: "Neto mensual", value: "€2,000", subtitle: "Este mes", color: .gray),
-        DashboardSummaryItem(icon: "calendar", title: "Ingresos anuales", value: "€38,400", subtitle: "Este año", color: .green),
-        DashboardSummaryItem(icon: "calendar", title: "Gastos anuales", value: "€14,400", subtitle: "Este año", color: .red),
-        DashboardSummaryItem(icon: "calendar", title: "Neto anual", value: "€24,000", subtitle: "Este año", color: .gray)
-    ]
-    // ROI y Hipoteca
-    let roiItems: [DashboardSummaryItem] = [
-        DashboardSummaryItem(icon: "percent", title: "ROI Bruto", value: "7.5%", subtitle: "Antes de gastos", color: .blue),
-        DashboardSummaryItem(icon: "percent", title: "ROI Neto", value: "5.2%", subtitle: "Después de gastos", color: .green),
-        DashboardSummaryItem(icon: "percent", title: "ROI Total", value: "4.1%", subtitle: "Después de hipoteca", color: .purple)
-    ]
-    let mortgageItems: [DashboardSummaryItem] = [
-        DashboardSummaryItem(icon: "banknote", title: "Pago hipoteca", value: "€800", subtitle: "Mensual", color: .yellow),
-        DashboardSummaryItem(icon: "banknote", title: "Saldo hipoteca", value: "€120,000", subtitle: "Restante", color: .orange)
-    ]
+    // Datos de resumen dinámicos basados en la API
+    var summaryItems: [DashboardSummaryItem] {
+        guard let summary = dashboardData?.summary else {
+            return []
+        }
+        
+        return [
+            DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "\(summary.total_properties)", subtitle: "Registradas", color: .blue),
+            DashboardSummaryItem(icon: "eurosign.circle.fill", title: "Valor total", value: formatCurrency(summary.total_property_value), subtitle: "Valor actual", color: .green),
+            DashboardSummaryItem(icon: "creditcard.fill", title: "Inversión", value: formatCurrency(summary.total_investment), subtitle: "Invertido", color: .purple),
+            DashboardSummaryItem(icon: "chart.line.uptrend.xyaxis", title: "Apreciación", value: formatCurrency(summary.total_appreciation), subtitle: "Ganancia", color: .orange),
+            DashboardSummaryItem(icon: "arrow.down.circle.fill", title: "Ingresos mensuales", value: formatCurrency(summary.monthly_income), subtitle: "Este mes", color: .green),
+            DashboardSummaryItem(icon: "arrow.up.circle.fill", title: "Gastos mensuales", value: formatCurrency(summary.monthly_expenses), subtitle: "Este mes", color: .red),
+            DashboardSummaryItem(icon: "equal.circle.fill", title: "Neto mensual", value: formatCurrency(summary.monthly_net), subtitle: "Este mes", color: .gray),
+            DashboardSummaryItem(icon: "calendar", title: "Ingresos anuales", value: formatCurrency(summary.yearly_income), subtitle: "Este año", color: .green),
+            DashboardSummaryItem(icon: "calendar", title: "Gastos anuales", value: formatCurrency(summary.yearly_expenses), subtitle: "Este año", color: .red),
+            DashboardSummaryItem(icon: "calendar", title: "Neto anual", value: formatCurrency(summary.yearly_net), subtitle: "Este año", color: .gray)
+        ]
+    }
+    
+    // ROI dinámico basado en la API
+    var roiItems: [DashboardSummaryItem] {
+        guard let summary = dashboardData?.summary else {
+            return []
+        }
+        
+        return [
+            DashboardSummaryItem(icon: "percent", title: "ROI Bruto", value: formatPercentage(summary.gross_roi), subtitle: "Antes de gastos", color: .blue),
+            DashboardSummaryItem(icon: "percent", title: "ROI Neto", value: formatPercentage(summary.net_roi), subtitle: "Después de gastos", color: .green),
+            DashboardSummaryItem(icon: "percent", title: "ROI Total", value: formatPercentage(summary.total_roi), subtitle: "Después de hipoteca", color: .purple)
+        ]
+    }
+    
+    // Hipoteca dinámica basada en la API
+    var mortgageItems: [DashboardSummaryItem] {
+        guard let summary = dashboardData?.summary else {
+            return []
+        }
+        
+        return [
+            DashboardSummaryItem(icon: "banknote", title: "Pago hipoteca", value: formatCurrency(summary.monthly_mortgage_payments), subtitle: "Mensual", color: .yellow),
+            DashboardSummaryItem(icon: "banknote", title: "Saldo hipoteca", value: formatCurrency(summary.total_mortgage_balance), subtitle: "Restante", color: .orange)
+        ]
+    }
     
     let columns = [
         GridItem(.flexible()),
@@ -422,30 +470,65 @@ struct DashboardView: View {
                                 .font(.largeTitle).bold()
                                 .padding(.top, 8)
                                 .padding(.horizontal)
-                            LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(summaryItems) { item in
-                                    DashboardSummaryCard(item: item)
+                            
+                            if isDashboardLoading {
+                                HStack {
+                                    Spacer()
+                                    ProgressView("Cargando datos del dashboard...")
+                                    Spacer()
                                 }
-                            }
-                            .padding(.horizontal)
-                            Text("Rentabilidad (ROI)")
-                                .font(.headline)
+                                .padding()
+                            } else if let dashboardErrorMessage = dashboardErrorMessage {
+                                VStack {
+                                    Text("Error al cargar datos del dashboard")
+                                        .font(.headline)
+                                        .foregroundColor(.red)
+                                    Text(dashboardErrorMessage)
+                                        .foregroundColor(.red)
+                                        .multilineTextAlignment(.center)
+                                    Button("Reintentar") {
+                                        fetchDashboardData()
+                                    }
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                                }
                                 .padding(.horizontal)
-                            LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(roiItems) { item in
-                                    DashboardSummaryCard(item: item)
+                            } else if dashboardData == nil {
+                                Text("No hay datos disponibles")
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal)
+                            } else {
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(summaryItems) { item in
+                                        DashboardSummaryCard(item: item)
+                                    }
                                 }
-                            }
-                            .padding(.horizontal)
-                            Text("Hipoteca")
-                                .font(.headline)
                                 .padding(.horizontal)
-                            LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(mortgageItems) { item in
-                                    DashboardSummaryCard(item: item)
+                                
+                                Text("Rentabilidad (ROI)")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                    .padding(.top)
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(roiItems) { item in
+                                        DashboardSummaryCard(item: item)
+                                    }
                                 }
+                                .padding(.horizontal)
+                                
+                                Text("Hipoteca")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                    .padding(.top)
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(mortgageItems) { item in
+                                        DashboardSummaryCard(item: item)
+                                    }
+                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
                         // --- Sección Rendimiento ---
                         if selectedSection == .rendimiento {
@@ -516,7 +599,7 @@ struct DashboardView: View {
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .onAppear {
-                fetchPropertyPerformance()
+                fetchDashboardData()
                 fetchIncomesAndExpenses()
                 fetchProperties()
             }
@@ -531,6 +614,41 @@ struct DashboardView: View {
                 )
             }
         }
+    }
+    
+    func fetchDashboardData() {
+        isDashboardLoading = true
+        dashboardErrorMessage = nil
+        guard let url = URL(string: "https://api.propiexpert.com/dashboard/") else {
+            isDashboardLoading = false
+            dashboardErrorMessage = "URL inválida"
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isDashboardLoading = false
+                if let error = error {
+                    dashboardErrorMessage = "Error de red: \(error.localizedDescription)"
+                    return
+                }
+                guard let data = data else {
+                    dashboardErrorMessage = "No se recibieron datos del servidor."
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode(DashboardData.self, from: data)
+                    dashboardData = decoded
+                    // También actualizar la lista de performance para mantener compatibilidad
+                    propertyPerformance = decoded.property_performance
+                } catch {
+                    dashboardErrorMessage = "Error al decodificar datos: \(error.localizedDescription)"
+                    print("Dashboard decode error: \(error)")
+                }
+            }
+        }.resume()
     }
     
     func fetchPropertyPerformance() {
@@ -704,6 +822,17 @@ struct DashboardView: View {
     
     func getPropertyName(for propertyId: String) -> String {
         properties.first(where: { $0._id == propertyId })?.name ?? "Propiedad desconocida"
+    }
+    
+    func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
+        return formatter.string(from: NSNumber(value: amount)) ?? "€\(amount)"
+    }
+    
+    func formatPercentage(_ value: Double) -> String {
+        return String(format: "%.1f%%", value)
     }
 }
 
