@@ -152,6 +152,7 @@ struct DashboardView: View {
     @State private var chartError: String? = nil
     @State private var selectedDate: Date = Date()
     @State private var showDayEventsSheet = false
+    @State private var properties: [PropertyName] = []
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -295,6 +296,7 @@ struct DashboardView: View {
             .onAppear {
                 fetchPropertyPerformance()
                 fetchIncomesAndExpenses()
+                fetchProperties()
             }
             // Sheet para mostrar eventos del día seleccionado
             .sheet(isPresented: $showDayEventsSheet) {
@@ -302,6 +304,7 @@ struct DashboardView: View {
                     date: selectedDate,
                     incomes: incomes,
                     expenses: expenses,
+                    properties: properties,
                     onClose: { showDayEventsSheet = false }
                 )
             }
@@ -392,6 +395,26 @@ struct DashboardView: View {
                 expenses = fetchedExpenses
             }
         }
+    }
+    
+    func fetchProperties() {
+        guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let data = data {
+                    if let decoded = try? JSONDecoder().decode([PropertyName].self, from: data) {
+                        properties = decoded
+                    }
+                }
+            }
+        }.resume()
+    }
+    
+    func getPropertyName(for propertyId: String) -> String {
+        properties.first(where: { $0._id == propertyId })?.name ?? "Propiedad desconocida"
     }
 }
 
@@ -815,20 +838,26 @@ struct DayEventsSheetView: View {
     let date: Date
     let incomes: [Income]
     let expenses: [Expense]
+    let properties: [PropertyName]
     var onClose: () -> Void
     
     private let calendar = Calendar.current
     private let dateFormatter = DateFormatter()
     private let simpleDateFormatter = DateFormatter()
     
-    init(date: Date, incomes: [Income], expenses: [Expense], onClose: @escaping () -> Void) {
+    init(date: Date, incomes: [Income], expenses: [Expense], properties: [PropertyName], onClose: @escaping () -> Void) {
         self.date = date
         self.incomes = incomes
         self.expenses = expenses
+        self.properties = properties
         self.onClose = onClose
         // Arreglar: Configurar ambos formatters para manejar diferentes formatos
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         simpleDateFormatter.dateFormat = "yyyy-MM-dd"
+    }
+    
+    private func getPropertyName(for propertyId: String) -> String {
+        properties.first(where: { $0._id == propertyId })?.name ?? "Propiedad desconocida"
     }
     
     // Obtener eventos para el día específico
@@ -905,6 +934,10 @@ struct DayEventsSheetView: View {
                                                 .cornerRadius(4)
                                         }
                                     }
+                                    Text(getPropertyName(for: income.property_id))
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.blue)
                                     Text(formatCurrency(income.amount))
                                         .font(.title3)
                                         .fontWeight(.semibold)
@@ -939,6 +972,10 @@ struct DayEventsSheetView: View {
                                                 .cornerRadius(4)
                                         }
                                     }
+                                    Text(getPropertyName(for: expense.property_id))
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.blue)
                                     Text(formatCurrency(expense.amount))
                                         .font(.title3)
                                         .fontWeight(.semibold)
