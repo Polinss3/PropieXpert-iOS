@@ -45,7 +45,6 @@ enum PropertyDetailTab: String, CaseIterable, Identifiable {
     case detalles = "Detalles"
     case financiero = "Financiero"
     case ingresosGastos = "Ingresos y Gastos"
-    case documentos = "Documentos"
     case hipoteca = "Hipoteca"
     var id: String { self.rawValue }
 }
@@ -124,8 +123,6 @@ struct PropertyDetailSheet: View {
                         financieroSection
                     case .ingresosGastos:
                         ingresosGastosSection
-                    case .documentos:
-                        documentosSection
                     case .hipoteca:
                         hipotecaSection
                     }
@@ -378,16 +375,6 @@ struct PropertyDetailSheet: View {
                     .padding()
                 }
             }
-        }
-    }
-    
-    var documentosSection: some View {
-        VStack {
-            Text("Documentos")
-                .font(.headline)
-                .padding()
-            Text("(Próximamente: listado real de documentos)")
-                .foregroundColor(.gray)
         }
     }
     
