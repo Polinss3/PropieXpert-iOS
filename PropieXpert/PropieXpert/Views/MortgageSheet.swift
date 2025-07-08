@@ -211,11 +211,10 @@ struct MortgageSheet: View {
         // Calcula end_date automáticamente
         var endDate: String? = nil
         // Convierte la fecha seleccionada (español) a ISO para el backend
-        var isoStartDate: String? = nil
         let isoFormatter = DateFormatter()
         isoFormatter.dateFormat = "yyyy-MM-dd"
         isoFormatter.locale = Locale(identifier: "en_US_POSIX")
-        isoStartDate = isoFormatter.string(from: startDateObj)
+        let isoStartDate = isoFormatter.string(from: startDateObj)
         if let start = startDateObj as Date? {
             var d = start
             d.addTimeInterval(Double(yearsValue) * 365.25 * 24 * 60 * 60)
@@ -230,8 +229,8 @@ struct MortgageSheet: View {
             "interest_rate_variable": (type == "variable" || type == "mixed") ? interestVariableValue : 0,
             "interest_rate": 0,
             "monthly_payment": cuota,
-            "start_date": isoStartDate,
-            "end_date": endDate,
+            "start_date": isoStartDate, // <-- siempre string
+            "end_date": endDate ?? "",
             "bank_name": bankName,
             "account_number": accountNumber,
             "total_to_pay": totalToPay,
