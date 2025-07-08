@@ -159,16 +159,22 @@ struct MortgageSheet: View {
         .ignoresSafeArea(.container, edges: .all)
     }
 
+    // Helper para parsear Double con ',' o '.'
+    func parseDouble(_ string: String) -> Double? {
+        let normalized = string.replacingOccurrences(of: ",", with: ".")
+        return Double(normalized)
+    }
+
     var calculatedMonthlyPayment: String {
-        guard let P = Double(initialAmount), let n = Int(years), n > 0 else { return "0.00" }
+        guard let P = parseDouble(initialAmount), let n = Int(years), n > 0 else { return "0.00" }
         let months = n * 12
         var r = 0.0
         if type == "fixed" {
-            r = (Double(interestFixed) ?? 0) / 100 / 12
+            r = (parseDouble(interestFixed) ?? 0) / 100 / 12
         } else if type == "variable" {
-            r = (Double(interestVariable) ?? 0) / 100 / 12
+            r = (parseDouble(interestVariable) ?? 0) / 100 / 12
         } else if type == "mixed" {
-            r = (Double(interestFixed) ?? 0) / 100 / 12
+            r = (parseDouble(interestFixed) ?? 0) / 100 / 12
         }
         if P > 0 && r > 0 && months > 0 {
             let cuota = (P * (r * pow(1 + r, Double(months)))) / (pow(1 + r, Double(months)) - 1)
@@ -180,7 +186,7 @@ struct MortgageSheet: View {
         return "0.00"
     }
     var calculatedTotalToPay: String {
-        guard let cuota = Double(calculatedMonthlyPayment), let n = Int(years), n > 0 else { return "0.00" }
+        guard let cuota = parseDouble(calculatedMonthlyPayment), let n = Int(years), n > 0 else { return "0.00" }
         let total = cuota * Double(n) * 12
         if total.isNaN || total.isInfinite {
             return "0.00"
@@ -190,7 +196,7 @@ struct MortgageSheet: View {
 
     func submit() {
         errorMessage = nil
-        guard let initialAmountValue = Double(initialAmount), initialAmountValue > 0 else {
+        guard let initialAmountValue = parseDouble(initialAmount), initialAmountValue > 0 else {
             errorMessage = "Importe inicial inválido."
             return
         }
@@ -198,10 +204,10 @@ struct MortgageSheet: View {
             errorMessage = "Años inválidos."
             return
         }
-        let interestFixedValue = Double(interestFixed) ?? 0
-        let interestVariableValue = Double(interestVariable) ?? 0
-        let cuota = Double(calculatedMonthlyPayment) ?? 0
-        let totalToPay = Double(calculatedTotalToPay) ?? 0
+        let interestFixedValue = parseDouble(interestFixed) ?? 0
+        let interestVariableValue = parseDouble(interestVariable) ?? 0
+        let cuota = parseDouble(calculatedMonthlyPayment) ?? 0
+        let totalToPay = parseDouble(calculatedTotalToPay) ?? 0
         // Calcula end_date automáticamente
         var endDate: String? = nil
         // Convierte la fecha seleccionada (español) a ISO para el backend
