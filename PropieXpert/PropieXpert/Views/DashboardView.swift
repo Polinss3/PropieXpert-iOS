@@ -153,6 +153,13 @@ struct DashboardView: View {
     @State private var selectedDate: Date = Date()
     @State private var showDayEventsSheet = false
     @State private var properties: [PropertyName] = []
+    
+    // NUEVO: Estados para eventos expandidos de múltiples meses
+    @State private var expandedIncomes: [Income] = []
+    @State private var expandedExpenses: [Expense] = []
+    @State private var loadedMonthRange: (start: Date, end: Date)? = nil
+    @State private var currentDate = Date()
+
     // Simulación de datos de resumen (reemplazar por datos reales de la API)
     let summaryItems: [DashboardSummaryItem] = [
         DashboardSummaryItem(icon: "house.fill", title: "Propiedades", value: "4", subtitle: "Registradas", color: .blue),
@@ -282,10 +289,14 @@ struct DashboardView: View {
                                 .font(.largeTitle).bold()
                                 .padding([.top, .horizontal])
                             DashboardCalendarView(
-                                incomes: incomes,
-                                expenses: expenses,
+                                expandedIncomes: expandedIncomes,
+                                expandedExpenses: expandedExpenses,
                                 selectedDate: $selectedDate,
-                                showDayEventsSheet: $showDayEventsSheet
+                                showDayEventsSheet: $showDayEventsSheet,
+                                currentDate: $currentDate,
+                                onMonthChanged: { newMonth in
+                                    ensureMonthDataLoaded(for: newMonth)
+                                }
                             )
                         }
                     }
@@ -302,8 +313,8 @@ struct DashboardView: View {
             .sheet(isPresented: $showDayEventsSheet) {
                 DayEventsSheetView(
                     date: selectedDate,
-                    incomes: incomes,
-                    expenses: expenses,
+                    expandedIncomes: expandedIncomes,
+                    expandedExpenses: expandedExpenses,
                     properties: properties,
                     onClose: { showDayEventsSheet = false }
                 )
@@ -393,7 +404,103 @@ struct DashboardView: View {
             } else {
                 incomes = fetchedIncomes
                 expenses = fetchedExpenses
+                // NUEVO: Expandir eventos para múltiples meses al obtener los datos
+                expandEventsForInitialLoad()
             }
+        }
+    }
+    
+    // NUEVA FUNCIÓN: Expandir eventos para carga inicial (4 meses)
+    func expandEventsForInitialLoad() {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Calcular rango: 2 meses atrás hasta 2 meses adelante
+        let startDate = calendar.date(byAdding: .month, value: -2, to: now) ?? now
+        let endDate = calendar.date(byAdding: .month, value: 2, to: now) ?? now
+        
+        expandEventsForDateRange(start: startDate, end: endDate)
+    }
+    
+    // NUEVA FUNCIÓN: Expandir eventos para un rango de fechas
+    func expandEventsForDateRange(start: Date, end: Date) {
+        let calendar = Calendar.current
+        
+        // Actualizar el rango cargado
+        if let currentRange = loadedMonthRange {
+            let newStart = min(start, currentRange.start)
+            let newEnd = max(end, currentRange.end)
+            loadedMonthRange = (start: newStart, end: newEnd)
+        } else {
+            loadedMonthRange = (start: start, end: end)
+        }
+        
+        guard let range = loadedMonthRange else { return }
+        
+        let startComponents = calendar.dateComponents([.year, .month], from: range.start)
+        let endComponents = calendar.dateComponents([.year, .month], from: range.end)
+        
+        guard let startYear = startComponents.year,
+              let startMonth = startComponents.month,
+              let endYear = endComponents.year,
+              let endMonth = endComponents.month else { return }
+        
+        var newExpandedIncomes: [Income] = []
+        var newExpandedExpenses: [Expense] = []
+        
+        // Iterar sobre todos los meses en el rango
+        var currentYear = startYear
+        var currentMonth = startMonth
+        
+        while (currentYear < endYear) || (currentYear == endYear && currentMonth <= endMonth) {
+            let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: currentMonth) + 
+                              expandPunctual(items: incomes, year: currentYear, month: currentMonth)
+            let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: currentMonth) + 
+                               expandPunctual(items: expenses, year: currentYear, month: currentMonth)
+            
+            newExpandedIncomes.append(contentsOf: monthIncomes)
+            newExpandedExpenses.append(contentsOf: monthExpenses)
+            
+            currentMonth += 1
+            if currentMonth > 12 {
+                currentMonth = 1
+                currentYear += 1
+            }
+        }
+        
+        expandedIncomes = newExpandedIncomes
+        expandedExpenses = newExpandedExpenses
+        
+        print("DEBUG: Eventos expandidos para rango \(range.start) - \(range.end)")
+        print("DEBUG: Total ingresos expandidos: \(expandedIncomes.count)")
+        print("DEBUG: Total gastos expandidos: \(expandedExpenses.count)")
+    }
+    
+    // NUEVA FUNCIÓN: Asegurar que los datos de un mes específico estén cargados
+    func ensureMonthDataLoaded(for date: Date) {
+        let calendar = Calendar.current
+        
+        guard let range = loadedMonthRange else {
+            // Si no hay rango cargado, expandir alrededor de la fecha
+            let start = calendar.date(byAdding: .month, value: -1, to: date) ?? date
+            let end = calendar.date(byAdding: .month, value: 1, to: date) ?? date
+            expandEventsForDateRange(start: start, end: end)
+            return
+        }
+        
+        // Verificar si la fecha está dentro del rango cargado
+        let monthStart = calendar.dateInterval(of: .month, for: date)?.start ?? date
+        
+        if monthStart < range.start || monthStart > range.end {
+            // La fecha está fuera del rango, expandir el rango
+            let newStart = min(monthStart, range.start)
+            let newEnd = max(monthStart, range.end)
+            
+            // Añadir un poco de margen (1 mes a cada lado)
+            let expandedStart = calendar.date(byAdding: .month, value: -1, to: newStart) ?? newStart
+            let expandedEnd = calendar.date(byAdding: .month, value: 1, to: newEnd) ?? newEnd
+            
+            expandEventsForDateRange(start: expandedStart, end: expandedEnd)
         }
     }
     
@@ -570,97 +677,68 @@ struct MonthlyBarChartView: View {
 }
 
 struct DashboardCalendarView: View {
-    let incomes: [Income]
-    let expenses: [Expense]
+    let expandedIncomes: [Income]
+    let expandedExpenses: [Expense]
     @Binding var selectedDate: Date
     @Binding var showDayEventsSheet: Bool
-    @State private var currentDate = Date()
+    @Binding var currentDate: Date
+    var onMonthChanged: (Date) -> Void
     
     private let calendar = Calendar.current
     private let dateFormatter = DateFormatter()
     private let simpleDateFormatter = DateFormatter()
     
-    init(incomes: [Income], expenses: [Expense], selectedDate: Binding<Date>, showDayEventsSheet: Binding<Bool>) {
-        self.incomes = incomes
-        self.expenses = expenses
+    init(expandedIncomes: [Income], expandedExpenses: [Expense], selectedDate: Binding<Date>, showDayEventsSheet: Binding<Bool>, currentDate: Binding<Date>, onMonthChanged: @escaping (Date) -> Void) {
+        self.expandedIncomes = expandedIncomes
+        self.expandedExpenses = expandedExpenses
         self._selectedDate = selectedDate
         self._showDayEventsSheet = showDayEventsSheet
+        self._currentDate = currentDate
+        self.onMonthChanged = onMonthChanged
         // Arreglar: Configurar ambos formatters para manejar diferentes formatos
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         simpleDateFormatter.dateFormat = "yyyy-MM-dd"
     }
     
-    // Helpers para obtener eventos del mes
+    // Helpers para obtener eventos del mes usando datos expandidos
     func eventsByDay(for month: Date) -> [Date: (Int, Int)] {
         var dict: [Date: (Int, Int)] = [:] // [fecha: (ingresos, gastos)]
         let year = calendar.component(.year, from: month)
         let monthNum = calendar.component(.month, from: month)
         
-        print("DEBUG: Procesando eventos para \(monthNum)/\(year)")
-        print("DEBUG: Total ingresos originales: \(incomes.count)")
-        print("DEBUG: Total gastos originales: \(expenses.count)")
+        print("DEBUG: Procesando eventos expandidos para \(monthNum)/\(year)")
         
-        // Debug de ingresos originales
-        for (index, income) in incomes.enumerated() {
-            print("DEBUG: Ingreso \(index): fecha=\(income.date), recurrente=\(income.is_recurring ?? false), tipo=\(income.type), cantidad=\(income.amount)")
+        // Filtrar eventos expandidos por mes
+        let monthIncomes = expandedIncomes.filter { income in
+            guard let date = dateFromString(income.date) else { return false }
+            return calendar.component(.year, from: date) == year && 
+                   calendar.component(.month, from: date) == monthNum
         }
         
-        // Debug de gastos originales
-        for (index, expense) in expenses.enumerated() {
-            print("DEBUG: Gasto \(index): fecha=\(expense.date), recurrente=\(expense.is_recurring ?? false), tipo=\(expense.type), cantidad=\(expense.amount)")
+        let monthExpenses = expandedExpenses.filter { expense in
+            guard let date = dateFromString(expense.date) else { return false }
+            return calendar.component(.year, from: date) == year && 
+                   calendar.component(.month, from: date) == monthNum
         }
         
-        // Expandir eventos recurrentes y puntuales
-        let recurringIncomes = expandRecurring(items: incomes, year: year, month: monthNum)
-        let punctualIncomes = expandPunctual(items: incomes, year: year, month: monthNum)
-        let recurringExpenses = expandRecurring(items: expenses, year: year, month: monthNum)
-        let punctualExpenses = expandPunctual(items: expenses, year: year, month: monthNum)
+        print("DEBUG: Ingresos del mes: \(monthIncomes.count)")
+        print("DEBUG: Gastos del mes: \(monthExpenses.count)")
         
-        print("DEBUG: Ingresos recurrentes expandidos: \(recurringIncomes.count)")
-        print("DEBUG: Ingresos puntuales expandidos: \(punctualIncomes.count)")
-        print("DEBUG: Gastos recurrentes expandidos: \(recurringExpenses.count)")
-        print("DEBUG: Gastos puntuales expandidos: \(punctualExpenses.count)")
-        
-        let allIncomes = recurringIncomes + punctualIncomes
-        let allExpenses = recurringExpenses + punctualExpenses
-        
-        print("DEBUG: Total ingresos expandidos: \(allIncomes.count)")
-        print("DEBUG: Total gastos expandidos: \(allExpenses.count)")
-        
-        for income in allIncomes {
+        for income in monthIncomes {
             if let date = dateFromString(income.date) {
-                dict[date, default: (0,0)].0 += 1
-                print("DEBUG: Ingreso procesado en \(income.date) - Total ingresos del día: \(dict[date]?.0 ?? 0)")
-            } else {
-                print("DEBUG: Error parseando fecha de ingreso: \(income.date)")
+                let dayStart = calendar.startOfDay(for: date)
+                dict[dayStart, default: (0,0)].0 += 1
             }
         }
-        for expense in allExpenses {
+        
+        for expense in monthExpenses {
             if let date = dateFromString(expense.date) {
-                dict[date, default: (0,0)].1 += 1
-                print("DEBUG: Gasto procesado en \(expense.date) - Total gastos del día: \(dict[date]?.1 ?? 0)")
-            } else {
-                print("DEBUG: Error parseando fecha de gasto: \(expense.date)")
+                let dayStart = calendar.startOfDay(for: date)
+                dict[dayStart, default: (0,0)].1 += 1
             }
         }
         
-        // Añadir algunos eventos de ejemplo para verificar que la funcionalidad visual está funcionando
-        let today = Date()
-        let calendar = Calendar.current
-        if calendar.isDate(today, equalTo: month, toGranularity: .month) {
-            // Añadir un punto verde en el día 10 del mes actual
-            if let day10 = calendar.date(byAdding: .day, value: 10 - calendar.component(.day, from: today), to: today) {
-                dict[day10, default: (0,0)].0 += 1
-                print("DEBUG: Evento de ejemplo - ingreso añadido en día 10")
-            }
-            // Añadir un punto rojo en el día 15 del mes actual
-            if let day15 = calendar.date(byAdding: .day, value: 15 - calendar.component(.day, from: today), to: today) {
-                dict[day15, default: (0,0)].1 += 1
-                print("DEBUG: Evento de ejemplo - gasto añadido en día 15")
-            }
-        }
-        
-        print("DEBUG: Total días con eventos: \(dict.count)")
+        print("DEBUG: Total días con eventos en \(monthNum)/\(year): \(dict.count)")
         return dict
     }
     
@@ -697,7 +775,9 @@ struct DashboardCalendarView: View {
             // Header con navegación de mes
             HStack {
                 Button(action: {
-                    currentDate = calendar.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
+                    let newDate = calendar.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
+                    currentDate = newDate
+                    onMonthChanged(newDate)
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.title2)
@@ -719,7 +799,9 @@ struct DashboardCalendarView: View {
                 Spacer()
                 
                 Button(action: {
-                    currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate) ?? currentDate
+                    let newDate = calendar.date(byAdding: .month, value: 1, to: currentDate) ?? currentDate
+                    currentDate = newDate
+                    onMonthChanged(newDate)
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.title2)
@@ -762,7 +844,7 @@ struct DashboardCalendarView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
                     ForEach(days, id: \.self) { date in
                         let isCurrentMonth = isInCurrentMonth(date: date, currentMonth: currentDate)
-                        let dayEvents = events[date] ?? (0, 0)
+                        let dayEvents = events[calendar.startOfDay(for: date)] ?? (0, 0)
                         let isToday = calendar.isDateInToday(date)
                         let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
                         
@@ -836,8 +918,8 @@ extension DateFormatter {
 
 struct DayEventsSheetView: View {
     let date: Date
-    let incomes: [Income]
-    let expenses: [Expense]
+    let expandedIncomes: [Income]
+    let expandedExpenses: [Expense]
     let properties: [PropertyName]
     var onClose: () -> Void
     
@@ -845,10 +927,10 @@ struct DayEventsSheetView: View {
     private let dateFormatter = DateFormatter()
     private let simpleDateFormatter = DateFormatter()
     
-    init(date: Date, incomes: [Income], expenses: [Expense], properties: [PropertyName], onClose: @escaping () -> Void) {
+    init(date: Date, expandedIncomes: [Income], expandedExpenses: [Expense], properties: [PropertyName], onClose: @escaping () -> Void) {
         self.date = date
-        self.incomes = incomes
-        self.expenses = expenses
+        self.expandedIncomes = expandedIncomes
+        self.expandedExpenses = expandedExpenses
         self.properties = properties
         self.onClose = onClose
         // Arreglar: Configurar ambos formatters para manejar diferentes formatos
@@ -860,18 +942,13 @@ struct DayEventsSheetView: View {
         properties.first(where: { $0._id == propertyId })?.name ?? "Propiedad desconocida"
     }
     
-    // Obtener eventos para el día específico
+    // Obtener eventos para el día específico desde los datos expandidos
     private var dayIncomes: [Income] {
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
         let day = calendar.component(.day, from: date)
         
-        // Expandir eventos recurrentes y puntuales para el mes
-        let allIncomes = expandRecurring(items: incomes, year: year, month: month) + 
-                        expandPunctual(items: incomes, year: year, month: month)
-        
-        // Filtrar por el día específico usando parsing de fechas
-        return allIncomes.filter { income in
+        return expandedIncomes.filter { income in
             // Intentar parsear la fecha del ingreso
             guard let incomeDate = dateFormatter.date(from: income.date) ?? simpleDateFormatter.date(from: income.date) else {
                 return false
@@ -889,12 +966,7 @@ struct DayEventsSheetView: View {
         let month = calendar.component(.month, from: date)
         let day = calendar.component(.day, from: date)
         
-        // Expandir eventos recurrentes y puntuales para el mes
-        let allExpenses = expandRecurring(items: expenses, year: year, month: month) + 
-                         expandPunctual(items: expenses, year: year, month: month)
-        
-        // Filtrar por el día específico usando parsing de fechas
-        return allExpenses.filter { expense in
+        return expandedExpenses.filter { expense in
             // Intentar parsear la fecha del gasto
             guard let expenseDate = dateFormatter.date(from: expense.date) ?? simpleDateFormatter.date(from: expense.date) else {
                 return false
