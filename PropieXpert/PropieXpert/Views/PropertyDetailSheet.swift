@@ -306,9 +306,14 @@ struct PropertyDetailSheet: View {
     
     var ingresosGastosSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Ingresos y Gastos")
-                .font(.headline)
-                .padding(.top)
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.up.arrow.down.circle.fill")
+                    .foregroundColor(.accentColor)
+                Text("Ingresos y Gastos")
+                    .font(.title2).bold()
+            }
+            .padding(.top)
+            .padding(.horizontal)
             if isLoadingIncomes || isLoadingExpenses {
                 ProgressView("Cargando ingresos y gastos...")
                     .padding()
@@ -318,64 +323,54 @@ struct PropertyDetailSheet: View {
                 Text(errorExpenses).foregroundColor(.red).padding()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 32) {
                         // Ingresos
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Ingresos").font(.title3).bold()
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.down.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Ingresos").font(.title3).bold()
+                            }
                             if incomes.isEmpty {
                                 Text("No hay ingresos para esta propiedad.")
                                     .foregroundColor(.gray)
+                                    .padding(.leading, 4)
                             } else {
                                 ForEach(incomes) { income in
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        HStack {
-                                            Text(typeLabelIncome(income.type))
-                                                .font(.subheadline).bold()
-                                            Spacer()
-                                            Text(formatCurrency(income.amount))
-                                                .foregroundColor(.green)
-                                                .font(.body).bold()
-                                        }
-                                        HStack {
-                                            Text(formatDate(income.date))
-                                                .font(.caption)
-                                            if let desc = income.description, !desc.isEmpty {
-                                                Text(desc).font(.caption).foregroundColor(.secondary)
-                                            }
-                                        }
-                                    }
-                                    .padding(.vertical, 6)
-                                    Divider()
+                                    IncomeExpenseCard(
+                                        icon: iconForIncomeType(income.type),
+                                        iconColor: .green,
+                                        title: typeLabelIncome(income.type),
+                                        amount: formatCurrency(income.amount),
+                                        amountColor: .green,
+                                        date: formatDate(income.date),
+                                        description: income.description
+                                    )
                                 }
                             }
                         }
                         // Gastos
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Gastos").font(.title3).bold()
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .foregroundColor(.red)
+                                Text("Gastos").font(.title3).bold()
+                            }
                             if expenses.isEmpty {
                                 Text("No hay gastos para esta propiedad.")
                                     .foregroundColor(.gray)
+                                    .padding(.leading, 4)
                             } else {
                                 ForEach(expenses) { expense in
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        HStack {
-                                            Text(typeLabelExpense(expense.type))
-                                                .font(.subheadline).bold()
-                                            Spacer()
-                                            Text(formatCurrency(expense.amount))
-                                                .foregroundColor(.red)
-                                                .font(.body).bold()
-                                        }
-                                        HStack {
-                                            Text(formatDate(expense.date))
-                                                .font(.caption)
-                                            if let desc = expense.description, !desc.isEmpty {
-                                                Text(desc).font(.caption).foregroundColor(.secondary)
-                                            }
-                                        }
-                                    }
-                                    .padding(.vertical, 6)
-                                    Divider()
+                                    IncomeExpenseCard(
+                                        icon: iconForExpenseType(expense.type),
+                                        iconColor: .red,
+                                        title: typeLabelExpense(expense.type),
+                                        amount: formatCurrency(expense.amount),
+                                        amountColor: .red,
+                                        date: formatDate(expense.date),
+                                        description: expense.description
+                                    )
                                 }
                             }
                         }
@@ -900,5 +895,84 @@ struct FinancialCard: View {
         .padding(12)
         .background(Color(.systemGray6))
         .cornerRadius(12)
+    }
+}
+
+// NUEVO: Componente de tarjeta para ingresos/gastos
+struct IncomeExpenseCard: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let amount: String
+    let amountColor: Color
+    let date: String
+    let description: String?
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 44, height: 44)
+                Image(systemName: icon)
+                    .foregroundColor(iconColor)
+                    .font(.system(size: 22, weight: .bold))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(title)
+                        .font(.headline)
+                    Spacer()
+                    Text(amount)
+                        .font(.headline)
+                        .foregroundColor(amountColor)
+                }
+                HStack(spacing: 8) {
+                    Text(date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    if let desc = description, !desc.isEmpty {
+                        Text("·")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(desc)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .background(Color(.systemBackground))
+        .cornerRadius(14)
+        .shadow(color: Color(.black).opacity(0.06), radius: 4, x: 0, y: 2)
+        .padding(.vertical, 2)
+    }
+}
+// NUEVO: Helpers para iconos
+extension PropertyDetailSheet {
+    func iconForIncomeType(_ type: String) -> String {
+        switch type {
+        case "rent": return "eurosign.circle.fill"
+        case "deposit": return "tray.and.arrow.down.fill"
+        case "sale": return "house.fill"
+        case "interest": return "percent"
+        case "dividends": return "chart.pie.fill"
+        case "other": return "plus.circle.fill"
+        default: return "arrow.down.circle.fill"
+        }
+    }
+    func iconForExpenseType(_ type: String) -> String {
+        switch type {
+        case "maintenance": return "wrench.and.screwdriver.fill"
+        case "utilities": return "bolt.fill"
+        case "taxes": return "doc.text.fill"
+        case "insurance": return "shield.fill"
+        case "mortgage": return "building.columns.fill"
+        case "repairs": return "hammer.fill"
+        case "improvements": return "paintbrush.fill"
+        case "management": return "person.2.fill"
+        case "other": return "minus.circle.fill"
+        default: return "arrow.up.circle.fill"
+        }
     }
 } 
