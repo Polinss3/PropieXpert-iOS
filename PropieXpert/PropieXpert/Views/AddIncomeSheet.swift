@@ -108,14 +108,8 @@ struct AddIncomeSheet: View {
                     }
                     if isEdit {
                         Section {
-                            Button(role: .destructive) {
+                            Button("Eliminar ingreso", role: .destructive) {
                                 showDeleteAlert = true
-                            } label: {
-                                if isDeleting {
-                                    ProgressView()
-                                } else {
-                                    Text("Eliminar ingreso")
-                                }
                             }
                         }
                     }
@@ -135,7 +129,7 @@ struct AddIncomeSheet: View {
                     }
                 }
                 .onAppear(perform: loadInitialData)
-                .alert("¿Seguro que quieres eliminar este ingreso?", isPresented: $showDeleteAlert) {
+                .alert("¿Eliminar ingreso?", isPresented: $showDeleteAlert) {
                     Button("Eliminar", role: .destructive, action: deleteIncome)
                     Button("Cancelar", role: .cancel) {}
                 } message: {
