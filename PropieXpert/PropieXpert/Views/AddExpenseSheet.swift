@@ -96,14 +96,8 @@ struct AddExpenseSheet: View {
                     }
                     if isEdit {
                         Section {
-                            Button(role: .destructive) {
+                            Button("Eliminar gasto", role: .destructive) {
                                 showDeleteAlert = true
-                            } label: {
-                                if isDeleting {
-                                    ProgressView()
-                                } else {
-                                    Text("Eliminar gasto")
-                                }
                             }
                         }
                     }
@@ -123,7 +117,7 @@ struct AddExpenseSheet: View {
                     }
                 }
                 .onAppear(perform: loadInitialData)
-                .alert("¿Seguro que quieres eliminar este gasto?", isPresented: $showDeleteAlert) {
+                .alert("¿Eliminar gasto?", isPresented: $showDeleteAlert) {
                     Button("Eliminar", role: .destructive, action: deleteExpense)
                     Button("Cancelar", role: .cancel) {}
                 } message: {
