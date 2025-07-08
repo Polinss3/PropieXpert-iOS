@@ -848,27 +848,38 @@ struct DashboardSummaryCard: View {
     let item: DashboardSummaryItem
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: item.icon)
-                    .font(.system(size: 28))
+                    .font(.system(size: 24))
                     .foregroundColor(item.color)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 36, height: 36)
                     .background(item.color.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 Spacer()
             }
-            Text(item.title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Text(item.value)
-                .font(.title2).bold()
-                .foregroundColor(.primary)
-            Text(item.subtitle)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                
+                Text(item.value)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .allowsTightening(true)
+                
+                Text(item.subtitle)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
         }
-        .padding()
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color(.black).opacity(0.04), radius: 8, x: 0, y: 2)
