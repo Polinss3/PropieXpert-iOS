@@ -19,10 +19,11 @@ protocol EventCopyable {
     func withNewDate(_ newDate: String) -> Self
 }
 
+// Implementar EventCopyable para Income
 extension Income: EventCopyable {
     func withNewDate(_ newDate: String) -> Income {
         return Income(
-            id: "\(self.id)_\(newDate)", // ID único para evitar duplicados
+            id: self.id + "_" + newDate, // ID único para evitar duplicados
             property_id: self.property_id,
             type: self.type,
             amount: self.amount,
@@ -30,17 +31,17 @@ extension Income: EventCopyable {
             description: self.description,
             is_recurring: self.is_recurring,
             frequency: self.frequency,
-            is_planned: self.is_planned,
             recurrence_start_date: self.recurrence_start_date,
             recurrence_end_date: self.recurrence_end_date
         )
     }
 }
 
+// Implementar EventCopyable para Expense
 extension Expense: EventCopyable {
     func withNewDate(_ newDate: String) -> Expense {
         return Expense(
-            id: "\(self.id)_\(newDate)", // ID único para evitar duplicados
+            id: self.id + "_" + newDate, // ID único para evitar duplicados
             property_id: self.property_id,
             type: self.type,
             amount: self.amount,
@@ -48,7 +49,9 @@ extension Expense: EventCopyable {
             description: self.description,
             is_recurring: self.is_recurring,
             frequency: self.frequency,
-            is_planned: self.is_planned,
+            due_date: self.due_date,
+            is_paid: self.is_paid,
+            payment_date: self.payment_date,
             recurrence_start_date: self.recurrence_start_date,
             recurrence_end_date: self.recurrence_end_date
         )
@@ -230,11 +233,84 @@ func monthlyBarDataFromAPI(incomes: [Income], expenses: [Expense]) -> [MonthlyBa
     let months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     let currentYear = Calendar.current.component(.year, from: Date())
     var result: [MonthlyBarData] = []
+    
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let simpleFormatter = DateFormatter()
+    simpleFormatter.dateFormat = "yyyy-MM-dd"
+    
     for m in 1...12 {
-        let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: m) + expandPunctual(items: incomes, year: currentYear, month: m)
-        let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: m) + expandPunctual(items: expenses, year: currentYear, month: m)
-        let incomeSum = monthIncomes.reduce(0) { $0 + $1.amount }
-        let expenseSum = monthExpenses.reduce(0) { $0 + $1.amount }
+        var incomeSum: Double = 0
+        var expenseSum: Double = 0
+        
+        // Calcular ingresos para este mes
+        for income in incomes {
+            if let isRecurring = income.is_recurring, isRecurring {
+                // Evento recurrente - verificar si aplica a este mes
+                if let frequency = income.frequency {
+                    let startStr = income.recurrence_start_date ?? income.date
+                    if let startDate = formatter.date(from: startStr) ?? simpleFormatter.date(from: startStr) {
+                        let startComps = Calendar.current.dateComponents([.year, .month], from: startDate)
+                        
+                        if let startYear = startComps.year, let startMonth = startComps.month {
+                            if currentYear >= startYear {
+                                let monthsDiff = (currentYear - startYear) * 12 + (m - startMonth)
+                                
+                                if monthsDiff >= 0 {
+                                    if frequency == "monthly" ||
+                                       (frequency == "quarterly" && monthsDiff % 3 == 0) ||
+                                       (frequency == "yearly" && monthsDiff % 12 == 0) {
+                                        incomeSum += income.amount
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Evento puntual - verificar si es de este mes
+                if let date = formatter.date(from: income.date) ?? simpleFormatter.date(from: income.date) {
+                    let comps = Calendar.current.dateComponents([.year, .month], from: date)
+                    if comps.year == currentYear && comps.month == m {
+                        incomeSum += income.amount
+                    }
+                }
+            }
+        }
+        
+        // Calcular gastos para este mes (misma lógica)
+        for expense in expenses {
+            if let isRecurring = expense.is_recurring, isRecurring {
+                if let frequency = expense.frequency {
+                    let startStr = expense.recurrence_start_date ?? expense.date
+                    if let startDate = formatter.date(from: startStr) ?? simpleFormatter.date(from: startStr) {
+                        let startComps = Calendar.current.dateComponents([.year, .month], from: startDate)
+                        
+                        if let startYear = startComps.year, let startMonth = startComps.month {
+                            if currentYear >= startYear {
+                                let monthsDiff = (currentYear - startYear) * 12 + (m - startMonth)
+                                
+                                if monthsDiff >= 0 {
+                                    if frequency == "monthly" ||
+                                       (frequency == "quarterly" && monthsDiff % 3 == 0) ||
+                                       (frequency == "yearly" && monthsDiff % 12 == 0) {
+                                        expenseSum += expense.amount
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if let date = formatter.date(from: expense.date) ?? simpleFormatter.date(from: expense.date) {
+                    let comps = Calendar.current.dateComponents([.year, .month], from: date)
+                    if comps.year == currentYear && comps.month == m {
+                        expenseSum += expense.amount
+                    }
+                }
+            }
+        }
+        
         result.append(MonthlyBarData(month: months[m-1], income: incomeSum, expense: expenseSum))
     }
     return result
@@ -812,7 +888,7 @@ struct DashboardCalendarView: View {
         let year = calendar.component(.year, from: month)
         let monthNum = calendar.component(.month, from: month)
         
-        print("DEBUG: Procesando eventos expandidos para \(monthNum)/\(year)")
+        // print("DEBUG: Procesando eventos expandidos para \(monthNum)/\(year)")
         
         // Filtrar eventos expandidos por mes
         let monthIncomes = expandedIncomes.filter { income in
@@ -827,8 +903,8 @@ struct DashboardCalendarView: View {
                    calendar.component(.month, from: date) == monthNum
         }
         
-        print("DEBUG: Ingresos del mes: \(monthIncomes.count)")
-        print("DEBUG: Gastos del mes: \(monthExpenses.count)")
+        // print("DEBUG: Ingresos del mes: \(monthIncomes.count)")
+        // print("DEBUG: Gastos del mes: \(monthExpenses.count)")
         
         for income in monthIncomes {
             if let date = dateFromString(income.date) {
@@ -844,7 +920,7 @@ struct DashboardCalendarView: View {
             }
         }
         
-        print("DEBUG: Total días con eventos en \(monthNum)/\(year): \(dict.count)")
+        // print("DEBUG: Total días con eventos en \(monthNum)/\(year): \(dict.count)")
         return dict
     }
     
