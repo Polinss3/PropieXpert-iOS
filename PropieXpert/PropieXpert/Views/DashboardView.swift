@@ -14,27 +14,176 @@ protocol HasRecurrence {
 extension Income: HasRecurrence {}
 extension Expense: HasRecurrence {}
 
-func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
+// NUEVA: Protocolo para crear copias de eventos con nuevas fechas
+protocol EventCopyable {
+    func withNewDate(_ newDate: String) -> Self
+}
+
+extension Income: EventCopyable {
+    func withNewDate(_ newDate: String) -> Income {
+        return Income(
+            id: "\(self.id)_\(newDate)", // ID único para evitar duplicados
+            property_id: self.property_id,
+            type: self.type,
+            amount: self.amount,
+            date: newDate,
+            description: self.description,
+            is_recurring: self.is_recurring,
+            frequency: self.frequency,
+            is_planned: self.is_planned,
+            recurrence_start_date: self.recurrence_start_date,
+            recurrence_end_date: self.recurrence_end_date
+        )
+    }
+}
+
+extension Expense: EventCopyable {
+    func withNewDate(_ newDate: String) -> Expense {
+        return Expense(
+            id: "\(self.id)_\(newDate)", // ID único para evitar duplicados
+            property_id: self.property_id,
+            type: self.type,
+            amount: self.amount,
+            date: newDate,
+            description: self.description,
+            is_recurring: self.is_recurring,
+            frequency: self.frequency,
+            is_planned: self.is_planned,
+            recurrence_start_date: self.recurrence_start_date,
+            recurrence_end_date: self.recurrence_end_date
+        )
+    }
+}
+
+// NUEVA FUNCIÓN: Expandir eventos recurrentes para un rango de fechas
+func expandRecurringForDateRange<T: HasRecurrence & EventCopyable>(
+    items: [T], 
+    startDate: Date, 
+    endDate: Date
+) -> [T] {
     let calendar = Calendar.current
     let formatter = DateFormatter()
-    // Arreglar: Manejar tanto formato ISO como simple
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
     let simpleFormatter = DateFormatter()
     simpleFormatter.dateFormat = "yyyy-MM-dd"
     
-    print("DEBUG expandRecurring: Procesando \(items.count) items para \(month)/\(year)")
+    var expandedEvents: [T] = []
+    
+    for item in items {
+        // Solo procesar eventos recurrentes
+        guard let isRecurring = item.is_recurring, isRecurring,
+              let frequency = item.frequency else {
+            continue
+        }
+        
+        let itemStartStr = item.recurrence_start_date ?? item.date
+        let itemEndStr = item.recurrence_end_date ?? "2055-12-31"
+        
+        // Parsear fechas del evento
+        guard let itemStartDate = formatter.date(from: itemStartStr) ?? simpleFormatter.date(from: itemStartStr),
+              let itemEndDate = formatter.date(from: itemEndStr) ?? simpleFormatter.date(from: itemEndStr) else {
+            continue
+        }
+        
+        // Calcular el rango efectivo
+        let effectiveStart = max(startDate, itemStartDate)
+        let effectiveEnd = min(endDate, itemEndDate)
+        
+        if effectiveStart > effectiveEnd {
+            continue
+        }
+        
+        // Generar eventos para cada mes en el rango
+        var currentDate = effectiveStart
+        while currentDate <= effectiveEnd {
+            let year = calendar.component(.year, from: currentDate)
+            let month = calendar.component(.month, from: currentDate)
+            
+            // Calcular si este mes debe tener el evento
+            let monthStart = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
+            let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: itemStartDate), to: monthStart).month ?? 0
+            
+            var shouldInclude = false
+            switch frequency {
+            case "monthly":
+                shouldInclude = true
+            case "quarterly":
+                shouldInclude = monthsDiff % 3 == 0
+            case "yearly":
+                shouldInclude = monthsDiff % 12 == 0
+            default:
+                shouldInclude = false
+            }
+            
+            if shouldInclude {
+                // Crear fecha específica para este mes (mismo día que el original)
+                let originalComponents = calendar.dateComponents([.day], from: itemStartDate)
+                let targetDay = min(originalComponents.day ?? 1, calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 1)
+                
+                if let eventDate = calendar.date(from: DateComponents(year: year, month: month, day: targetDay)) {
+                    let eventDateString = simpleFormatter.string(from: eventDate)
+                    let expandedEvent = item.withNewDate(eventDateString)
+                    expandedEvents.append(expandedEvent)
+                }
+            }
+            
+            // Avanzar al siguiente mes
+            currentDate = calendar.date(byAdding: .month, value: 1, to: monthStart) ?? currentDate
+            if currentDate == monthStart { break } // Evitar loop infinito
+        }
+    }
+    
+    return expandedEvents
+}
+
+// NUEVA FUNCIÓN: Expandir eventos puntuales para un rango de fechas
+func expandPunctualForDateRange<T: HasRecurrence & EventCopyable>(
+    items: [T], 
+    startDate: Date, 
+    endDate: Date
+) -> [T] {
+    let calendar = Calendar.current
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let simpleFormatter = DateFormatter()
+    simpleFormatter.dateFormat = "yyyy-MM-dd"
+    
     return items.compactMap { item in
-        print("DEBUG expandRecurring: Item - is_recurring: \(item.is_recurring ?? false), frequency: \(item.frequency ?? "nil")")
+        // Solo procesar eventos no recurrentes
+        guard let isRecurring = item.is_recurring, !isRecurring else {
+            return nil
+        }
+        
+        // Parsear fecha del evento
+        guard let eventDate = formatter.date(from: item.date) ?? simpleFormatter.date(from: item.date) else {
+            return nil
+        }
+        
+        // Verificar si está dentro del rango
+        if eventDate >= startDate && eventDate <= endDate {
+            return item
+        }
+        
+        return nil
+    }
+}
+
+// FUNCIONES LEGACY (mantener para compatibilidad con gráficas)
+func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
+    let calendar = Calendar.current
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    let simpleFormatter = DateFormatter()
+    simpleFormatter.dateFormat = "yyyy-MM-dd"
+    
+    return items.compactMap { item in
         guard let isRecurring = item.is_recurring, isRecurring,
               let frequency = item.frequency else { 
-            print("DEBUG expandRecurring: Item descartado - no es recurrente o no tiene frequency")
             return nil 
         }
         let startStr = item.recurrence_start_date ?? item.date
         let endStr = item.recurrence_end_date ?? "\(year)-12-31"
-        print("DEBUG expandRecurring: Fechas - start: \(startStr), end: \(endStr)")
         
-        // Intentar parseado con formato ISO primero, luego formato simple
         var start: Date?
         var end: Date?
         
@@ -42,52 +191,38 @@ func expandRecurring<T: Identifiable & HasRecurrence>(items: [T], year: Int, mon
         end = formatter.date(from: endStr) ?? simpleFormatter.date(from: endStr)
         
         guard let startDate = start, let endDate = end else { 
-            print("DEBUG expandRecurring: Error parseando fechas - start: \(startStr), end: \(endStr)")
             return nil 
         }
         
         let currentMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1))!
         if currentMonth < calendar.startOfDay(for: startDate) || currentMonth > calendar.startOfDay(for: endDate) { 
-            print("DEBUG expandRecurring: Fecha fuera del rango")
             return nil 
         }
         let monthsDiff = calendar.dateComponents([.month], from: calendar.startOfDay(for: startDate), to: currentMonth).month ?? 0
-        print("DEBUG expandRecurring: monthsDiff: \(monthsDiff), frequency: \(frequency)")
         if (frequency == "monthly") || (frequency == "quarterly" && monthsDiff % 3 == 0) || (frequency == "yearly" && monthsDiff % 12 == 0) {
-            print("DEBUG expandRecurring: Item aceptado")
             return item
         }
-        print("DEBUG expandRecurring: Item descartado - no coincide con frequency")
         return nil
     }
 }
 
 func expandPunctual<T: Identifiable & HasRecurrence>(items: [T], year: Int, month: Int) -> [T] {
     let formatter = DateFormatter()
-    // Arreglar: Manejar tanto formato ISO como simple
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
     let simpleFormatter = DateFormatter()
     simpleFormatter.dateFormat = "yyyy-MM-dd"
     
-    print("DEBUG expandPunctual: Procesando \(items.count) items para \(month)/\(year)")
     return items.filter { item in
-        print("DEBUG expandPunctual: Item - is_recurring: \(item.is_recurring ?? false), date: \(item.date)")
         guard let isRecurring = item.is_recurring, !isRecurring else { 
-            print("DEBUG expandPunctual: Item descartado - es recurrente")
             return false 
         }
         
-        // Intentar parseado con formato ISO primero, luego formato simple
         guard let date = formatter.date(from: item.date) ?? simpleFormatter.date(from: item.date) else { 
-            print("DEBUG expandPunctual: Error parseando fecha: \(item.date)")
             return false 
         }
         
         let comps = Calendar.current.dateComponents([.year, .month], from: date)
-        print("DEBUG expandPunctual: Fecha parseada - year: \(comps.year ?? 0), month: \(comps.month ?? 0)")
-        let result = comps.year == year && comps.month == month
-        print("DEBUG expandPunctual: Item \(result ? "aceptado" : "descartado")")
-        return result
+        return comps.year == year && comps.month == month
     }
 }
 
@@ -419,61 +554,32 @@ struct DashboardView: View {
         let startDate = calendar.date(byAdding: .month, value: -2, to: now) ?? now
         let endDate = calendar.date(byAdding: .month, value: 2, to: now) ?? now
         
-        expandEventsForDateRange(start: startDate, end: endDate)
+        expandEventsForDateRange(from: startDate, to: endDate)
     }
     
-    // NUEVA FUNCIÓN: Expandir eventos para un rango de fechas
-    func expandEventsForDateRange(start: Date, end: Date) {
-        let calendar = Calendar.current
+    // Expandir eventos para un rango de fechas específico
+    func expandEventsForDateRange(from startDate: Date, to endDate: Date) {
+        print("DEBUG: Expandiendo eventos del \(startDate) al \(endDate)")
         
-        // Actualizar el rango cargado
-        if let currentRange = loadedMonthRange {
-            let newStart = min(start, currentRange.start)
-            let newEnd = max(end, currentRange.end)
-            loadedMonthRange = (start: newStart, end: newEnd)
-        } else {
-            loadedMonthRange = (start: start, end: end)
-        }
+        // Limpiar eventos expandidos y recalcular todo
+        expandedIncomes.removeAll()
+        expandedExpenses.removeAll()
         
-        guard let range = loadedMonthRange else { return }
+        // Usar las nuevas funciones para evitar duplicados
+        let recurringIncomes = expandRecurringForDateRange(items: incomes, startDate: startDate, endDate: endDate)
+        let punctualIncomes = expandPunctualForDateRange(items: incomes, startDate: startDate, endDate: endDate)
         
-        let startComponents = calendar.dateComponents([.year, .month], from: range.start)
-        let endComponents = calendar.dateComponents([.year, .month], from: range.end)
+        let recurringExpenses = expandRecurringForDateRange(items: expenses, startDate: startDate, endDate: endDate)
+        let punctualExpenses = expandPunctualForDateRange(items: expenses, startDate: startDate, endDate: endDate)
         
-        guard let startYear = startComponents.year,
-              let startMonth = startComponents.month,
-              let endYear = endComponents.year,
-              let endMonth = endComponents.month else { return }
+        // Combinar todos los eventos
+        expandedIncomes = recurringIncomes + punctualIncomes
+        expandedExpenses = recurringExpenses + punctualExpenses
         
-        var newExpandedIncomes: [Income] = []
-        var newExpandedExpenses: [Expense] = []
+        print("DEBUG: Expandidos \(expandedIncomes.count) ingresos y \(expandedExpenses.count) gastos")
         
-        // Iterar sobre todos los meses en el rango
-        var currentYear = startYear
-        var currentMonth = startMonth
-        
-        while (currentYear < endYear) || (currentYear == endYear && currentMonth <= endMonth) {
-            let monthIncomes = expandRecurring(items: incomes, year: currentYear, month: currentMonth) + 
-                              expandPunctual(items: incomes, year: currentYear, month: currentMonth)
-            let monthExpenses = expandRecurring(items: expenses, year: currentYear, month: currentMonth) + 
-                               expandPunctual(items: expenses, year: currentYear, month: currentMonth)
-            
-            newExpandedIncomes.append(contentsOf: monthIncomes)
-            newExpandedExpenses.append(contentsOf: monthExpenses)
-            
-            currentMonth += 1
-            if currentMonth > 12 {
-                currentMonth = 1
-                currentYear += 1
-            }
-        }
-        
-        expandedIncomes = newExpandedIncomes
-        expandedExpenses = newExpandedExpenses
-        
-        print("DEBUG: Eventos expandidos para rango \(range.start) - \(range.end)")
-        print("DEBUG: Total ingresos expandidos: \(expandedIncomes.count)")
-        print("DEBUG: Total gastos expandidos: \(expandedExpenses.count)")
+        // Actualizar el rango de meses cargados
+        loadedMonthRange = (start: startDate, end: endDate)
     }
     
     // NUEVA FUNCIÓN: Asegurar que los datos de un mes específico estén cargados
@@ -484,7 +590,7 @@ struct DashboardView: View {
             // Si no hay rango cargado, expandir alrededor de la fecha
             let start = calendar.date(byAdding: .month, value: -1, to: date) ?? date
             let end = calendar.date(byAdding: .month, value: 1, to: date) ?? date
-            expandEventsForDateRange(start: start, end: end)
+            expandEventsForDateRange(from: start, to: end)
             return
         }
         
@@ -500,7 +606,7 @@ struct DashboardView: View {
             let expandedStart = calendar.date(byAdding: .month, value: -1, to: newStart) ?? newStart
             let expandedEnd = calendar.date(byAdding: .month, value: 1, to: newEnd) ?? newEnd
             
-            expandEventsForDateRange(start: expandedStart, end: expandedEnd)
+            expandEventsForDateRange(from: expandedStart, to: expandedEnd)
         }
     }
     
