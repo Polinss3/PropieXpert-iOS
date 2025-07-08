@@ -242,50 +242,64 @@ struct MortgageSheet: View {
         ]
         payload = payload.filter { !($0.value is NSNull) }
         isLoading = true
-        let urlString: String
-        let method: String
-        if isEdit, let mortgage = mortgage {
-            urlString = "https://api.propiexpert.com/mortgages/\(mortgage.id)"
-            method = "PUT"
-        } else {
-            urlString = "https://api.propiexpert.com/mortgages/"
-            method = "POST"
-        }
-        guard let url = URL(string: urlString) else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
-        } catch {
-            errorMessage = "Error al preparar los datos."
-            isLoading = false
-            return
-        }
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                isLoading = false
-                if let error = error {
-                    errorMessage = "Error de red: \(error.localizedDescription)"
-                    return
-                }
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    errorMessage = "Respuesta inválida del servidor."
-                    return
-                }
-                if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                    onSave?()
-                    dismiss()
-                } else {
-                    if let data = data, let msg = String(data: data, encoding: .utf8) {
-                        errorMessage = "Error: \(msg)"
+        
+        let createMortgage: () -> Void = {
+            let urlString = "https://api.propiexpert.com/mortgages/"
+            guard let url = URL(string: urlString) else { self.isLoading = false; return }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+            } catch {
+                self.errorMessage = "Error al preparar los datos."
+                self.isLoading = false
+                return
+            }
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    if let error = error {
+                        self.errorMessage = "Error de red: \(error.localizedDescription)"
+                        return
+                    }
+                    guard let httpResponse = response as? HTTPURLResponse else {
+                        self.errorMessage = "Respuesta inválida del servidor."
+                        return
+                    }
+                    if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                        self.onSave?()
+                        self.dismiss()
                     } else {
-                        errorMessage = "Error desconocido al guardar."
+                        if let data = data, let msg = String(data: data, encoding: .utf8) {
+                            self.errorMessage = "Error: \(msg)"
+                        } else {
+                            self.errorMessage = "Error desconocido al guardar."
+                        }
                     }
                 }
-            }
-        }.resume()
+            }.resume()
+        }
+
+        if isEdit, let mortgage = mortgage {
+            // Primero elimina la hipoteca existente
+            let mortgageId = mortgage.id
+            guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(mortgageId)") else { self.isLoading = false; return }
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    // Ignora errores de borrado (por si no existe)
+                    // Ahora crea la nueva hipoteca
+                    createMortgage()
+                }
+            }.resume()
+        } else {
+            // Si es nueva, solo crea
+            createMortgage()
+        }
     }
 
     func deleteMortgage() {
