@@ -579,9 +579,17 @@ struct DashboardView: View {
                         }
                         // --- NUEVA SECCIÓN CALENDARIO ---
                         if selectedSection == .calendario {
-                            Text("Calendario de ingresos y gastos")
-                                .font(.largeTitle).bold()
-                                .padding([.top, .horizontal])
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .foregroundColor(.blue)
+                                    .font(.system(size: 20, weight: .semibold))
+                                Text("Calendario de Ingresos y Gastos")
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
                             DashboardCalendarView(
                                 expandedIncomes: expandedIncomes,
                                 expandedExpenses: expandedExpenses,
@@ -1083,7 +1091,7 @@ struct DashboardCalendarView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // Header con navegación de mes
+            // Header con navegación de mes mejorado
             HStack {
                 Button(action: {
                     let newDate = calendar.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
@@ -1091,21 +1099,27 @@ struct DashboardCalendarView: View {
                     onMonthChanged(newDate)
                 }) {
                     Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .foregroundColor(.blue)
+                        .font(.system(size: 18, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(Color(.tertiarySystemFill))
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color(.separator), lineWidth: 0.5)
+                                )
+                        )
                 }
+                .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
                 
                 Text(DateFormatter().monthYearString(from: currentDate))
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
+                    .contentTransition(.numericText())
+                    .animation(.easeInOut(duration: 0.3), value: currentDate)
                 
                 Spacer()
                 
@@ -1115,33 +1129,39 @@ struct DashboardCalendarView: View {
                     onMonthChanged(newDate)
                 }) {
                     Image(systemName: "chevron.right")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .foregroundColor(.blue)
+                        .font(.system(size: 18, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(Color(.tertiarySystemFill))
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color(.separator), lineWidth: 0.5)
+                                )
+                        )
                 }
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal, 20)
+            .padding(.vertical, 8)
             
             // Días de la semana con mejor estilo
             HStack(spacing: 0) {
                 ForEach(["L", "M", "X", "J", "V", "S", "D"], id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .background(Color.clear)
                 }
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.05))
+                    .fill(Color(.secondarySystemGroupedBackground))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            .stroke(Color(.separator), lineWidth: 0.5)
                     )
             )
             .padding(.horizontal, 16)
@@ -1152,65 +1172,32 @@ struct DashboardCalendarView: View {
             
             // Contenedor del calendario con estilo moderno
             VStack(spacing: 0) {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
                     ForEach(days, id: \.self) { date in
                         let isCurrentMonth = isInCurrentMonth(date: date, currentMonth: currentDate)
                         let dayEvents = events[calendar.startOfDay(for: date)] ?? (0, 0)
                         let isToday = calendar.isDateInToday(date)
                         let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
                         
-                        VStack(spacing: 4) {
-                            Text("\(calendar.component(.day, from: date))")
-                                .font(.system(size: 16, weight: isToday ? .bold : .medium))
-                                .foregroundColor(
-                                    isSelected ? .white :
-                                    isToday ? .blue :
-                                    isCurrentMonth ? .primary : .secondary
-                                )
-                            
-                            // Indicadores de eventos - Puntos verdes (ingresos) y rojos (gastos)
-                            HStack(spacing: 2) {
-                                if dayEvents.0 > 0 {
-                                    Circle()
-                                        .fill(Color.green)
-                                        .frame(width: 12, height: 12)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
-                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                }
-                                if dayEvents.1 > 0 {
-                                    Circle()
-                                        .fill(Color.red)
-                                        .frame(width: 12, height: 12)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
-                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                }
+                        CalendarDayView(
+                            date: date,
+                            isCurrentMonth: isCurrentMonth,
+                            dayEvents: dayEvents,
+                            isToday: isToday,
+                            isSelected: isSelected,
+                            onTap: {
+                                selectedDate = date
+                                showDayEventsSheet = true
                             }
-                            .frame(height: 16)
-                        }
-                        .frame(width: 44, height: 56)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(isSelected ? Color.primary : (isToday ? Color.blue.opacity(0.1) : Color.clear))
                         )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isToday ? Color.blue : Color.clear, lineWidth: 2)
-                        )
-                        .contentShape(Rectangle())
-                        .scaleEffect(isSelected ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isSelected)
-                        .onTapGesture {
-                            selectedDate = date
-                            showDayEventsSheet = true
-                        }
                     }
                 }
-                .padding(16)
+                .padding(12)
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
             )
             .padding(.horizontal, 16)
         }
@@ -1421,6 +1408,111 @@ extension Date {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month], from: self)
         return calendar.date(from: components) ?? self
+    }
+}
+
+// MARK: - Calendar Day View Component
+struct CalendarDayView: View {
+    let date: Date
+    let isCurrentMonth: Bool
+    let dayEvents: (Int, Int) // (ingresos, gastos)
+    let isToday: Bool
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    private let calendar = Calendar.current
+    
+    var body: some View {
+        VStack(spacing: 3) {
+            // Número del día
+            Text("\(calendar.component(.day, from: date))")
+                .font(.system(size: 16, weight: isToday ? .bold : .medium, design: .rounded))
+                .foregroundColor(textColor)
+                .frame(minWidth: 20)
+            
+            // Indicadores de eventos
+            HStack(spacing: 3) {
+                if dayEvents.0 > 0 {
+                    EventIndicator(color: .green, count: dayEvents.0)
+                }
+                if dayEvents.1 > 0 {
+                    EventIndicator(color: .red, count: dayEvents.1)
+                }
+                if dayEvents.0 == 0 && dayEvents.1 == 0 {
+                    // Espaciador invisible para mantener la altura consistente
+                    Spacer()
+                        .frame(height: 8)
+                }
+            }
+            .frame(height: 12)
+        }
+        .frame(maxWidth: .infinity, minHeight: 50)
+        .background(backgroundView)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(overlayView)
+        .contentShape(Rectangle())
+        .scaleEffect(isSelected ? 0.95 : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
+        .animation(.easeInOut(duration: 0.15), value: isToday)
+        .onTapGesture(perform: onTap)
+    }
+    
+    private var textColor: Color {
+        if isSelected {
+            return .white
+        } else if isToday {
+            return .blue
+        } else if isCurrentMonth {
+            return .primary
+        } else {
+            return .secondary.opacity(0.6)
+        }
+    }
+    
+    private var backgroundView: some View {
+        Group {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.blue)
+                    .shadow(color: .blue.opacity(0.3), radius: 4, x: 0, y: 2)
+            } else if isToday {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.blue.opacity(0.1))
+            } else {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.secondarySystemFill).opacity(isCurrentMonth ? 0.3 : 0.1))
+            }
+        }
+    }
+    
+    private var overlayView: some View {
+        Group {
+            if isToday && !isSelected {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.blue, lineWidth: 2)
+            } else {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+                    .opacity(isCurrentMonth ? 1 : 0.3)
+            }
+        }
+    }
+}
+
+// MARK: - Event Indicator Component
+struct EventIndicator: View {
+    let color: Color
+    let count: Int
+    
+    var body: some View {
+        Circle()
+            .fill(color)
+            .frame(width: 8, height: 8)
+            .overlay(
+                Circle()
+                    .stroke(Color.white, lineWidth: 1)
+            )
+            .shadow(color: color.opacity(0.3), radius: 2, x: 0, y: 1)
     }
 }
 
