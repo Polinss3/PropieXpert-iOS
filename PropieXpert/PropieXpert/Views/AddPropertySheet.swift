@@ -46,9 +46,14 @@ struct AddPropertySheet: View {
         ZStack {
             NavigationView {
                 Form {
+                    Section {
+                        Text("Los campos marcados con * son obligatorios")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     Section(header: Text("Propiedad")) {
-                        TextField("Nombre", text: $name)
-                        TextField("Dirección", text: $address)
+                        TextField("Nombre *", text: $name)
+                        TextField("Dirección *", text: $address)
                         Picker("Tipo", selection: $propertyType) {
                             Text("Apartamento").tag("apartment")
                             Text("Casa").tag("house")
@@ -56,7 +61,7 @@ struct AddPropertySheet: View {
                             Text("Terreno").tag("land")
                             Text("Otro").tag("other")
                         }
-                        TextField("Precio de compra (€)", text: $purchasePrice)
+                        TextField("Precio de compra (€) *", text: $purchasePrice)
                             .keyboardType(.decimalPad)
                         TextField("Valor actual (€)", text: $currentValue)
                             .keyboardType(.decimalPad)

@@ -35,22 +35,27 @@ struct AddExpenseSheet: View {
         ZStack {
             NavigationView {
                 Form {
+                    Section {
+                        Text("Los campos marcados con * son obligatorios")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     Section(header: Text("Gasto")) {
-                        Picker("Propiedad", selection: $propertyId) {
+                        Picker("Propiedad *", selection: $propertyId) {
                             Text("Selecciona una propiedad").tag("")
                             ForEach(properties, id: \.id) { property in
                                 Text(property.name).tag(property._id)
                             }
                         }
-                        Picker("Tipo", selection: $type) {
+                        Picker("Tipo *", selection: $type) {
                             Text("Selecciona un tipo").tag("")
                             ForEach(expenseTypes, id: \.self) { t in
                                 Text(typeLabel(for: t)).tag(t)
                             }
                         }
-                        TextField("Cantidad (€)", text: $amount)
+                        TextField("Cantidad (€) *", text: $amount)
                             .keyboardType(.decimalPad)
-                        DatePicker("Fecha", selection: Binding(
+                        DatePicker("Fecha *", selection: Binding(
                             get: { dateFromString(date) ?? Date() },
                             set: { date = stringFromDate($0) }
                         ), displayedComponents: .date)

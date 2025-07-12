@@ -11,7 +11,7 @@ struct PropertyDetail: Decodable {
     let address: String
     let property_type: String
     let purchase_price: Double
-    let current_value: Double
+    let current_value: Double? // Ahora opcional
     let bedrooms: Int
     let bathrooms: Int
     let is_rented: Bool
@@ -177,7 +177,7 @@ struct PropertyDetailSheet: View {
                             DetailRow(label: "Baños", value: "\(property.bathrooms)")
                             DetailRow(label: "Metros Cuadrados", value: property.square_meters != nil ? "\(Int(property.square_meters!)) m²" : "-")
                             DetailRow(label: "Precio de Compra", value: formatCurrency(property.purchase_price))
-                            DetailRow(label: "Valor Actual", value: formatCurrency(property.current_value))
+                            DetailRow(label: "Valor Actual", value: property.current_value != nil ? formatCurrency(property.current_value!) : "—")
                             DetailRow(label: "Alquilada", value: property.is_rented ? "Sí" : "No")
                             if property.is_rented, let rent = property.rental_price {
                                 DetailRow(label: "Precio Alquiler", value: formatCurrency(rent))

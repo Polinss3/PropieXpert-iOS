@@ -35,15 +35,20 @@ struct MortgageSheet: View {
         ZStack {
             NavigationView {
                 Form {
+                    Section {
+                        Text("Los campos marcados con * son obligatorios")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     Section(header: Text("Hipoteca")) {
-                        Picker("Tipo de hipoteca", selection: $type) {
+                        Picker("Tipo de hipoteca *", selection: $type) {
                             Text("Fija").tag("fixed")
                             Text("Variable").tag("variable")
                             Text("Mixta").tag("mixed")
                         }
-                        TextField("Importe inicial (€)", text: $initialAmount)
+                        TextField("Importe inicial (€) *", text: $initialAmount)
                             .keyboardType(.decimalPad)
-                        TextField("Años", text: $years)
+                        TextField("Años *", text: $years)
                             .keyboardType(.numberPad)
                         if type == "fixed" || type == "mixed" {
                             TextField("Interés fijo (%)", text: $interestFixed)
@@ -53,7 +58,7 @@ struct MortgageSheet: View {
                             TextField("Interés variable (%)", text: $interestVariable)
                                 .keyboardType(.decimalPad)
                         }
-                        DatePicker("Fecha inicio", selection: $startDateObj, displayedComponents: .date)
+                        DatePicker("Fecha inicio *", selection: $startDateObj, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .environment(\.locale, Locale(identifier: "es_ES"))
                             .onChange(of: startDateObj) { newDate in
@@ -66,8 +71,8 @@ struct MortgageSheet: View {
                         Text("Seleccionada: \(startDate)")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        TextField("Banco", text: $bankName)
-                        TextField("Nº de cuenta", text: $accountNumber)
+                        TextField("Banco *", text: $bankName)
+                        TextField("Nº de cuenta *", text: $accountNumber)
                         Toggle("Pago automático", isOn: $isAutomatic)
                         TextField("Día de pago", text: $paymentDay)
                             .keyboardType(.numberPad)

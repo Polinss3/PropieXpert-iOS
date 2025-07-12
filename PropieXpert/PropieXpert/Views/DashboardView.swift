@@ -365,6 +365,18 @@ struct DashboardData: Decodable {
     let property_performance: [PropertyPerformance]
 }
 
+// Cambios principales:
+// 1. Añadir estado para paginación de property_performance
+// 2. Usar /dashboard/summary y /dashboard/property-performance
+// 3. Añadir loading y paginación en la sección de rendimiento
+
+struct PropertyPerformancePage: Decodable {
+    let total: Int
+    let page: Int
+    let page_size: Int
+    let items: [PropertyPerformance]
+}
+
 // Nueva enum para las secciones
 enum DashboardSection: String, CaseIterable, Identifiable {
     case resumen = "Resumen"
@@ -397,6 +409,12 @@ struct DashboardView: View {
     @State private var expandedExpenses: [Expense] = []
     @State private var loadedMonthRange: (start: Date, end: Date)? = nil
     @State private var currentDate = Date()
+
+    // Estados para paginación de property performance
+    @State private var propertyPerformancePage: PropertyPerformancePage? = nil
+    @State private var propertyPerformanceLoading = false
+    @State private var propertyPerformancePageNum = 1
+    @State private var propertyPerformancePageSize = 6 // 6 por página para grid
 
     // Datos de resumen dinámicos basados en la API
     var summaryItems: [DashboardSummaryItem] {
@@ -535,25 +553,38 @@ struct DashboardView: View {
                             Text("Rendimiento de propiedades")
                                 .font(.largeTitle).bold()
                                 .padding([.top, .horizontal])
-                            if isLoading {
-                                HStack {
-                                    Spacer()
-                                    ProgressView("Cargando...")
-                                    Spacer()
-                                }
-                            } else if let errorMessage = errorMessage {
-                                Text(errorMessage).foregroundColor(.red).padding(.horizontal)
-                            } else if propertyPerformance.isEmpty {
-                                Text("No hay datos de rendimiento disponibles.")
-                                    .foregroundColor(.gray)
-                                    .padding(.horizontal)
-                            } else {
+                            if propertyPerformanceLoading {
+                                HStack { Spacer(); ProgressView("Cargando..."); Spacer() }
+                            } else if let page = propertyPerformancePage, !page.items.isEmpty {
                                 VStack(spacing: 16) {
-                                    ForEach(propertyPerformance) { prop in
+                                    ForEach(page.items) { prop in
                                         PropertyPerformanceCard(prop: prop)
                                     }
                                 }
                                 .padding(.horizontal)
+                                // Paginación
+                                if page.total > page.page_size {
+                                    HStack(spacing: 16) {
+                                        Button(action: {
+                                            propertyPerformancePageNum = max(1, propertyPerformancePageNum - 1)
+                                        }) {
+                                            Text("Anterior")
+                                        }
+                                        .disabled(page.page == 1 || propertyPerformanceLoading)
+                                        Text("Página \(page.page) / \(Int(ceil(Double(page.total) / Double(page.page_size))))")
+                                        Button(action: {
+                                            propertyPerformancePageNum += 1
+                                        }) {
+                                            Text("Siguiente")
+                                        }
+                                        .disabled(page.page * page.page_size >= page.total || propertyPerformanceLoading)
+                                    }
+                                    .padding(.vertical)
+                                }
+                            } else {
+                                Text("No hay datos de rendimiento disponibles.")
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal)
                             }
                         }
                         // --- Sección Gráficas (ahora con gráfica de barras mensual) ---
@@ -610,6 +641,10 @@ struct DashboardView: View {
                 fetchDashboardData()
                 fetchIncomesAndExpenses()
                 fetchProperties()
+                fetchPropertyPerformance(page: propertyPerformancePageNum, pageSize: propertyPerformancePageSize)
+            }
+            .onChange(of: propertyPerformancePageNum) { newValue in
+                fetchPropertyPerformance(page: newValue, pageSize: propertyPerformancePageSize)
             }
             // Sheet para mostrar eventos del día seleccionado
             .sheet(isPresented: $showDayEventsSheet) {
@@ -627,7 +662,7 @@ struct DashboardView: View {
     func fetchDashboardData() {
         isDashboardLoading = true
         dashboardErrorMessage = nil
-        guard let url = URL(string: "https://api.propiexpert.com/dashboard/") else {
+        guard let url = URL(string: "https://api.propiexpert.com/dashboard/summary") else {
             isDashboardLoading = false
             dashboardErrorMessage = "URL inválida"
             return
@@ -647,48 +682,12 @@ struct DashboardView: View {
                     return
                 }
                 do {
-                    let decoded = try JSONDecoder().decode(DashboardData.self, from: data)
-                    dashboardData = decoded
-                    // También actualizar la lista de performance para mantener compatibilidad
-                    propertyPerformance = decoded.property_performance
+                    let decoded = try JSONDecoder().decode(DashboardSummary.self, from: data)
+                    // Adaptar dashboardData para mantener compatibilidad
+                    dashboardData = DashboardData(summary: decoded, property_performance: propertyPerformancePage?.items ?? [])
                 } catch {
                     dashboardErrorMessage = "Error al decodificar datos: \(error.localizedDescription)"
                     print("Dashboard decode error: \(error)")
-                }
-            }
-        }.resume()
-    }
-    
-    func fetchPropertyPerformance() {
-        isLoading = true
-        errorMessage = nil
-        guard let url = URL(string: "https://api.propiexpert.com/dashboard/") else {
-            isLoading = false
-            errorMessage = "URL inválida"
-            return
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                isLoading = false
-                if let error = error {
-                    errorMessage = "Error de red: \(error.localizedDescription)"
-                    return
-                }
-                guard let data = data else {
-                    errorMessage = "No se recibieron datos del servidor."
-                    return
-                }
-                do {
-                    struct DashboardResponse: Decodable {
-                        let property_performance: [PropertyPerformance]
-                    }
-                    let decoded = try JSONDecoder().decode(DashboardResponse.self, from: data)
-                    propertyPerformance = decoded.property_performance
-                } catch {
-                    errorMessage = "Error al decodificar datos: \(error.localizedDescription)"
                 }
             }
         }.resume()
@@ -841,6 +840,29 @@ struct DashboardView: View {
     
     func formatPercentage(_ value: Double) -> String {
         return String(format: "%.1f%%", value)
+    }
+
+    // Nuevo: fetch paginado de property performance
+    func fetchPropertyPerformance(page: Int, pageSize: Int) {
+        propertyPerformanceLoading = true
+        guard let url = URL(string: "https://api.propiexpert.com/dashboard/property-performance?page=\(page)&page_size=\(pageSize)") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                propertyPerformanceLoading = false
+                if let data = data {
+                    if let decoded = try? JSONDecoder().decode(PropertyPerformancePage.self, from: data) {
+                        propertyPerformancePage = decoded
+                        // Actualizar dashboardData para mantener compatibilidad
+                        if let summary = dashboardData?.summary {
+                            dashboardData = DashboardData(summary: summary, property_performance: decoded.items)
+                        }
+                    }
+                }
+            }
+        }.resume()
     }
 }
 

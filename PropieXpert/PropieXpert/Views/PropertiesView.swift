@@ -6,7 +6,7 @@ struct Property: Identifiable, Decodable {
     let address: String
     let property_type: String
     let purchase_price: Double
-    let current_value: Double
+    let current_value: Double? // Ahora opcional
     let bedrooms: Int
     let bathrooms: Int
     let is_rented: Bool
@@ -143,7 +143,7 @@ struct PropertyCard: View {
                     Text("Valor actual")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text(formatCurrency(property.current_value))
+                    Text(property.current_value != nil ? formatCurrency(property.current_value!) : "—")
                         .font(.body).bold()
                 }
                 VStack(alignment: .leading, spacing: 2) {
