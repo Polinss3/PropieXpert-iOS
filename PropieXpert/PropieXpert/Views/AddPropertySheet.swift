@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AddPropertySheet: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @Environment(\.dismiss) var dismiss
     var onPropertyAdded: (() -> Void)?
 
@@ -247,7 +247,7 @@ struct AddPropertySheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])

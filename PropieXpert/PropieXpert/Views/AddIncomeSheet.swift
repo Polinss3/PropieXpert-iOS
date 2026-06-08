@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 // El modelo Income viene de Models.swift
 
 struct AddIncomeSheet: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @Environment(\.dismiss) var dismiss
     var onIncomeAdded: (() -> Void)?
     var initialData: Income? = nil
@@ -165,7 +165,7 @@ struct AddIncomeSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
@@ -226,7 +226,7 @@ struct AddIncomeSheet: View {
         guard let url = URL(string: urlString) else { isLoading = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -273,7 +273,7 @@ struct AddIncomeSheet: View {
         let boundary = UUID().uuidString
         var request = URLRequest(url: URL(string: "https://api.propiexpert.com/documents/income/\(incomeId)/files")!)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         var body = Data()
         // File
@@ -377,7 +377,7 @@ struct AddIncomeSheet: View {
         guard let url = URL(string: urlString) else { isDeleting = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isDeleting = false

@@ -1,0 +1,980 @@
+2026-06-07 22:32:11 +0000 [MT] Initial pipeline context: <IDEDistributionProcessingPipelineContext: 0xc09ed1500; archive(resolved)="<IDEArchive: 0xc0c373cd0>", distributionTask(resolved)="2", distributionDestination(resolved)="1", distributionMethod(resolved)="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team(resolved)="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	Chain (15, self inclusive):
+	<IDEDistributionProcessingPipelineContext: 0xc09ed1500; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionProcessingPipelineContext: 0xc09ed0c00; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082f80; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082d00; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082a80; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082800; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082580; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082300; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a082080; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a081680; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a081400; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a080c80; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="<IDEProvisioningBasicTeam: 0xc0ced83c0; teamID='6U4MD8PQ2L', teamName='(null)'>">
+	<IDEDistributionContext: 0xc0a080a00; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="(null)">
+	<IDEDistributionContext: 0xc0a080280; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="<IDEDistributionMethodiOSAppStoreDistribution: 0xc0ce106e0>", team="(null)">
+	<IDEDistributionContext: 0x103696690; archive = "<IDEArchive: 0xc0c373cd0>", distributionMethod="(null)", team="(null)">
+</IDEDistributionProcessingPipelineContext: 0xc09ed1500>
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionCreateDestRootStep
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionCopyItemStep
+2026-06-07 22:32:11 +0000 [MT] Running /usr/bin/ditto '-V' '/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app'
+2026-06-07 22:32:11 +0000  >>> Copying /Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app 
+2026-06-07 22:32:11 +0000  copying file ./_CodeSignature/CodeResources ... 
+2026-06-07 22:32:11 +0000  23703 bytes for ./_CodeSignature/CodeResources
+2026-06-07 22:32:11 +0000  copying file ./GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  598 bytes for ./GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  723 bytes for ./GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1703 bytes for ./GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1780 bytes for ./GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1759 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  2103 bytes for ./GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1711 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1547 bytes for ./GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1864 bytes for ./GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1607 bytes for ./GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1489 bytes for ./GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1593 bytes for ./GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1678 bytes for ./GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1608 bytes for ./GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1611 bytes for ./GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1570 bytes for ./GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1665 bytes for ./GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1646 bytes for ./GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/google@3x.png ... 
+2026-06-07 22:32:11 +0000  1622 bytes for ./GoogleSignIn_GoogleSignIn.bundle/google@3x.png
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1565 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1579 bytes for ./GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1615 bytes for ./GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/google@2x.png ... 
+2026-06-07 22:32:11 +0000  987 bytes for ./GoogleSignIn_GoogleSignIn.bundle/google@2x.png
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1634 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1663 bytes for ./GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1596 bytes for ./GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1578 bytes for ./GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1525 bytes for ./GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1547 bytes for ./GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1717 bytes for ./GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  3756 bytes for ./GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1954 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1657 bytes for ./GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1676 bytes for ./GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1640 bytes for ./GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1553 bytes for ./GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1606 bytes for ./GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  2133 bytes for ./GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1608 bytes for ./GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/google.png ... 
+2026-06-07 22:32:11 +0000  572 bytes for ./GoogleSignIn_GoogleSignIn.bundle/google.png
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf ... 
+2026-06-07 22:32:11 +0000  127744 bytes for ./GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1598 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  697 bytes for ./GoogleSignIn_GoogleSignIn.bundle/Info.plist
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1621 bytes for ./GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  2286 bytes for ./GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:11 +0000  1669 bytes for ./GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings
+2026-06-07 22:32:11 +0000  copying file ./AppIcon60x60@2x.png ... 
+2026-06-07 22:32:11 +0000  9534 bytes for ./AppIcon60x60@2x.png
+2026-06-07 22:32:11 +0000  copying file ./AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  391 bytes for ./AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./AppAuth_AppAuth.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  677 bytes for ./AppAuth_AppAuth.bundle/Info.plist
+2026-06-07 22:32:11 +0000  copying file ./PropieXpert ... 
+2026-06-07 22:32:11 +0000  1690864 bytes for ./PropieXpert
+2026-06-07 22:32:11 +0000  copying file ./GoogleService-Info.plist ... 
+2026-06-07 22:32:11 +0000  287 bytes for ./GoogleService-Info.plist
+2026-06-07 22:32:11 +0000  copying file ./AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  391 bytes for ./AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./AppAuth_AppAuthCore.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  685 bytes for ./AppAuth_AppAuthCore.bundle/Info.plist
+2026-06-07 22:32:11 +0000  copying file ./Assets.car ... 
+2026-06-07 22:32:11 +0000  567064 bytes for ./Assets.car
+2026-06-07 22:32:11 +0000  copying file ./AppIcon76x76@2x~ipad.png ... 
+2026-06-07 22:32:11 +0000  11739 bytes for ./AppIcon76x76@2x~ipad.png
+2026-06-07 22:32:11 +0000  copying file ./PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  1736 bytes for ./PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./embedded.mobileprovision ... 
+2026-06-07 22:32:11 +0000  12327 bytes for ./embedded.mobileprovision
+2026-06-07 22:32:11 +0000  copying file ./Info.plist ... 
+2026-06-07 22:32:11 +0000  1524 bytes for ./Info.plist
+2026-06-07 22:32:11 +0000  copying file ./GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  373 bytes for ./GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./GTMAppAuth_GTMAppAuth.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  685 bytes for ./GTMAppAuth_GTMAppAuth.bundle/Info.plist
+2026-06-07 22:32:11 +0000  copying file ./PkgInfo ... 
+2026-06-07 22:32:11 +0000  8 bytes for ./PkgInfo
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:11 +0000  373 bytes for ./GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:11 +0000  copying file ./GoogleSignIn_GoogleSignInSwift.bundle/Info.plist ... 
+2026-06-07 22:32:11 +0000  707 bytes for ./GoogleSignIn_GoogleSignInSwift.bundle/Info.plist
+2026-06-07 22:32:11 +0000 [MT] /usr/bin/ditto exited with 0
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionEmbedProfileStep
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionInfoPlistStep
+2026-06-07 22:32:11 +0000 [MT] Skipping setting DTXcodeBuildDistribution because toolsBuildVersionName was nil.
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionItemRemovalStep
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionAppThinningPlistStep
+2026-06-07 22:32:11 +0000 [MT] Skipping step: IDEDistributionAppThinningPlistStep because it said so
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionSymbolsStep
+2026-06-07 22:32:11 +0000 [MT] Writing /var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Symbols/07DA3AA5-4A90-3698-9F32-FB1545D89D5A.symbols
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionCopyAppleProvidedContentStep
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionAppThinningStep
+2026-06-07 22:32:11 +0000 [MT] Skipping step: IDEDistributionAppThinningStep because it said so
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionArchThinningStep
+2026-06-07 22:32:11 +0000 [MT] Archs to thin for item /Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app are []
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionODRStep
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionStripXattrsStep
+2026-06-07 22:32:11 +0000 [MT] Skipping stripping extended attributes because the codesign step will strip them.
+2026-06-07 22:32:11 +0000 [MT] Processing step: IDEDistributionCodesignStep
+2026-06-07 22:32:11 +0000 [MT] Entitlements for <IDEDistributionItem: 0xc0cdf3b40; bundleID='com.propiexpert.app', path='<DVTFilePath:0xc0ccc17a0:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xc0cdf3c00; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xc09fbc600; name='Apple Development: pablobrasero@gmail.com (XAPS79PAVD)', hash='E542A17CA414CE6D695565E710B2BD999A53FAD8', serialNumber='2817C5006E404F2B33C48E67A33C8DE', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-04-17 13:53:15 +0000''>', entitlements='{
+    "application-identifier" = "6U4MD8PQ2L.com.propiexpert.app";
+    "com.apple.developer.team-identifier" = 6U4MD8PQ2L;
+    "get-task-allow" = 1;
+}', teamID='6U4MD8PQ2L', identifier='com.propiexpert.app', executablePath='<DVTFilePath:0xc0cdf2a00:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app/PropieXpert'>', hardenedRuntime='0'>'>: {
+    "application-identifier" = "6U4MD8PQ2L.com.propiexpert.app";
+    "beta-reports-active" = 1;
+    "com.apple.developer.team-identifier" = 6U4MD8PQ2L;
+    "get-task-allow" = 0;
+}
+2026-06-07 22:32:11 +0000 [MT] Associated App Clip Identifiers Filter: Skipping because "com.apple.developer.associated-appclip-app-identifiers" is not present
+2026-06-07 22:32:11 +0000 [MT] Entitlements for <IDEDistributionItem: 0xc0cdf3b40; bundleID='com.propiexpert.app', path='<DVTFilePath:0xc0ccc17a0:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xc0cdf3c00; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xc09fbc780; name='Apple Development: pablobrasero@gmail.com (XAPS79PAVD)', hash='E542A17CA414CE6D695565E710B2BD999A53FAD8', serialNumber='2817C5006E404F2B33C48E67A33C8DE', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-04-17 13:53:15 +0000''>', entitlements='{
+    "application-identifier" = "6U4MD8PQ2L.com.propiexpert.app";
+    "com.apple.developer.team-identifier" = 6U4MD8PQ2L;
+    "get-task-allow" = 1;
+}', teamID='6U4MD8PQ2L', identifier='com.propiexpert.app', executablePath='<DVTFilePath:0xc0cdf2a00:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app/PropieXpert'>', hardenedRuntime='0'>'> are: {
+    "application-identifier" = "6U4MD8PQ2L.com.propiexpert.app";
+    "beta-reports-active" = 1;
+    "com.apple.developer.team-identifier" = 6U4MD8PQ2L;
+    "get-task-allow" = 0;
+}
+2026-06-07 22:32:11 +0000 [MT] Writing entitlements for <IDEDistributionItem: 0xc0cdf3b40; bundleID='com.propiexpert.app', path='<DVTFilePath:0xc0ccc17a0:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xc0cdf3c00; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xc09fbc780; name='Apple Development: pablobrasero@gmail.com (XAPS79PAVD)', hash='E542A17CA414CE6D695565E710B2BD999A53FAD8', serialNumber='2817C5006E404F2B33C48E67A33C8DE', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-04-17 13:53:15 +0000''>', entitlements='{
+    "application-identifier" = "6U4MD8PQ2L.com.propiexpert.app";
+    "com.apple.developer.team-identifier" = 6U4MD8PQ2L;
+    "get-task-allow" = 1;
+}', teamID='6U4MD8PQ2L', identifier='com.propiexpert.app', executablePath='<DVTFilePath:0xc0cdf2a00:'/Users/pablobrasero/Desktop/Proyectos/PropieXpert/PropieXpert-iOS/build/PropieXpert.xcarchive/Products/Applications/PropieXpert.app/PropieXpert'>', hardenedRuntime='0'>'> to: /var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/entitlements~~~KcePts
+2026-06-07 22:32:11 +0000 [MT] invoking codesign: <NSConcreteTask: 0xc0d8077f0; launchPath='/usr/bin/codesign', arguments='(
+    "-f",
+    "-s",
+    "-",
+    "--signature-size",
+    16000,
+    "--entitlements",
+    "/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/entitlements~~~KcePts",
+    "--requirements",
+    "=designated => anchor apple generic and identifier \"com.propiexpert.app\" and certificate leaf[subject.CN] = \"Apple Distribution: Pablo Brasero Mart\U00ednez (6U4MD8PQ2L)\" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */",
+    "--preserve-metadata=identifier,flags,runtime,launch-constraints,library-constraints",
+    "--omit-adhoc-flag",
+    "--team-identifier",
+    6U4MD8PQ2L,
+    "--generate-entitlement-der",
+    "--strip-disallowed-xattrs",
+    "-vvv",
+    "/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app"
+)'>
+2026-06-07 22:32:11 +0000 [MT] codesign output: /var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app: replacing existing signature
+/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app: signed app bundle with Mach-O thin (arm64) [com.propiexpert.app]
+2026-06-07 22:32:11 +0000 [MT] Remote code signing '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app' with signature slices '[<DVTCodeSignatureSlice: 0xc098bb8d0; architecture='arm64', cmsDigest='<DVTCodeSignatureHash: 0xc0b0ca340; digestAlgorithmDescription='sha256', cdHashHexEncoded='2ec42bb9e7a78aca251fed0fcfc6cbf5e5c82854a30c2a36abd84ede2b2a4fdc'>', codeSignatureHashes='{(
+    <DVTCodeSignatureHash: 0xc0b0c9d00; digestAlgorithmDescription='sha256', cdHashHexEncoded='2ec42bb9e7a78aca251fed0fcfc6cbf5e5c82854a30c2a36abd84ede2b2a4fdc'>
+)}', cmsHexEncoded=''>]' and configuration 'RemoteSigningToolConfiguration(path: <DVTFilePath:0xc0cead9e0:'/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app'>, signingCertificate: <DVTSigningCertificate: 0xc09fbc540; name='Apple Distribution: Pablo Brasero Martínez (6U4MD8PQ2L)', hash='C5BEF4736474A94A5E8456D4C1C9C64F1DDDA4AF', serialNumber='4E3BFCC37BDD6E92B1473BADC0D8A0BB', certificateKinds='(
+    "1.2.840.113635.100.6.1.7",
+    "1.2.840.113635.100.6.1.4"
+), issueDate='2026-06-07 14:29:47 +0000''>, session: <DVTServicesAccountBasedSession: 0xc0ceaeb80; account='<DVTAppleIDBasedDeveloperAccount: 0xc0a8774c0; username='pablobrasero@gmail.com'>'>, team: <DVTPortalTeam: 0xc0a870180; name='Pablo Brasero Martínez', teamID='6U4MD8PQ2L', type='Individual', memberships='(
+    "<DVTPortalMembership: 0xc0a891590; programs='{(\n    <DVTPortalProgram: 0xc0cdb2800; <DVTPortalProgram: 0xc0cdb2800; identifier='Xcode.Portal.Program.iOS'>>\n)}'>",
+    "<DVTPortalMembership: 0xc0a891fe0; programs='{(\n    <DVTPortalProgram: 0xc0cdb2760; <DVTPortalProgram: 0xc0cdb2760; identifier='Xcode.Portal.Program.Mac'>>\n)}'>"
+)'>, codeResourcesDictionary: [AnyHashable("files"): {
+    "AppAuth_AppAuth.bundle/Info.plist" = {length = 20, bytes = 0xa5c3fb7824e171e8a79ed63923067cfac0e465ef};
+    "AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x3020d1a6d8b161f03ea802c15fd6f8bb1ab7af0a};
+    "AppAuth_AppAuthCore.bundle/Info.plist" = {length = 20, bytes = 0x41b683c2bb7a88b96fd7139beb637233dc3626c4};
+    "AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x3020d1a6d8b161f03ea802c15fd6f8bb1ab7af0a};
+    "AppIcon60x60@2x.png" = {length = 20, bytes = 0xfbdc42ca81da3dbbac3b59add6d57a6259643a6c};
+    "AppIcon76x76@2x~ipad.png" = {length = 20, bytes = 0x106de950040c7dac6cebe9e0c954bd2b0d15d4b0};
+    "Assets.car" = {length = 20, bytes = 0x84b10043b8f9c1c4c1b20abf36836b57d757d29a};
+    "GTMAppAuth_GTMAppAuth.bundle/Info.plist" = {length = 20, bytes = 0x74ea60636b453e856c7fff9d15efa430878790de};
+    "GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x00bd5d87972d39b5c18e806269b489f3a3371d0b};
+    "GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist" = {length = 20, bytes = 0x6caff79825835e4762bfa9edfdfe5dcd9524b412};
+    "GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x1aa780324c1b70d41e1b42b8a90850876bc7847a};
+    "GoogleService-Info.plist" = {length = 20, bytes = 0xbb6b3994448fc436f4d75343f9a8ce498fdddd61};
+    "GoogleSignIn_GoogleSignIn.bundle/Info.plist" = {length = 20, bytes = 0x02ad9c7de2d4b72156ae394ab2de593a5fdec0ea};
+    "GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x0699f87224b541f74319573b4b6eeafa8d085043};
+    "GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf" = {length = 20, bytes = 0x47327df0f35e7cd7c8645874897a7449697544ae};
+    "GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xd54e11335e2f4a49c1e6e3d11f06c17f63f72fd9};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x196152b5b0734aca3347c9dd9e59c2196ad58081};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xae429dd9ad566e1b29175dae8fb8db35ac5d72cc};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x087f2ee238b4a61ea0d255a6c059a3b967878dc4};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x87d286061cfa181c0ddd4f2f6be6610d505b12c9};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x49ad43cc5be67beade8ea16344687447c5af8b65};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x69b862dc1539fd959a50c2a59ed5a51d6a86a5f9};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x88c3bda39e4cb0f91967331fab1690468844204b};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x33afaf0abb4e443c4349845f0acd0441afcd17b1};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xaceb1b40635164a90e056e0785f4014d6c044322};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x8167f2342aa1777d18dbee36a08b8bfc75a67338};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xb9ace29569624eb5ba32e00beae99f0bff09036c};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x12ccf79a5c27b9a109446abd2aec78af7ed206e4};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/google.png" = {length = 20, bytes = 0x82e111b714521bc2e49717332eee3b248c0b8e25};
+    "GoogleSignIn_GoogleSignIn.bundle/google@2x.png" = {length = 20, bytes = 0xe14c17186ce8f94b4c811d21503aed45bab85aa9};
+    "GoogleSignIn_GoogleSignIn.bundle/google@3x.png" = {length = 20, bytes = 0x035c115b2f3d7918ccb9508fe0aed2d000a5353c};
+    "GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xba2da8693ebb93447c85ebf139a6113ef9019dc6};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x919bebed725eae11cc33af4f9176e7bc1169d37a};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x7f500285dcaaba0ca03072c393c813dc3722f892};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x052a0d4c121fe245b1c092619378f82ea4f2b534};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x16b773ec4023a137c418baede3940ec5ece3cd76};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x8a9db64ce9470293dd2f44783a9fa9c7d9673ede};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xb17d1fb5d490cfd5aa757952098667d2d92d73fd};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x3177dcf49081b129a0c66277c5f329567b6f2df1};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x66398bc9d6f16902d2748046997e4b4105cc7e14};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xf246c6fefcc2b29af15c404b5903e3b1962c9923};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xfc237b087015c9aa2c7f86d755ce46c730b665b7};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x201aec8bf4f798129971c7a37a0f9e2aef9e2c2f};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x6b60abb61d31fa149d68418ce1802236a67160a8};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x6b60abb61d31fa149d68418ce1802236a67160a8};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x77dd19b22ced29c1fa813d0cd863614bd6ee74b8};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xc07e957f4f2c27c28a77efaa3d77ad697b524848};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x7733cd20a307e79d59b0bd6d7f1db9423ee0d9fb};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x96da5f1d20823e93b76d004fe7a8e3b7debe77dd};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xeb375ab1e01634bdc283333aae189ebe47982c16};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x8d5553c0d906001c5014cf21f5a3d12757d2d8f9};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xe1de69bc21724e90c163fa3edd1b3127ccea2dd2};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0xec06cb0118a884a7ead0a2a90cea17271ab72f7f};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x4136ea65593a90d237d7a8054247605ee3a7429c};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x49fd2b4f4b3580b9e3dac0270254f2087e2f6cfd};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings" =     {
+        hash = {length = 20, bytes = 0x942e66e5f93a81db50b73f06a61182ff768f6a05};
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignInSwift.bundle/Info.plist" = {length = 20, bytes = 0x7afa9ae70bf5903743726cd143607386cf643033};
+    "GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x00bd5d87972d39b5c18e806269b489f3a3371d0b};
+    "Info.plist" = {length = 20, bytes = 0x9e3f68221f7d3a165d4830d6a0af8357c5d451f2};
+    PkgInfo = {length = 20, bytes = 0x9f9eea0cfe2d65f2c3d6b092e375b40782d08f31};
+    "PrivacyInfo.xcprivacy" = {length = 20, bytes = 0x6b653f8dbd9ca16211286b047d79759c252f2d64};
+    "embedded.mobileprovision" = {length = 20, bytes = 0xd9d941bc6c093c63d28c7848214dd6e860f6cb2f};
+}, AnyHashable("rules"): {
+    "^.*" = 1;
+    "^.*\\.lproj/" =     {
+        optional = 1;
+        weight = 1000;
+    };
+    "^.*\\.lproj/locversion.plist$" =     {
+        omit = 1;
+        weight = 1100;
+    };
+    "^Base\\.lproj/" =     {
+        weight = 1010;
+    };
+    "^version.plist$" = 1;
+}, AnyHashable("files2"): {
+    "AppAuth_AppAuth.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0x7cdf7fbe b161be10 f4583306 371b3864 ... edf90fdc b653dbc9 };
+    };
+    "AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x5ade962f aaea1edd bbdd06c4 cf8a872c ... 0136004d 378e1ced };
+    };
+    "AppAuth_AppAuthCore.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0x71cbe63e 3dc8e32c 664d50b7 332336be ... 292c35e1 9096596d };
+    };
+    "AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x5ade962f aaea1edd bbdd06c4 cf8a872c ... 0136004d 378e1ced };
+    };
+    "AppIcon60x60@2x.png" =     {
+        hash2 = {length = 32, bytes = 0x11d87112 2e89c869 fe5206fc a93e5896 ... 7f828197 b2e4359b };
+    };
+    "AppIcon76x76@2x~ipad.png" =     {
+        hash2 = {length = 32, bytes = 0x0a17c297 2859cec0 63e7c676 2c9d7a7d ... 173e3a9b 935d2e12 };
+    };
+    "Assets.car" =     {
+        hash2 = {length = 32, bytes = 0xba9ba326 0a58d4d3 a0a156fd 442857d5 ... 470ac206 58f87e19 };
+    };
+    "GTMAppAuth_GTMAppAuth.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0xb21ddbb2 d9f8113d 72c68821 d9fda05c ... 0afcf3d2 dbe4fb91 };
+    };
+    "GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x5a9b8fc0 cddb1020 1bb47cc2 804b3f00 ... fc4eb54e d46e1084 };
+    };
+    "GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0xfc91c058 9e668fd3 b418dc93 de5c462d ... 0bd456b3 2435afec };
+    };
+    "GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x3e4a93cb e86acef7 dd7e063a 28c84999 ... 37c1e8b0 e1b54686 };
+    };
+    "GoogleService-Info.plist" =     {
+        hash2 = {length = 32, bytes = 0x06e6f006 6a7a701e fa0e4ef6 53612fb2 ... b1c8692b 92162c8a };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0x500fa027 06af568e 25fb3d3d a353a18b ... 0dddf838 c1217993 };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x93009728 53096f7d 570d6c4a 4bf7152a ... d3b4c6b5 dfaddfd0 };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf" =     {
+        hash2 = {length = 32, bytes = 0x594d74a4 9e307be7 cc9e1ee5 f1023684 ... ee590391 e1ad5a5a };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xb2cf9e8d 9fc8ad0f 9610b3e5 4ef0b8b4 ... 6094b220 5abe8c72 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x33e88ff5 00dc3db2 462e2ac9 33c11c28 ... d62ac446 10ad61aa };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x51da0862 4c2a79de 47c81683 b29e8a13 ... e1a77a67 f6be3544 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xe8261b96 46d8ea89 f7bf7a61 a73aedce ... bdfe8cc7 e04db7da };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x16cd413d f1ab77e5 09df76f8 73a5a687 ... d934c5ab 3377c228 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x9cc0c134 9cf665fc 773330d3 1a2628f6 ... 034a5667 f8f0fabc };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xc726a39c 382e3f1a 7c1f58ec f470f812 ... f7c0c3aa 0ec648c2 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xa2bd782a 051b1a0b 3c437ec6 a31e9bf7 ... a0eb4a63 99ad1ac2 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x501e44c4 f3bb9c05 b13297c6 0240fd0e ... 198208dc b9421ca6 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x84d327c7 197b7e54 9a1e9e8d 8bb3e1cb ... 3dde0a47 395af634 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x0e99f31a 89ead8cc 0fc72ad6 abdcc84a ... 1a889b37 39da773b };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xb5513877 acf2d79c 8f0eaff7 fcde4aa1 ... 112602fd 443777ba };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xf71092cf 3fdba7e3 e03d0d99 748378b1 ... ddd24c39 922b086e };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/google.png" =     {
+        hash2 = {length = 32, bytes = 0x1f622890 207ca0d9 11c2004b 04464b77 ... fe201974 6c8330a5 };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/google@2x.png" =     {
+        hash2 = {length = 32, bytes = 0x323ab89f a20161ad b219e171 5035f931 ... 0e43d2d7 5685c0b2 };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/google@3x.png" =     {
+        hash2 = {length = 32, bytes = 0xbee36b58 24597812 ab7b1a83 d8d10364 ... 118a1837 1bdc2655 };
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x2ad07516 65fa6100 761107c4 0a08df04 ... 42e3eec4 567a60b0 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xdd41d727 36ab5f4a 97d09ddb 14c4800e ... 0c5ffab9 6a62461e };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x240fb299 8ce9e3a7 96a97906 fc6f960a ... cae914fa ed0a5bfe };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x1a8445f9 9c68fbb0 5f3714f8 0f70ed08 ... 12b4516f 07d89e4f };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x3f246fe3 732f813c 93a04952 365102a9 ... 19531398 588b2bf9 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x4edc697c fa93600e 8b6904d8 72284035 ... a97cecb6 42f633c8 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x864dce62 3eb1a99b eea7e72a 1db90086 ... 1f780b20 89381114 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x021a8299 45c7e477 b6e89a7c d9da683f ... 839baf50 ef7ac013 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xcb6c1148 0bf45c4b 99ac1c2d cfdb67a5 ... 4fb3e961 357b5c93 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x02a0ce46 13ef0c23 ec3f161d 59d5c493 ... 3180a11a 42caeab0 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x49051865 c00640ed ed4c359b 1e820e11 ... 91f9397d 37ab5e0d };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xcc1ef445 2fcc98ac beed2295 0bd7f0a2 ... 8fdbb600 ed38e55d };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x8789b92e 1a14c1fd 45f26619 273c573d ... 80a5870b aaebccee };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x8789b92e 1a14c1fd 45f26619 273c573d ... 80a5870b aaebccee };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x56004feb b8c697df c2844b49 3b2d1fda ... 57dd50b4 34600e99 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xaf87451f 0d584649 dc36d5bd 174adbf3 ... 2f7dd86e 2262e3dd };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x1d379702 a951ecf9 8843d957 092a8c4a ... 643e3b77 755dc5dc };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x3ff72286 5a3c2e61 0d9b84cb 055d9363 ... eb819368 d41d5dac };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x101e93a9 c6ce8a01 e7a86337 aa212f68 ... 179fef26 1861431e };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xf3b0083f 38b72610 9db921a7 904a98de ... 8480c544 7a3c4fc7 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x0d49eb54 2849a6b7 c689a725 62f7204c ... 0743520d 9bab80d2 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x261c6ee8 1d9ffeb3 2feefaa9 e2bf490c ... 95b4a333 e2c7aeef };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x5dd81023 a8de776c 88096b79 2e073636 ... 219bbbdd 88398fe0 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0x52744341 27f77096 3d92af87 00a2b838 ... 4ff2a517 fb81d677 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings" =     {
+        hash2 = {length = 32, bytes = 0xf0af4ba5 c0339e86 0cb1b938 679f8f4c ... cfbb239a b13bb7e5 };
+        optional = 1;
+    };
+    "GoogleSignIn_GoogleSignInSwift.bundle/Info.plist" =     {
+        hash2 = {length = 32, bytes = 0x02f5306f 5a155cd5 9dc79487 245158bb ... 3e181158 d89864d4 };
+    };
+    "GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0x5a9b8fc0 cddb1020 1bb47cc2 804b3f00 ... fc4eb54e d46e1084 };
+    };
+    "PrivacyInfo.xcprivacy" =     {
+        hash2 = {length = 32, bytes = 0xbe5e8803 e228538a 1b611e27 3a5ac6d6 ... e71a7f59 3774758e };
+    };
+    "embedded.mobileprovision" =     {
+        hash2 = {length = 32, bytes = 0x7a805891 004d0a25 30982ad6 dc747f91 ... 3912e970 25bb45c2 };
+    };
+}, AnyHashable("rules2"): {
+    ".*\\.dSYM($|/)" =     {
+        weight = 11;
+    };
+    "^(.*/)?\\.DS_Store$" =     {
+        omit = 1;
+        weight = 2000;
+    };
+    "^.*" = 1;
+    "^.*\\.lproj/" =     {
+        optional = 1;
+        weight = 1000;
+    };
+    "^.*\\.lproj/locversion.plist$" =     {
+        omit = 1;
+        weight = 1100;
+    };
+    "^Base\\.lproj/" =     {
+        weight = 1010;
+    };
+    "^Info\\.plist$" =     {
+        omit = 1;
+        weight = 20;
+    };
+    "^PkgInfo$" =     {
+        omit = 1;
+        weight = 20;
+    };
+    "^embedded\\.provisionprofile$" =     {
+        weight = 20;
+    };
+    "^version\\.plist$" =     {
+        weight = 20;
+    };
+}], enableSignatureValidation: true, logAspect: <DVTLogAspect:0xc0ceadaa0:IDEDistributionPipeline:level=verbose(3):effective-level=verbose(3)>)'
+2026-06-07 22:32:11 +0000 [MT] Sending request 1924B298-BB6F-45E4-B623-03FCDA9FD03C to <https://developerservices2.apple.com/services/v1/certificates> for session <DVTServicesAccountBasedSession: 0xc0ceaeb80; account='<DVTAppleIDBasedDeveloperAccount: 0xc0a8774c0; username='pablobrasero@gmail.com'>'>.
+Method: POST
+
+Headers:
+{
+    Accept = "application/vnd.api+json";
+    "Accept-Encoding" = "gzip, deflate";
+    "Content-Length" = 113;
+    "Content-Type" = "application/vnd.api+json";
+    DSESSIONID = 1u057d0ujsirf9spi1lol4mb6jh7bi7kjcanofb3tu52qqgm4e59;
+    "User-Agent" = Xcode;
+    "X-Apple-App-Info" = "com.apple.gs.xcode.auth";
+    "X-Apple-GS-Token" = "AAAABLwIAAAAAGniPNgRDWdzLnhjb2RlLmF1dGi9AHvz/AkOx7/+e32ArbnMLdylnH50xoLMvgkvaUWt2JqoJr1xam4EU98PFpyeB7dE/l5NYx9gC8zbdlKI/MkzdNX2Emdv3uHIjFSgYkWb8U295i/1iX+lTAeXk72abCKSJALg8YcvN6vSalTJeCVKyOpChSI0";
+    "X-Apple-I-Identity-Id" = "001544-08-dad4b9a4-d7c7-4dde-90f6-8aea303e86d6";
+    "X-HTTP-Method-Override" = GET;
+    "X-MMe-Client-Info" = "<MacBookPro18,3> <macOS;26.2;25C56> <com.apple.AuthKit/1 (com.apple.dt.xcodebuild/24900)>";
+    "X-Mme-Device-Id" = "4C31A466-4830-55EB-AFC4-6284DAB8BC9D";
+    "X-Xcode-Version" = "26.5 (17F42)";
+}
+
+Payload:
+{"urlEncodedQueryParams":"teamId=6U4MD8PQ2L&filter%5BserialNumber%5D=4E3BFCC37BDD6E92B1473BADC0D8A0BB&limit=200"}
+2026-06-07 22:32:11 +0000 [MT] Received response for 1924B298-BB6F-45E4-B623-03FCDA9FD03C @ <https://developerservices2.apple.com/services/v1/certificates>. Code = 0
+2026-06-07 22:32:11 +0000 [MT] Response payload: {
+  "data" : [ {
+    "type" : "certificates",
+    "id" : "T6V4ZP769S",
+    "attributes" : {
+      "requesterEmail" : "pablobrasero@gmail.com",
+      "serialNumber" : "4E3BFCC37BDD6E92B1473BADC0D8A0BB",
+      "certificateContent" : "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",
+      "displayName" : "Pablo Brasero Martínez",
+      "requesterLastName" : "Brasero Martínez",
+      "csrContent" : null,
+      "machineName" : null,
+      "platform" : null,
+      "requesterFirstName" : "Pablo",
+      "machineId" : null,
+      "name" : "Apple Distribution: Pablo Brasero Martínez",
+      "responseId" : "e35cfdaf-3e9c-4b8a-9109-05acb38711db",
+      "expirationDate" : "2027-06-07T14:29:46.000+00:00",
+      "certificateType" : "DISTRIBUTION_MANAGED"
+    },
+    "links" : {
+      "self" : "https://developerservices2.apple.com:443/services/v1/certificates/T6V4ZP769S"
+    }
+  } ],
+  "links" : {
+    "self" : "https://developerservices2.apple.com:443/services/v1/certificates?filter%5BserialNumber%5D=4E3BFCC37BDD6E92B1473BADC0D8A0BB&limit=200"
+  },
+  "meta" : {
+    "paging" : {
+      "total" : 1,
+      "limit" : 200
+    }
+  }
+}
+
+2026-06-07 22:32:11 +0000 [MT] Sending request 6A18EC86-379A-4E48-9B70-A2E9E5E2660E to <https://developerservices3.apple.com/services/v1/batch> for session <DVTServicesAccountBasedSession: 0xc0ceaeb80; account='<DVTAppleIDBasedDeveloperAccount: 0xc0a8774c0; username='pablobrasero@gmail.com'>'>.
+Method: POST
+
+Headers:
+{
+    Accept = "application/vnd.api+json";
+    "Accept-Encoding" = "gzip, deflate";
+    "Content-Length" = 488;
+    "Content-Type" = "application/vnd.api+json";
+    DSESSIONID = 1u057d0ujsirf9spi1lol4mb6jh7bi7kjcanofb3tu52qqgm4e59;
+    "User-Agent" = Xcode;
+    "X-Apple-App-Info" = "com.apple.gs.xcode.auth";
+    "X-Apple-GS-Token" = "AAAABLwIAAAAAGniPNgRDWdzLnhjb2RlLmF1dGi9AHvz/AkOx7/+e32ArbnMLdylnH50xoLMvgkvaUWt2JqoJr1xam4EU98PFpyeB7dE/l5NYx9gC8zbdlKI/MkzdNX2Emdv3uHIjFSgYkWb8U295i/1iX+lTAeXk72abCKSJALg8YcvN6vSalTJeCVKyOpChSI0";
+    "X-Apple-I-Identity-Id" = "001544-08-dad4b9a4-d7c7-4dde-90f6-8aea303e86d6";
+    "X-MMe-Client-Info" = "<MacBookPro18,3> <macOS;26.2;25C56> <com.apple.AuthKit/1 (com.apple.dt.xcodebuild/24900)>";
+    "X-Mme-Device-Id" = "4C31A466-4830-55EB-AFC4-6284DAB8BC9D";
+    "X-Xcode-Version" = "26.5 (17F42)";
+}
+
+Payload:
+{"data":{"type":"batch","attributes":{"resourceVersion":"1","teamId":"6U4MD8PQ2L","resourceList":[{"data":{"attributes":{"digestHash":"2EC42BB9E7A78ACA251FED0FCFC6CBF5E5C82854A30C2A36ABD84EDE2B2A4FDC","cdHashSha256":"2EC42BB9E7A78ACA251FED0FCFC6CBF5E5C82854A30C2A36ABD84EDE2B2A4FDC","teamId":"6U4MD8PQ2L","name":"0"},"type":"codeSignatures","relationships":{"certificate":{"data":{"id":"T6V4ZP769S","type":"certificates"}},"bundleId":{"data":{"id":"FJMVJ3695V","type":"bundleIds"}}}}}]}}}
+2026-06-07 22:32:12 +0000 [MT] Received response for 6A18EC86-379A-4E48-9B70-A2E9E5E2660E @ <https://developerservices3.apple.com/services/v1/batch>. Code = 0
+2026-06-07 22:32:12 +0000 [MT] Response payload: {
+  "data" : {
+    "type" : "batch",
+    "id" : "b6375a0a-072e-4e41-b250-be71307f175a",
+    "attributes" : {
+      "responseId" : "b6375a0a-072e-4e41-b250-be71307f175a",
+      "resourceList" : [ {
+        "type" : "codeSignatures",
+        "id" : "b3f0a2f9-5ac8-47f8-a677-32debdc429d5",
+        "attributes" : {
+          "digestHash" : "2EC42BB9E7A78ACA251FED0FCFC6CBF5E5C82854A30C2A36ABD84EDE2B2A4FDC",
+          "cdHashSha256" : "2EC42BB9E7A78ACA251FED0FCFC6CBF5E5C82854A30C2A36ABD84EDE2B2A4FDC",
+          "signature" : "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",
+          "name" : "0",
+          "responseId" : "b6375a0a-072e-4e41-b250-be71307f175a",
+          "cmsSignature" : "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",
+          "timestamp" : false
+        },
+        "relationships" : {
+          "bundleId" : {
+            "data" : {
+              "type" : "bundleIds",
+              "id" : "FJMVJ3695V"
+            },
+            "links" : {
+              "self" : {
+                "href" : "https://developerservices3.apple.com:443/services/v1/codeSignatures/b3f0a2f9-5ac8-47f8-a677-32debdc429d5/relationships/bundleId"
+              },
+              "related" : {
+                "href" : "https://developerservices3.apple.com:443/services/v1/codeSignatures/b3f0a2f9-5ac8-47f8-a677-32debdc429d5/bundleId"
+              }
+            }
+          },
+          "certificate" : {
+            "data" : {
+              "type" : "certificates",
+              "id" : "T6V4ZP769S"
+            },
+            "links" : {
+              "self" : {
+                "href" : "https://developerservices3.apple.com:443/services/v1/codeSignatures/b3f0a2f9-5ac8-47f8-a677-32debdc429d5/relationships/certificate"
+              },
+              "related" : {
+                "href" : "https://developerservices3.apple.com:443/services/v1/codeSignatures/b3f0a2f9-5ac8-47f8-a677-32debdc429d5/certificate"
+              }
+            }
+          }
+        },
+        "links" : {
+          "self" : {
+            "href" : "https://developerservices3.apple.com:443/services/v1/codeSignatures/b3f0a2f9-5ac8-47f8-a677-32debdc429d5"
+          }
+        }
+      } ],
+      "resourceVersion" : "1"
+    },
+    "links" : {
+      "self" : "https://developerservices3.apple.com:443/services/v1/batch/b6375a0a-072e-4e41-b250-be71307f175a"
+    }
+  },
+  "links" : {
+    "self" : "https://developerservices3.apple.com:443/services/v1/batch"
+  }
+}
+
+2026-06-07 22:32:12 +0000 [MT] Remote signature for /var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app (arch: arm64) is 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
+2026-06-07 22:32:12 +0000 [MT] invoking codesign: <NSConcreteTask: 0xc0cdb3480; launchPath='/usr/bin/codesign', arguments='(
+    "-e",
+    "--edit-cms",
+    "/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/cms~~~9Q6xoB",
+    "/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app"
+)'>
+2026-06-07 22:32:12 +0000 [MT] codesign output: 
+2026-06-07 22:32:12 +0000 [MT] Processing step: IDEDistributionZipODRItemStep
+2026-06-07 22:32:12 +0000 [MT] Skipping step: IDEDistributionZipODRItemStep because it said so
+2026-06-07 22:32:12 +0000 [MT] Processing step: IDEDistributionCreateIPAStep
+2026-06-07 22:32:12 +0000 [MT] Running /usr/bin/rsync '-8aPhhE' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Symbols' '--link-dest' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root'
+2026-06-07 22:32:12 +0000  Symbols/
+._Symbols
+            163 170%    1.72MB/s   00:00:00 (xfer#1, to-check=0/4)
+2026-06-07 22:32:12 +0000  Symbols/07DA3AA5-4A90-3698-9F32-FB1545D89D5A.symbols
+Symbols/._07DA3AA5-4A90-3698-9F32-FB1545D89D5A.symbols
+            163   0%  198.94KB/s   00:00:00 (xfer#2, to-check=2/4)
+2026-06-07 22:32:12 +0000 [MT] /usr/bin/rsync exited with 0
+2026-06-07 22:32:12 +0000 [MT] Running /usr/bin/ditto '-V' '-c' '-k' '--norsrc' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root' '/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Packages/PropieXpert.ipa'
+2026-06-07 22:32:12 +0000  >>> Copying /var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root 
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/_CodeSignature/CodeResources ... 
+2026-06-07 22:32:12 +0000  23703 bytes for ./Payload/PropieXpert.app/_CodeSignature/CodeResources
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:12 +0000  598 bytes for ./Payload/PropieXpert.app/GTMSessionFetcher_GTMSessionFetcherCore.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist ... 
+2026-06-07 22:32:12 +0000  723 bytes for ./Payload/PropieXpert.app/GTMSessionFetcher_GTMSessionFetcherCore.bundle/Info.plist
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1703 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/de.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1780 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/he.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1759 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ar.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  2103 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/el.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1711 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ja.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1547 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/en.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1864 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/uk.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1607 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/es_MX.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1489 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/zh_CN.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1593 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/nb.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1678 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/es.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1608 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt_BR.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1611 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/da.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1570 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/it.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1665 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/sk.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1646 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt_PT.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google@3x.png ... 
+2026-06-07 22:32:12 +0000  1622 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google@3x.png
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1565 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ms.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1579 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/sv.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1615 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/cs.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google@2x.png ... 
+2026-06-07 22:32:12 +0000  987 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google@2x.png
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1634 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ko.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1663 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hu.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1596 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/tr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1578 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pl.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1525 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/zh_TW.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1547 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/en_GB.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1717 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/vi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:12 +0000  3756 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1954 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ru.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1657 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fr_CA.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1676 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1640 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/fi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1553 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/id.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1606 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/nl.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  2133 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/th.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1608 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/pt.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google.png ... 
+2026-06-07 22:32:12 +0000  572 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/google.png
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf ... 
+2026-06-07 22:32:12 +0000  127744 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/Roboto-Bold.ttf
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1598 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ro.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/Info.plist ... 
+2026-06-07 22:32:12 +0000  697 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/Info.plist
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1621 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hr.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  2286 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/hi.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings ... 
+2026-06-07 22:32:12 +0000  1669 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignIn.bundle/ca.lproj/GoogleSignIn.strings
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/AppIcon60x60@2x.png ... 
+2026-06-07 22:32:12 +0000  9534 bytes for ./Payload/PropieXpert.app/AppIcon60x60@2x.png
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:12 +0000  391 bytes for ./Payload/PropieXpert.app/AppAuth_AppAuth.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/AppAuth_AppAuth.bundle/Info.plist ... 
+2026-06-07 22:32:12 +0000  677 bytes for ./Payload/PropieXpert.app/AppAuth_AppAuth.bundle/Info.plist
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/PropieXpert ... 
+2026-06-07 22:32:12 +0000  1688944 bytes for ./Payload/PropieXpert.app/PropieXpert
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleService-Info.plist ... 
+287 bytes for ./Payload/PropieXpert.app/GoogleService-Info.plist
+copying file ./Payload/PropieXpert.app/AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy ... 
+391 bytes for ./Payload/PropieXpert.app/AppAuth_AppAuthCore.bundle/PrivacyInfo.xcprivacy
+copying file ./Payload/PropieXpert.app/AppAuth_AppAuthCore.bundle/Info.plist ... 
+685 bytes for ./Payload/PropieXpert.app/AppAuth_AppAuthCore.bundle/Info.plist
+copying file ./Payload/PropieXpert.app/Assets.car ... 
+2026-06-07 22:32:12 +0000  567064 bytes for ./Payload/PropieXpert.app/Assets.car
+copying file ./Payload/PropieXpert.app/AppIcon76x76@2x~ipad.png ... 
+2026-06-07 22:32:12 +0000  11739 bytes for ./Payload/PropieXpert.app/AppIcon76x76@2x~ipad.png
+copying file ./Payload/PropieXpert.app/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:12 +0000  1736 bytes for ./Payload/PropieXpert.app/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/embedded.mobileprovision ... 
+2026-06-07 22:32:12 +0000  16366 bytes for ./Payload/PropieXpert.app/embedded.mobileprovision
+copying file ./Payload/PropieXpert.app/Info.plist ... 
+2026-06-07 22:32:12 +0000  1524 bytes for ./Payload/PropieXpert.app/Info.plist
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy ... 
+2026-06-07 22:32:12 +0000  373 bytes for ./Payload/PropieXpert.app/GTMAppAuth_GTMAppAuth.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GTMAppAuth_GTMAppAuth.bundle/Info.plist ... 
+2026-06-07 22:32:12 +0000  685 bytes for ./Payload/PropieXpert.app/GTMAppAuth_GTMAppAuth.bundle/Info.plist
+copying file ./Payload/PropieXpert.app/PkgInfo ... 
+2026-06-07 22:32:12 +0000  8 bytes for ./Payload/PropieXpert.app/PkgInfo
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy ... 
+373 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignInSwift.bundle/PrivacyInfo.xcprivacy
+2026-06-07 22:32:12 +0000  copying file ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignInSwift.bundle/Info.plist ... 
+2026-06-07 22:32:12 +0000  707 bytes for ./Payload/PropieXpert.app/GoogleSignIn_GoogleSignInSwift.bundle/Info.plist
+2026-06-07 22:32:12 +0000  copying file ./Symbols/07DA3AA5-4A90-3698-9F32-FB1545D89D5A.symbols ... 
+2026-06-07 22:32:12 +0000  3823276 bytes for ./Symbols/07DA3AA5-4A90-3698-9F32-FB1545D89D5A.symbols
+2026-06-07 22:32:12 +0000 [MT] /usr/bin/ditto exited with 0
+2026-06-07 22:32:12 +0000 [MT] Processing step: IDEDistributionAppStoreInformationStep
+2026-06-07 22:32:12 +0000 [MT] Skipping step: IDEDistributionAppStoreInformationStep because it said so
+2026-06-07 22:32:12 +0000 [MT] Processing step: IDEDistributionGenerateProcessedDistributionItems
+2026-06-07 22:32:12 +0000 [MT] IDEDistributionItem init <DVTFilePath:0xc0cead9e0:'/var/folders/97/qjjtw6vs5kd_6p7jgftf70th0000gn/T/XcodeDistPipeline.~~~5oMmDs/Root/Payload/PropieXpert.app'>
+2026-06-07 22:32:12 +0000 [MT] Processing step: IDEDistributionCreateManifestStep
+2026-06-07 22:32:12 +0000 [MT] Skipping step: IDEDistributionCreateManifestStep because it said so

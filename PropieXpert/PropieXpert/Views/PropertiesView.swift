@@ -19,7 +19,7 @@ struct Property: Identifiable, Decodable {
 }
 
 struct PropertiesView: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @State private var properties: [Property] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -86,7 +86,7 @@ struct PropertiesView: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false

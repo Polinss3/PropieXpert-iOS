@@ -7,7 +7,7 @@ struct MortgageSheet: View {
     var onSave: (() -> Void)?
     var onDelete: (() -> Void)?
     @Environment(\.dismiss) var dismiss
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
 
     // Form fields
     @State private var type: String = "fixed"
@@ -253,7 +253,7 @@ struct MortgageSheet: View {
             guard let url = URL(string: urlString) else { self.isLoading = false; return }
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -293,7 +293,7 @@ struct MortgageSheet: View {
             guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(mortgageId)") else { self.isLoading = false; return }
             var request = URLRequest(url: url)
             request.httpMethod = "DELETE"
-            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
             URLSession.shared.dataTask(with: request) { data, response, error in
                 DispatchQueue.main.async {
                     // Ignora errores de borrado (por si no existe)
@@ -314,7 +314,7 @@ struct MortgageSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(mortgage.id)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false

@@ -10,7 +10,7 @@ import GoogleSignIn
 
 @main
 struct PropieXpertApp: App {
-    @AppStorage("auth_token") var authToken: String = ""
+    @StateObject private var authSession = AuthSession()
 
     init() {
         // Inicialización manual de GoogleSignIn
@@ -26,10 +26,16 @@ struct PropieXpertApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if authToken.isEmpty {
-                LoginView()
-            } else {
-                ContentView()
+            Group {
+                if !authSession.isAuthenticated {
+                    LoginView()
+                } else {
+                    ContentView()
+                }
+            }
+            .environmentObject(authSession)
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
             }
         }
     }

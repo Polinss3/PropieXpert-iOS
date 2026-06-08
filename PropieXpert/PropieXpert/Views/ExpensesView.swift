@@ -4,7 +4,7 @@ import Foundation
 // Importa Models.swift si es necesario (en Xcode suele estar disponible automáticamente)
 
 struct ExpensesView: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @State private var expenses: [Expense] = []
     @State private var properties: [PropertyName] = []
     @State private var isLoading = false
@@ -81,7 +81,7 @@ struct ExpensesView: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { completion(); return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
@@ -100,7 +100,7 @@ struct ExpensesView: View {
         guard let url = URL(string: "https://api.propiexpert.com/expenses/") else { isLoading = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false

@@ -387,7 +387,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
 }
 
 struct DashboardView: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @State private var propertyPerformance: [PropertyPerformance] = []
     @State private var dashboardData: DashboardData? = nil
     @State private var isLoading = false
@@ -669,7 +669,7 @@ struct DashboardView: View {
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isDashboardLoading = false
@@ -705,7 +705,7 @@ struct DashboardView: View {
         guard let urlIncomes = URL(string: "https://api.propiexpert.com/incomes/") else { chartError = "URL de ingresos inválida"; return }
         var reqIncomes = URLRequest(url: urlIncomes)
         reqIncomes.httpMethod = "GET"
-        reqIncomes.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        reqIncomes.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: reqIncomes) { data, response, error in
             defer { group.leave() }
             if let error = error { errorOccurred = "Error ingresos: \(error.localizedDescription)"; return }
@@ -721,7 +721,7 @@ struct DashboardView: View {
         guard let urlExpenses = URL(string: "https://api.propiexpert.com/expenses/") else { chartError = "URL de gastos inválida"; return }
         var reqExpenses = URLRequest(url: urlExpenses)
         reqExpenses.httpMethod = "GET"
-        reqExpenses.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        reqExpenses.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: reqExpenses) { data, response, error in
             defer { group.leave() }
             if let error = error { errorOccurred = "Error gastos: \(error.localizedDescription)"; return }
@@ -815,7 +815,7 @@ struct DashboardView: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
@@ -848,7 +848,7 @@ struct DashboardView: View {
         guard let url = URL(string: "https://api.propiexpert.com/dashboard/property-performance?page=\(page)&page_size=\(pageSize)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 propertyPerformanceLoading = false

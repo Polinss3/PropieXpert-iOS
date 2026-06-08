@@ -51,7 +51,7 @@ enum PropertyDetailTab: String, CaseIterable, Identifiable {
 
 struct PropertyDetailSheet: View {
     let propertyId: String
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @Environment(\.dismiss) var dismiss
     @State private var property: PropertyDetail? = nil
     @State private var isLoading = false
@@ -530,7 +530,7 @@ struct PropertyDetailSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/\(propertyId)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false
@@ -558,7 +558,7 @@ struct PropertyDetailSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/\(propertyId)/financial-summary") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoadingFinancial = false
@@ -588,7 +588,7 @@ struct PropertyDetailSheet: View {
         print("[DEBUG] fetchMortgage: url = \(url)")
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoadingMortgage = false
@@ -641,7 +641,7 @@ struct PropertyDetailSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/mortgages/\(m.id)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoadingMortgage = false
@@ -678,7 +678,7 @@ struct PropertyDetailSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/incomes/property/\(propertyId)") else { isLoadingIncomes = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoadingIncomes = false
@@ -705,7 +705,7 @@ struct PropertyDetailSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/expenses/property/\(propertyId)") else { isLoadingExpenses = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoadingExpenses = false

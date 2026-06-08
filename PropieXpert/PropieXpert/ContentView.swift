@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage("auth_token") var authToken: String = ""
-    
     var body: some View {
         TabView {
             DashboardView()
@@ -34,27 +32,7 @@ struct ContentView: View {
     }
 }
 
-struct DashboardTab: View {
-    @Binding var authToken: String
-
-    var body: some View {
-        VStack {
-            Text("Dashboard")
-                .font(.largeTitle)
-            Spacer()
-            Button(action: {
-                authToken = ""
-            }) {
-                Text("Cerrar sesión")
-                    .foregroundColor(.red)
-                    .padding(.bottom, 24)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-}
-
 #Preview {
     ContentView()
+        .environmentObject(AuthSession())
 }

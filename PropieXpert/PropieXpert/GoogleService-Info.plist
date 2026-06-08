@@ -9,6 +9,6 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>propiexpert.PropieXpert</string>
+	<string>com.propiexpert.app</string>
 </dict>
 </plist>

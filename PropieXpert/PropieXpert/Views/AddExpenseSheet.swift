@@ -2,7 +2,7 @@ import SwiftUI
 import Foundation
 
 struct AddExpenseSheet: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @Environment(\.dismiss) var dismiss
     var onExpenseAdded: (() -> Void)?
     var initialData: PropieXpert.Expense? = nil
@@ -155,7 +155,7 @@ struct AddExpenseSheet: View {
         guard let url = URL(string: "https://api.propiexpert.com/properties/") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
@@ -223,7 +223,7 @@ struct AddExpenseSheet: View {
         guard let url = URL(string: urlString) else { isLoading = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -265,7 +265,7 @@ struct AddExpenseSheet: View {
         guard let url = URL(string: urlString) else { isDeleting = false; return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isDeleting = false

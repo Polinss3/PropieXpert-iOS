@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @AppStorage("auth_token") var authToken: String = ""
+    @EnvironmentObject private var authSession: AuthSession
     @State private var user: UserProfile?
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -10,7 +10,7 @@ struct UserProfileView: View {
     
     // Extrae la URL de la foto del JWT
     var googlePictureURL: String? {
-        let url = decodeJWT(token: authToken)
+        let url = decodeJWT(token: authSession.token)
         print("[DEBUG] googlePictureURL - payload extraído del JWT:", url as Any)
         guard let payload = url,
               let picture = payload["picture"] as? String else { return nil }
@@ -102,7 +102,7 @@ struct UserProfileView: View {
                                 }
                                 // Botón para gestionar suscripción
                                 Button(action: {
-                                    let urlString = "https://app.propiexpert.com/profile?token=\(authToken)"
+                                    let urlString = "https://app.propiexpert.com/profile"
                                     if let url = URL(string: urlString) {
                                         UIApplication.shared.open(url)
                                     }
@@ -163,21 +163,23 @@ struct UserProfileView: View {
     }
     
     func fetchUserProfile() {
-        print("[DEBUG] fetchUserProfile - authToken:", authToken)
         guard let url = URL(string: "https://api.propiexpert.com/auth/me") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(authSession.token)", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
-                    print("[DEBUG] fetchUserProfile - respuesta cruda:", String(data: data, encoding: .utf8) ?? "<binario>")
                     do {
                         let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
                         user = decoded
+                        #if DEBUG
                         print("[DEBUG] fetchUserProfile - usuario decodificado:", decoded)
+                        #endif
                     } catch {
+                        #if DEBUG
                         print("[DEBUG] fetchUserProfile - error decodificando:", error)
+                        #endif
                         errorMessage = "Error al decodificar usuario: \(error.localizedDescription)"
                     }
                 } else if let error = error {
@@ -190,16 +192,16 @@ struct UserProfileView: View {
     }
     
     func logout() {
-        authToken = ""
-        // Aquí podrías limpiar más datos si es necesario
+        authSession.logout()
     }
     
     // Decodifica el payload del JWT y lo devuelve como diccionario
     func decodeJWT(token: String) -> [String: Any]? {
-        print("[DEBUG] decodeJWT - token recibido:", token)
         let segments = token.split(separator: ".")
         guard segments.count == 3 else {
+            #if DEBUG
             print("[DEBUG] decodeJWT - token no tiene 3 partes")
+            #endif
             return nil
         }
         let payloadSegment = segments[1]
@@ -211,11 +213,15 @@ struct UserProfileView: View {
             base64 += String(repeating: "=", count: paddingLength)
         }
         guard let data = Data(base64Encoded: base64) else {
+            #if DEBUG
             print("[DEBUG] decodeJWT - base64 inválido")
+            #endif
             return nil
         }
         let json = try? JSONSerialization.jsonObject(with: data, options: [])
+        #if DEBUG
         print("[DEBUG] decodeJWT - payload decodificado:", json as Any)
+        #endif
         return json as? [String: Any]
     }
 }
